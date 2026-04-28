@@ -1,0 +1,37 @@
+name: Update AI Feed
+
+on:
+  schedule:
+    # 每天 UTC 时间 0点和12点（北京时间早8点和晚8点）自动执行
+    - cron: '0 0,12 * * *' 
+  workflow_dispatch: # 方便手动点“运行”测试
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Install dependencies
+      run: pip install -r requirements.txt
+
+    - name: Run crawler and AI script
+      env:
+        # 读取 GitHub 仓库中的 Secrets
+        LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
+      run: python main.py
+
+    - name: Commit and push JSON
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add feed.json
+        # 如果数据有更新，就提交；没更新就不报错直接跳过
+        git commit -m "Auto-update feed.json" || exit 0
+        git push
