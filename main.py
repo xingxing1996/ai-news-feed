@@ -97,8 +97,7 @@ def main():
     }
     
     for category, urls in SOURCES.items():
-        print(f"
->>> 开始抓取分类: {category}")
+        print(f">>> 开始抓取分类: {category}")
         for url in urls:
             try:
                 print(f"正在读取: {url}")
