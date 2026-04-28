@@ -1,5 +1,42 @@
 {
-  "update_time": "2026-04-28T12:30:36.129038",
+  "update_time": "2026-04-28T12:38:10.831605",
   "total_scanned": 27,
-  "articles": []
+  "articles": [
+    {
+      "category": "科技创投",
+      "title": "Google and Pentagon reportedly agree on deal for ‘any lawful’ use of AI",
+      "link": "https://www.theverge.com/ai-artificial-intelligence/919494/google-pentagon-classified-ai-deal",
+      "score": 90,
+      "insight": "谷歌签署军方协议，AI国防商业化门槛全面打开。",
+      "source_name": "The Verge",
+      "publish_time": "2026-04-28T07:09:32-04:00"
+    },
+    {
+      "category": "科技创投",
+      "title": "Attack of the killer script kiddies",
+      "link": "https://www.theverge.com/ai-artificial-intelligence/915660/mythos-script-kiddies-hackers-attack-cybersecurity-ai",
+      "score": 90,
+      "insight": "DARPA AIxCC落地，AI攻防竞赛开启网络安全新范式。",
+      "source_name": "The Verge",
+      "publish_time": "2026-04-28T07:00:00-04:00"
+    },
+    {
+      "category": "科学深度",
+      "title": "The Power of Power Law: Asymmetry Enables Compositional Reasoning",
+      "link": "https://arxiv.org/abs/2604.22951",
+      "score": 85,
+      "insight": "遵循原始幂律分布训练，推理效果反而更好",
+      "source_name": "cs.AI updates on arXiv.org",
+      "publish_time": "Tue, 28 Apr 2026 00:00:00 -0400"
+    },
+    {
+      "category": "中国视角",
+      "title": "独家丨零跑计划 2027 年推出第二品牌",
+      "link": "https://www.latepost.com/news/dj_detail?id=3533",
+      "score": 85,
+      "insight": "零跑冲击50亿利润，2027高端突围在即",
+      "source_name": "晚点 - 最新报道",
+      "publish_time": "Mon, 27 Apr 2026 15:04:00 GMT"
+    }
+  ]
 }
