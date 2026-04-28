@@ -129,8 +129,7 @@ def main():
     with open("feed.json", "w", encoding="utf-8") as f:
         json.dump(final_data, f, ensure_ascii=False, indent=2)
     
-    print(f"
-=== 执行完毕！筛选出 {len(final_data['articles'])} 条干货。 ===")
+    print(f"=== 执行完毕！筛选出 {len(final_data['articles'])} 条干货。 ===")
 
 if __name__ == "__main__":
     main()
