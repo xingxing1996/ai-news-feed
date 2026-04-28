@@ -30,8 +30,15 @@ SOURCES = {
 }
 
 API_KEY = os.environ.get("GEMINI_API_KEY")
-MODEL_NAME = "gemma-4-26b"
+MODELS = ["gemini-3.1-flash-lite", "gemini-2.5-flash-lite"]
+_call_count = 0
 client = genai.Client(api_key=API_KEY)
+
+def get_next_model():
+    global _call_count
+    model = MODELS[_call_count % len(MODELS)]
+    _call_count += 1
+    return model
 
 # ==========================================
 # 2. AI 处理函数 (适配 Gemini API)
@@ -46,9 +53,11 @@ def analyze_with_llm(title, summary, max_retries=3):
 
     for attempt in range(max_retries):
         try:
-            time.sleep(5.0)
+            time.sleep(3.0)
+            model = get_next_model()
+            print(f"    使用模型: {model}")
             response = client.models.generate_content(
-                model=MODEL_NAME,
+                model=model,
                 contents=prompt
             )
 
