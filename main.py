@@ -63,22 +63,25 @@ def analyze_with_llm(title, summary, max_retries=2):
     
     for attempt in range(max_retries):
         try:
-            time.sleep(1.0) # 每次调用后等待一秒
-            response = requests.post(API_URL, json=payload, headers=headers, timeout=15)
+            time.sleep(3.0) # 每次调用间隔3秒，避免触发速率限制
+            response = requests.post(API_URL, json=payload, headers=headers, timeout=30)
             response.raise_for_status()
             res_json = response.json()
-            
+
             # 解析 GLM 返回的内容
             content = res_json['choices'][0]['message']['content']
             # 清理可能的 markdown 块包裹
             content = content.replace("```json", "").replace("```", "").strip()
             result = json.loads(content)
-            
+
             return result.get('score', 0), result.get('insight', '无洞察')
-            
+
         except Exception as e:
             print(f"[-] GLM 解析报错 (尝试 {attempt+1}/{max_retries}): {e}")
-            time.sleep(2)
+            # 指数退避：429或超时时等待更久
+            wait_time = 5 * (2 ** attempt)
+            print(f"    等待 {wait_time} 秒后重试...")
+            time.sleep(wait_time)
             
     return 0, "解析超时或失败"
 
