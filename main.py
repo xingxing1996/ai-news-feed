@@ -1,9 +1,9 @@
 import feedparser
-import requests
 import json
 import os
 import time
 from datetime import datetime
+from google import genai
 
 # ==========================================
 # 1. 核心信源矩阵
@@ -29,9 +29,9 @@ SOURCES = {
     ]
 }
 
-API_KEY = os.environ.get("LLM_API_KEY")
+API_KEY = os.environ.get("GEMINI_API_KEY")
 MODEL_NAME = "gemini-2.0-flash"
-API_URL = f"https://generativelanguage.googleapis.com/v1beta/models/{MODEL_NAME}:generateContent"
+client = genai.Client(api_key=API_KEY)
 
 # ==========================================
 # 2. AI 处理函数 (适配 Gemini API)
@@ -44,30 +44,15 @@ def analyze_with_llm(title, summary, max_retries=3):
 请严格只输出纯 JSON 格式，不要有任何 Markdown 标记：
 {{"score": 评分数字, "insight": "一句话核心洞察(20字以内)"}}"""
 
-    headers = {
-        "Content-Type": "application/json",
-        "X-goog-api-key": API_KEY
-    }
-
-    payload = {
-        "contents": [
-            {
-                "parts": [
-                    {"text": prompt}
-                ]
-            }
-        ]
-    }
-
     for attempt in range(max_retries):
         try:
-            time.sleep(5.0) # 每次调用间隔5秒，避免触发速率限制
-            response = requests.post(API_URL, json=payload, headers=headers, timeout=60)
-            response.raise_for_status()
-            res_json = response.json()
+            time.sleep(5.0)
+            response = client.models.generate_content(
+                model=MODEL_NAME,
+                contents=prompt
+            )
 
-            # 解析 Gemini 返回的内容
-            content = res_json['candidates'][0]['content']['parts'][0]['text']
+            content = response.text
             # 清理可能的 markdown 块包裹
             content = content.replace("```json", "").replace("```", "").strip()
             result = json.loads(content)
@@ -76,7 +61,7 @@ def analyze_with_llm(title, summary, max_retries=3):
 
         except Exception as e:
             print(f"[-] Gemini 解析报错 (尝试 {attempt+1}/{max_retries}): {e}")
-            # 指数退避：等待越来越久
+            # 指数退避
             wait_time = 10 * (2 ** attempt)
             print(f"    等待 {wait_time} 秒后重试...")
             time.sleep(wait_time)
@@ -88,7 +73,7 @@ def analyze_with_llm(title, summary, max_retries=3):
 # ==========================================
 def main():
     if not API_KEY:
-        print("致命错误：找不到 LLM_API_KEY 环境变量！")
+        print("致命错误：找不到 GEMINI_API_KEY 环境变量！")
         return
 
     final_data = {
