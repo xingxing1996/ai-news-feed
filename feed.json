@@ -1,42 +1,114 @@
 {
-  "update_time": "2026-04-28T13:55:59.908487",
-  "total_scanned": 27,
+  "update_time": "2026-04-29 10:33:46",
+  "total_scanned": 24,
   "articles": [
     {
       "category": "科技创投",
-      "title": "Google and Pentagon reportedly agree on deal for ‘any lawful’ use of AI",
-      "link": "https://www.theverge.com/ai-artificial-intelligence/919494/google-pentagon-classified-ai-deal",
+      "title": "ChatGPT serves ads. Here's the full attribution loop",
+      "link": "https://www.buchodi.com/how-chatgpt-serves-ads-heres-the-full-attribution-loop/",
       "score": 85,
-      "insight": "AI军用争议凸显科技与伦理的博弈",
-      "source_name": "The Verge",
-      "publish_time": "2026-04-28T07:09:32-04:00"
+      "insight": "ChatGPT广告归因闭环揭示新商业模式与流量入口",
+      "source_name": "Hacker News",
+      "publish_time": "2026-04-29 07:54:14"
     },
     {
       "category": "科技创投",
-      "title": "An Interview with Google Cloud CEO Thomas Kurian About the Agentic Moment",
-      "link": "https://stratechery.com/2026/an-interview-with-google-cloud-ceo-thomas-kurian-about-the-agentic-moment/",
+      "title": "Claude system prompt bug wastes user money and bricks managed agents",
+      "link": "https://github.com/anthropics/claude-code/issues/49363",
       "score": 85,
-      "insight": "谷歌云CEO访谈，揭示企业AI落地新战略。",
+      "insight": "核心系统漏洞暴露AI服务商风险与成本隐患",
+      "source_name": "Hacker News",
+      "publish_time": "2026-04-29 07:59:57"
+    },
+    {
+      "category": "科技创投",
+      "title": "Amazon is already offering new OpenAI products on AWS",
+      "link": "https://techcrunch.com/2026/04/28/amazon-is-already-offering-new-openai-products-on-aws/",
+      "score": 85,
+      "insight": "云巨头竞争加剧，AI服务快速商品化",
+      "source_name": "TechCrunch",
+      "publish_time": "2026-04-29 03:48:02"
+    },
+    {
+      "category": "科技创投",
+      "title": "Amazon launches an AI-powered audio Q&A experience on product pages",
+      "link": "https://techcrunch.com/2026/04/28/amazon-launches-an-ai-powered-audio-qa-experience-on-product-pages/",
+      "score": 85,
+      "insight": "AI重塑电商交互，音频问答提升决策效率",
+      "source_name": "TechCrunch",
+      "publish_time": "2026-04-29 02:49:54"
+    },
+    {
+      "category": "科技创投",
+      "title": "An Interview with OpenAI CEO Sam Altman and AWS CEO Matt Garman About Bedrock Managed Agents",
+      "link": "https://stratechery.com/2026/an-interview-with-openai-ceo-sam-altman-and-aws-ceo-matt-garman-about-bedrock-managed-agents/",
+      "score": 85,
+      "insight": "两大巨头深化合作，揭示AI云服务竞争新格局",
       "source_name": "Stratechery by Ben Thompson",
-      "publish_time": "Thu, 23 Apr 2026 10:00:00 +0000"
+      "publish_time": "2026-04-29 01:00:00"
+    },
+    {
+      "category": "科技创投",
+      "title": "AI Hardware, Meta Display, Redefining VR and AR",
+      "link": "https://stratechery.com/2026/ai-hardware-meta-display-redefining-vr-and-ar/",
+      "score": 85,
+      "insight": "AI硬件突破或重塑AR/VR市场格局",
+      "source_name": "Stratechery by Ben Thompson",
+      "publish_time": "2026-04-27 18:00:00"
+    },
+    {
+      "category": "科技创投",
+      "title": "2026.17: He Came, He Saw, He Cooked",
+      "link": "https://stratechery.com/2026/he-came-he-saw-he-cooked/",
+      "score": 85,
+      "insight": "库克时代落幕与科技冷战影响深远",
+      "source_name": "Stratechery by Ben Thompson",
+      "publish_time": "2026-04-25 01:00:00"
+    },
+    {
+      "category": "商业金融",
+      "title": "Stocks Sink in Broad AI Rout Sparked by China's DeepSeek",
+      "link": "https://www.wsj.com/articles/nikkei-may-rise-as-weak-yen-raises-earnings-hopes-776a8056?mod=rss_markets_main",
+      "score": 85,
+      "insight": "中国AI技术突破引发全球市场对现有格局重估",
+      "source_name": "WSJ.com: Markets",
+      "publish_time": "2025-01-28 03:26:00"
+    },
+    {
+      "category": "科学深度",
+      "title": "An Intelligent Fault Diagnosis Method for General Aviation Aircraft Based on Multi-Fidelity Digital Twin and FMEA Knowledge Enhancement",
+      "link": "https://arxiv.org/abs/2604.22777",
+      "score": 85,
+      "insight": "数字孪生与LLM融合，提升航空故障诊断效率与可解释性",
+      "source_name": "cs.AI updates on arXiv.org",
+      "publish_time": "2026-04-28 12:00:00"
+    },
+    {
+      "category": "科学深度",
+      "title": "PExA: Parallel Exploration Agent for Complex Text-to-SQL",
+      "link": "https://arxiv.org/abs/2604.22934",
+      "score": 85,
+      "insight": "通过并行测试提升Text-to-SQL效率与精度",
+      "source_name": "cs.AI updates on arXiv.org",
+      "publish_time": "2026-04-28 12:00:00"
+    },
+    {
+      "category": "科学深度",
+      "title": "The Power of Power Law: Asymmetry Enables Compositional Reasoning",
+      "link": "https://arxiv.org/abs/2604.22951",
+      "score": 85,
+      "insight": "长尾数据遵循幂律分布，反而提升模型组合推理能力",
+      "source_name": "cs.AI updates on arXiv.org",
+      "publish_time": "2026-04-28 12:00:00"
     },
     {
       "category": "中国视角",
       "title": "对话曦智科技沈亦晨：一个 MIT 博士与光计算穿越死亡谷的十年",
       "link": "https://www.latepost.com/news/dj_detail?id=3532",
       "score": 85,
-      "insight": "硬科技创业穿越死亡谷，光计算仍需落地场景。",
+      "insight": "前沿技术商业化需长期穿越死亡谷",
       "source_name": "晚点 - 最新报道",
-      "publish_time": "Tue, 28 Apr 2026 05:04:00 GMT"
-    },
-    {
-      "category": "中国视角",
-      "title": "一代人有一代人的 VC",
-      "link": "https://www.latepost.com/news/dj_detail?id=3531",
-      "score": 85,
-      "insight": "AI驱动VC格局重塑，早期市场机遇浮现。",
-      "source_name": "晚点 - 最新报道",
-      "publish_time": "Mon, 27 Apr 2026 12:04:00 GMT"
+      "publish_time": "2026-04-28 13:04:00"
     }
   ]
 }
