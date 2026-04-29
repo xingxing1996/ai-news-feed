@@ -1,22 +1,13 @@
 {
-  "update_time": "2026-04-29 10:33:46",
-  "total_scanned": 24,
+  "update_time": "2026-04-29 10:38:56",
+  "total_scanned": 42,
   "articles": [
-    {
-      "category": "科技创投",
-      "title": "ChatGPT serves ads. Here's the full attribution loop",
-      "link": "https://www.buchodi.com/how-chatgpt-serves-ads-heres-the-full-attribution-loop/",
-      "score": 85,
-      "insight": "ChatGPT广告归因闭环揭示新商业模式与流量入口",
-      "source_name": "Hacker News",
-      "publish_time": "2026-04-29 07:54:14"
-    },
     {
       "category": "科技创投",
       "title": "Claude system prompt bug wastes user money and bricks managed agents",
       "link": "https://github.com/anthropics/claude-code/issues/49363",
       "score": 85,
-      "insight": "核心系统漏洞暴露AI服务商风险与成本隐患",
+      "insight": "API系统提示漏洞暴露成本与稳定性风险",
       "source_name": "Hacker News",
       "publish_time": "2026-04-29 07:59:57"
     },
@@ -25,25 +16,16 @@
       "title": "Amazon is already offering new OpenAI products on AWS",
       "link": "https://techcrunch.com/2026/04/28/amazon-is-already-offering-new-openai-products-on-aws/",
       "score": 85,
-      "insight": "云巨头竞争加剧，AI服务快速商品化",
+      "insight": "云巨头竞争加剧，AI模型服务快速商品化",
       "source_name": "TechCrunch",
       "publish_time": "2026-04-29 03:48:02"
-    },
-    {
-      "category": "科技创投",
-      "title": "Amazon launches an AI-powered audio Q&A experience on product pages",
-      "link": "https://techcrunch.com/2026/04/28/amazon-launches-an-ai-powered-audio-qa-experience-on-product-pages/",
-      "score": 85,
-      "insight": "AI重塑电商交互，音频问答提升决策效率",
-      "source_name": "TechCrunch",
-      "publish_time": "2026-04-29 02:49:54"
     },
     {
       "category": "科技创投",
       "title": "An Interview with OpenAI CEO Sam Altman and AWS CEO Matt Garman About Bedrock Managed Agents",
       "link": "https://stratechery.com/2026/an-interview-with-openai-ceo-sam-altman-and-aws-ceo-matt-garman-about-bedrock-managed-agents/",
       "score": 85,
-      "insight": "两大巨头深化合作，揭示AI云服务竞争新格局",
+      "insight": "两大巨头深化合作，预示云与AI融合新趋势",
       "source_name": "Stratechery by Ben Thompson",
       "publish_time": "2026-04-29 01:00:00"
     },
@@ -52,7 +34,7 @@
       "title": "AI Hardware, Meta Display, Redefining VR and AR",
       "link": "https://stratechery.com/2026/ai-hardware-meta-display-redefining-vr-and-ar/",
       "score": 85,
-      "insight": "AI硬件突破或重塑AR/VR市场格局",
+      "insight": "消费级AI硬件正重塑AR/VR的实用性与市场认知",
       "source_name": "Stratechery by Ben Thompson",
       "publish_time": "2026-04-27 18:00:00"
     },
@@ -61,54 +43,99 @@
       "title": "2026.17: He Came, He Saw, He Cooked",
       "link": "https://stratechery.com/2026/he-came-he-saw-he-cooked/",
       "score": 85,
-      "insight": "库克时代落幕与科技冷战影响深远",
+      "insight": "科技巨头权力交接与地缘政治影响行业未来",
       "source_name": "Stratechery by Ben Thompson",
       "publish_time": "2026-04-25 01:00:00"
     },
     {
-      "category": "商业金融",
-      "title": "Stocks Sink in Broad AI Rout Sparked by China's DeepSeek",
-      "link": "https://www.wsj.com/articles/nikkei-may-rise-as-weak-yen-raises-earnings-hopes-776a8056?mod=rss_markets_main",
+      "category": "科技创投",
+      "title": "Elon Musk Testifies That He Started OpenAI to Prevent a ‘Terminator Outcome’",
+      "link": "https://www.wired.com/story/model-behavior-elon-musk-testifies-at-musk-v-altman-trial/",
       "score": 85,
-      "insight": "中国AI技术突破引发全球市场对现有格局重估",
-      "source_name": "WSJ.com: Markets",
-      "publish_time": "2025-01-28 03:26:00"
+      "insight": "AI巨头公开博弈，揭示行业深层冲突与监管挑战",
+      "source_name": "WIRED",
+      "publish_time": "2026-04-29 05:35:17"
     },
     {
-      "category": "科学深度",
+      "category": "AI与前沿",
       "title": "An Intelligent Fault Diagnosis Method for General Aviation Aircraft Based on Multi-Fidelity Digital Twin and FMEA Knowledge Enhancement",
       "link": "https://arxiv.org/abs/2604.22777",
       "score": 85,
-      "insight": "数字孪生与LLM融合，提升航空故障诊断效率与可解释性",
+      "insight": "数字孪生与LLM融合，提升航空故障诊断的泛化与解释性",
       "source_name": "cs.AI updates on arXiv.org",
       "publish_time": "2026-04-28 12:00:00"
     },
     {
-      "category": "科学深度",
+      "category": "AI与前沿",
       "title": "PExA: Parallel Exploration Agent for Complex Text-to-SQL",
       "link": "https://arxiv.org/abs/2604.22934",
       "score": 85,
-      "insight": "通过并行测试提升Text-to-SQL效率与精度",
+      "insight": "并行测试提升Text-to-SQL效率与准确性",
       "source_name": "cs.AI updates on arXiv.org",
       "publish_time": "2026-04-28 12:00:00"
     },
     {
-      "category": "科学深度",
+      "category": "AI与前沿",
       "title": "The Power of Power Law: Asymmetry Enables Compositional Reasoning",
       "link": "https://arxiv.org/abs/2604.22951",
       "score": 85,
-      "insight": "长尾数据遵循幂律分布，反而提升模型组合推理能力",
+      "insight": "长尾数据遵循幂律分布更利于模型组合推理",
       "source_name": "cs.AI updates on arXiv.org",
       "publish_time": "2026-04-28 12:00:00"
+    },
+    {
+      "category": "AI与前沿",
+      "title": "Introducing NVIDIA Nemotron 3 Nano Omni: Long-Context Multimodal Intelligence for Documents, Audio and Video Agents",
+      "link": "https://huggingface.co/blog/nvidia/nemotron-3-nano-omni-multimodal-intelligence",
+      "score": 85,
+      "insight": "英伟达推出小尺寸多模态AI模型，赋能边缘智能应用",
+      "source_name": "Hugging Face - Blog",
+      "publish_time": "2026-04-28 23:58:57"
+    },
+    {
+      "category": "AI与前沿",
+      "title": "DeepSeek-V4: a million-token context that agents can actually use",
+      "link": "https://huggingface.co/blog/deepseekv4",
+      "score": 85,
+      "insight": "百万上下文实用化，智能体能力跃升",
+      "source_name": "Hugging Face - Blog",
+      "publish_time": "2026-04-24 08:00:00"
+    },
+    {
+      "category": "科学深度",
+      "title": "To hire good scientists, look at their peer-reviewing records",
+      "link": "https://www.nature.com/articles/d41586-026-01368-0",
+      "score": 85,
+      "insight": "同行评审记录是评估科研人才潜力的新维度",
+      "source_name": "Nature",
+      "publish_time": "2026-04-29 10:41:37"
     },
     {
       "category": "中国视角",
       "title": "对话曦智科技沈亦晨：一个 MIT 博士与光计算穿越死亡谷的十年",
       "link": "https://www.latepost.com/news/dj_detail?id=3532",
       "score": 85,
-      "insight": "前沿技术商业化需长期穿越死亡谷",
+      "insight": "光计算穿越死亡谷，揭示硬科技创新的长期性与现实挑战",
       "source_name": "晚点 - 最新报道",
       "publish_time": "2026-04-28 13:04:00"
+    },
+    {
+      "category": "中国视角",
+      "title": "一代人有一代人的 VC",
+      "link": "https://www.latepost.com/news/dj_detail?id=3531",
+      "score": 85,
+      "insight": "VC行业随技术周期代际更迭，AI浪潮催生新格局",
+      "source_name": "晚点 - 最新报道",
+      "publish_time": "2026-04-27 20:04:00"
+    },
+    {
+      "category": "中国视角",
+      "title": "10后，开始用AI给自己编黄冈密卷了",
+      "link": "https://www.huxiu.com/article/4854662.html",
+      "score": 85,
+      "insight": "AI正重塑学习范式，催生新工具与市场机会",
+      "source_name": "虎嗅资讯-全部",
+      "publish_time": "2026-04-29 10:37:36"
     }
   ]
 }
