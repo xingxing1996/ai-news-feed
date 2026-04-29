@@ -58,29 +58,32 @@ client = Ark(api_key=API_KEY)
 # ==========================================
 # 2. AI 处理函数 (适配火山引擎 Ark API)
 # ==========================================
-def analyze_with_llm(title, summary, article_text="", max_retries=3):
+def analyze_with_llm(title, summary, source_name="未知来源", article_text="", max_retries=3):
     # 优先用正文，没有就用 RSS 摘要
     content = article_text if article_text else summary
     content = content[:1500]
 
     prompt = f"""你是一位资深科技财经主编，正在为互联网从业者、投资人和开发者筛选有价值的资讯。
 
-内容可能为英文、日文或中文，但摘要必须用中文输出。
+内容可能为英文、日文或中文，但所有输出必须用中文。
 
-请评估以下文章，完成两个任务：
+请评估以下文章，完成以下任务：
 1. 评分(0-100)：
    - 50-59：日常更新，小版本发布
    - 60-70：有一定参考价值的技术文章或行业动态
    - 71-80：重要技术突破、行业趋势分析、有实践价值的工程经验
    - 81-90：重大产品发布、关键架构演进、影响行业的战略变化
    - 91-100：里程碑级事件，深刻影响多个行业
-2. 用中文写约100字摘要：提炼核心事实、关键数据/技术点和行业影响，让读者不打开链接就能获取核心价值。
+2. 中文标题：将原标题翻译为简洁的中文标题
+3. 中文来源：将来源名称翻译为中文
+4. 约100字中文摘要：提炼核心事实、关键数据/技术点和行业影响
 
 标题：{title}
+来源：{source_name}
 内容：{content}
 
 请严格只输出纯 JSON，不要任何额外文字或 Markdown 标记：
-{{"score": 数字, "summary": "中文摘要"}}"""
+{{"score": 数字, "title_cn": "中文标题", "source_cn": "中文来源名", "summary": "中文摘要"}}"""
 
     for attempt in range(max_retries):
         try:
@@ -96,7 +99,7 @@ def analyze_with_llm(title, summary, article_text="", max_retries=3):
             content = content.replace("```json", "").replace("```", "").strip()
             result = json.loads(content)
 
-            return result.get('score', 0), result.get('summary', '无摘要')
+            return result.get('score', 0), result
 
         except Exception as e:
             print(f"[-] Ark 解析报错 (尝试 {attempt+1}/{max_retries}): {e}")
@@ -104,7 +107,7 @@ def analyze_with_llm(title, summary, article_text="", max_retries=3):
             print(f"    等待 {wait_time} 秒后重试...")
             time.sleep(wait_time)
 
-    return 0, "解析超时或失败"
+    return 0, None
 
 # ==========================================
 # 3. 主流程
@@ -160,17 +163,19 @@ def main():
         entry = item["entry"]
         article_text = article_texts.get(entry.link, "")
 
-        score, summary = analyze_with_llm(entry.title, item["summary_text"], article_text)
+        score, ai_result = analyze_with_llm(entry.title, item["summary_text"], item["source_name"], article_text)
         print(f"[{score}分] {entry.title[:30]}...")
 
-        if score >= 60:
+        if score >= 60 and ai_result:
             final_data["articles"].append({
                 "category": item["category"],
                 "title": entry.title,
+                "title_cn": ai_result.get("title_cn", ""),
                 "link": entry.link,
                 "score": score,
-                "summary": summary,
+                "summary": ai_result.get("summary", "无摘要"),
                 "source_name": item["source_name"],
+                "source_cn": ai_result.get("source_cn", ""),
                 "publish_time": to_beijing_time(getattr(entry, 'published', None))
             })
 
