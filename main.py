@@ -2,8 +2,25 @@ import feedparser
 import json
 import os
 import time
-from datetime import datetime
-from google import genai
+from datetime import datetime, timezone, timedelta
+from dateutil import parser as dp
+from volcenginesdkarkruntime import Ark
+
+# 北京时间 UTC+8
+BJ_TZ = timezone(timedelta(hours=8))
+
+def to_beijing_time(raw_time):
+    """将各种格式的时间统一转为北京时间字符串"""
+    if not raw_time:
+        return datetime.now(BJ_TZ).strftime("%Y-%m-%d %H:%M:%S")
+    try:
+        dt = dp.parse(raw_time)
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=timezone.utc)
+        dt = dt.astimezone(BJ_TZ)
+        return dt.strftime("%Y-%m-%d %H:%M:%S")
+    except Exception:
+        return raw_time
 
 # ==========================================
 # 1. 核心信源矩阵
@@ -29,19 +46,12 @@ SOURCES = {
     ]
 }
 
-API_KEY = os.environ.get("GEMINI_API_KEY")
-MODELS = ["gemini-3.1-flash-lite", "gemini-2.5-flash-lite"]
-_call_count = 0
-client = genai.Client(api_key=API_KEY)
-
-def get_next_model():
-    global _call_count
-    model = MODELS[_call_count % len(MODELS)]
-    _call_count += 1
-    return model
+API_KEY = os.environ.get("ARK_API_KEY")
+MODEL_NAME = "deepseek-v3-2-251201"
+client = Ark(api_key=API_KEY)
 
 # ==========================================
-# 2. AI 处理函数 (适配 Gemini API)
+# 2. AI 处理函数 (适配火山引擎 Ark API)
 # ==========================================
 def analyze_with_llm(title, summary, max_retries=3):
     prompt = f"""你是一个资深的科技/商业主编。请评估以下资讯对互联网从业者、投资人或开发者的价值(0-100分)。
@@ -54,14 +64,14 @@ def analyze_with_llm(title, summary, max_retries=3):
     for attempt in range(max_retries):
         try:
             time.sleep(3.0)
-            model = get_next_model()
-            print(f"    使用模型: {model}")
-            response = client.models.generate_content(
-                model=model,
-                contents=prompt
+            response = client.chat.completions.create(
+                model=MODEL_NAME,
+                messages=[{"role": "user", "content": prompt}],
+                max_tokens=500,
+                thinking={"type": "disabled"},
             )
 
-            content = response.text
+            content = response.choices[0].message.content
             # 清理可能的 markdown 块包裹
             content = content.replace("```json", "").replace("```", "").strip()
             result = json.loads(content)
@@ -69,7 +79,7 @@ def analyze_with_llm(title, summary, max_retries=3):
             return result.get('score', 0), result.get('insight', '无洞察')
 
         except Exception as e:
-            print(f"[-] Gemini 解析报错 (尝试 {attempt+1}/{max_retries}): {e}")
+            print(f"[-] Ark 解析报错 (尝试 {attempt+1}/{max_retries}): {e}")
             # 指数退避
             wait_time = 10 * (2 ** attempt)
             print(f"    等待 {wait_time} 秒后重试...")
@@ -82,11 +92,11 @@ def analyze_with_llm(title, summary, max_retries=3):
 # ==========================================
 def main():
     if not API_KEY:
-        print("致命错误：找不到 GEMINI_API_KEY 环境变量！")
+        print("致命错误：找不到 ARK_API_KEY 环境变量！")
         return
 
     final_data = {
-        "update_time": datetime.now().isoformat(),
+        "update_time": datetime.now(BJ_TZ).strftime("%Y-%m-%d %H:%M:%S"),
         "total_scanned": 0,
         "articles": []
     }
@@ -113,7 +123,7 @@ def main():
                             "score": score,
                             "insight": insight,
                             "source_name": feed.feed.get('title', '未知来源'),
-                            "publish_time": getattr(entry, 'published', datetime.now().isoformat())
+                            "publish_time": to_beijing_time(getattr(entry, 'published', None))
                         })
             except Exception as e:
                 print(f"[!] 抓取 {url} 失败: {e}")
