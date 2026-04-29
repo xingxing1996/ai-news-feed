@@ -1,0 +1,32 @@
+{
+    "科技创投": [
+        "https://news.ycombinator.com/rss",
+        "https://techcrunch.com/feed/",
+        "https://www.theverge.com/rss/index.xml",
+        "https://stratechery.com/feed/",
+        "https://www.wired.com/feed/rss",
+        "https://arstechnica.com/feed/",
+        "https://venturebeat.com/feed/"
+    ],
+    "商业金融": [
+        "https://feeds.a.dj.com/rss/RSSMarketsMain.xml",
+        "https://search.cnbc.com/rs/search/combinedcms/view.xml?profile=1000014&id=10000664",
+        "https://www.reuters.com/rssFeed/technologyNews"
+    ],
+    "AI与前沿": [
+        "https://export.arxiv.org/rss/cs.AI",
+        "https://huggingface.co/blog/feed.xml",
+        "https://rsshub.rssforever.com/jiqizhixin/post",
+        "https://rsshub.rssforever.com/quantumman/daily"
+    ],
+    "科学深度": [
+        "https://www.nature.com/nature.rss",
+        "https://www.science.org/rss/express.xml"
+    ],
+    "中国视角": [
+        "https://rsshub.rssforever.com/36kr/newsflashes",
+        "https://rsshub.rssforever.com/latepost",
+        "https://rsshub.rssforever.com/huxiu/article",
+        "https://rsshub.rssforever.com/sspai/matrix"
+    ]
+}

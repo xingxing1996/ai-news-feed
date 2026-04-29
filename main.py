@@ -23,28 +23,15 @@ def to_beijing_time(raw_time):
         return raw_time
 
 # ==========================================
-# 1. 核心信源矩阵
+# 1. 从配置文件加载信源
 # ==========================================
-SOURCES = {
-    "科技创投": [
-        "https://news.ycombinator.com/rss",
-        "https://techcrunch.com/feed/",
-        "https://www.theverge.com/rss/index.xml",
-        "https://stratechery.com/feed/"
-    ],
-    "商业金融": [
-        "https://feeds.a.dj.com/rss/RSSMarketsMain.xml",
-        "https://search.cnbc.com/rs/search/combinedcms/view.xml?profile=1000014&id=10000664",
-    ],
-    "科学深度": [
-        "https://www.nature.com/nature.rss",
-        "https://export.arxiv.org/rss/cs.AI"
-    ],
-    "中国视角": [
-        "https://rsshub.rssforever.com/36kr/newsflashes",
-        "https://rsshub.rssforever.com/latepost"
-    ]
-}
+CONFIG_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "sources.json")
+
+def load_sources():
+    with open(CONFIG_FILE, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+SOURCES = load_sources()
 
 API_KEY = os.environ.get("ARK_API_KEY")
 MODEL_NAME = "deepseek-v3-2-251201"
