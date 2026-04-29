@@ -89,13 +89,14 @@ def analyze_with_llm(title, summary, source_name="未知来源", article_text=""
 2. 中文标题：将原标题翻译为简洁的中文标题
 3. 中文来源：将来源名称翻译为中文
 4. 约100字中文摘要：提炼核心事实、关键数据/技术点和行业影响
+5. 约100字机遇分析：分析此事件带来的商业机会、创业方向、投资价值或对从业者的影响
 
 标题：{title}
 来源：{source_name}
 内容：{content}
 
 请严格只输出纯 JSON，不要任何额外文字或 Markdown 标记：
-{{"score": 数字, "title_cn": "中文标题", "source_cn": "中文来源名", "summary": "中文摘要"}}"""
+{{"score": 数字, "title_cn": "中文标题", "source_cn": "中文来源名", "summary": "中文摘要", "opportunity": "机遇与商机分析"}}"""
 
     for attempt in range(max_retries):
         try:
@@ -200,6 +201,7 @@ def main():
                 "link": entry.link,
                 "score": score,
                 "summary": ai_result.get("summary", "无摘要"),
+                "opportunity": ai_result.get("opportunity", ""),
                 "source_name": item["source_name"],
                 "source_cn": ai_result.get("source_cn", ""),
                 "publish_time": to_beijing_time(getattr(entry, 'published', None))
