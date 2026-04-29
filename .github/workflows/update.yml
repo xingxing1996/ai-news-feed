@@ -32,7 +32,8 @@ jobs:
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
+        git fetch origin main
+        git reset origin/main
         git add feed.json
         git commit -m "Auto-update feed.json" || exit 0
-        git pull --rebase origin main
         git push
