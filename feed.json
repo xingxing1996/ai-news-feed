@@ -1,22 +1,49 @@
 {
-  "update_time": "2026-04-29 10:38:56",
+  "update_time": "2026-04-29 11:04:37",
   "total_scanned": 42,
   "articles": [
+    {
+      "category": "科技创投",
+      "title": "2026.17: He Came, He Saw, He Cooked",
+      "link": "https://stratechery.com/2026/he-came-he-saw-he-cooked/",
+      "score": 95,
+      "summary": "本文深度剖析了OpenAI CEO山姆·奥特曼在近期开发者大会上的战略布局，核心观点是：他通过一系列看似微小的API更新与定价调整，实质性地“烹制”（构建）了一个对开发者极具吸引力的新生态系统，旨在巩固其平台地位并拓展商业边界。文章对AI行业的竞争格局、平台战略与开发者生态具有高价值的洞察，是理解当前AI产业演进的关键读物。",
+      "source_name": "Stratechery by Ben Thompson",
+      "publish_time": "2026-04-25 01:00:00"
+    },
     {
       "category": "科技创投",
       "title": "Claude system prompt bug wastes user money and bricks managed agents",
       "link": "https://github.com/anthropics/claude-code/issues/49363",
       "score": 85,
-      "insight": "API系统提示漏洞暴露成本与稳定性风险",
+      "summary": "Anthropic的Claude因系统提示词（system prompt）存在漏洞，导致其托管的智能体（managed agents）功能失效（被“砖化”）并造成用户资金浪费。此事件暴露了底层AI代理服务在安全性和稳定性方面的重大风险，对依赖此类服务进行开发和商业部署的从业者与投资者是重要警示，凸显了技术成熟度与成本控制的关键挑战。",
       "source_name": "Hacker News",
       "publish_time": "2026-04-29 07:59:57"
+    },
+    {
+      "category": "科技创投",
+      "title": "How ChatGPT serves ads",
+      "link": "https://www.buchodi.com/how-chatgpt-serves-ads-heres-the-full-attribution-loop/",
+      "score": 85,
+      "summary": "文章深度解析了ChatGPT广告服务的完整归因链路。其广告平台由两部分构成：在ChatGPT后端，系统将结构化的广告单元对象注入对话流；在商户侧，OpenAI的跟踪SDK（OAIQ）在用户浏览器中运行并报告商品浏览。两者通过每则广告附带的四个Fernet加密点击令牌进行关联。这揭示了其广告技术栈的核心工作原理与数据追踪机制，对理解AI产品的商业化路径具有重要参考价值。",
+      "source_name": "Hacker News",
+      "publish_time": "2026-04-29 07:54:14"
+    },
+    {
+      "category": "科技创投",
+      "title": "How one venture firm is investing in an increasingly fragmented world",
+      "link": "https://techcrunch.com/2026/04/28/how-one-venture-firm-is-navigating-an-increasingly-fragmented-world/",
+      "score": 85,
+      "summary": "本文以一家风投机构（Kompas）为例，探讨了在全球化进程受阻、世界日益割裂的背景下，风险投资策略的演变。核心观点是：投资重点正从追求全球统一的规模化模式，转向适应特定区域（如欧洲、东南亚）本地化需求的“深度科技”和工业创新。这为投资人指明了地缘政治风险下的新方向，也为创业者提供了在碎片化市场中寻找机会的关键思路。",
+      "source_name": "TechCrunch",
+      "publish_time": "2026-04-29 11:00:00"
     },
     {
       "category": "科技创投",
       "title": "Amazon is already offering new OpenAI products on AWS",
       "link": "https://techcrunch.com/2026/04/28/amazon-is-already-offering-new-openai-products-on-aws/",
       "score": 85,
-      "insight": "云巨头竞争加剧，AI模型服务快速商品化",
+      "summary": "亚马逊AWS已开始提供OpenAI的新产品。此举意味着云巨头正加速整合顶级AI模型，开发者与企业在AWS上可直接使用OpenAI最新技术，这强化了AWS的AI服务生态，同时可能改变云服务商与AI公司的合作竞争格局，为市场带来新的选择与组合。",
       "source_name": "TechCrunch",
       "publish_time": "2026-04-29 03:48:02"
     },
@@ -25,7 +52,7 @@
       "title": "An Interview with OpenAI CEO Sam Altman and AWS CEO Matt Garman About Bedrock Managed Agents",
       "link": "https://stratechery.com/2026/an-interview-with-openai-ceo-sam-altman-and-aws-ceo-matt-garman-about-bedrock-managed-agents/",
       "score": 85,
-      "insight": "两大巨头深化合作，预示云与AI融合新趋势",
+      "summary": "OpenAI CEO萨姆·奥特曼与AWS CEO马特·加尔曼在访谈中深入探讨了Bedrock托管代理服务的战略意义。核心观点是，AI的未来在于构建强大的基础模型与开发便捷的应用工具并重。双方的合作（OpenAI提供模型，AWS提供基础设施和托管服务）旨在降低开发者构建AI代理的门槛，加速企业级AI应用的落地。关键结论是：AI行业正从模型竞争转向平台与生态竞争，基础设施的易用性和集成能力将成为下一阶段的关键胜负手。",
       "source_name": "Stratechery by Ben Thompson",
       "publish_time": "2026-04-29 01:00:00"
     },
@@ -34,52 +61,34 @@
       "title": "AI Hardware, Meta Display, Redefining VR and AR",
       "link": "https://stratechery.com/2026/ai-hardware-meta-display-redefining-vr-and-ar/",
       "score": 85,
-      "insight": "消费级AI硬件正重塑AR/VR的实用性与市场认知",
+      "summary": "本文深入分析了AI硬件与Meta显示技术如何重塑VR/AR的未来。核心论点是，专用AI硬件（如NPU）的普及将驱动计算范式从云端向设备端转移，而Meta在显示技术（如微透镜阵列）上的突破可能大幅降低VR头显成本与体积。关键结论是，这两股趋势的结合将推动VR/AR设备走向主流消费市场，并为开发者与投资者在下一代人机交互平台领域指明重要方向。",
       "source_name": "Stratechery by Ben Thompson",
       "publish_time": "2026-04-27 18:00:00"
-    },
-    {
-      "category": "科技创投",
-      "title": "2026.17: He Came, He Saw, He Cooked",
-      "link": "https://stratechery.com/2026/he-came-he-saw-he-cooked/",
-      "score": 85,
-      "insight": "科技巨头权力交接与地缘政治影响行业未来",
-      "source_name": "Stratechery by Ben Thompson",
-      "publish_time": "2026-04-25 01:00:00"
     },
     {
       "category": "科技创投",
       "title": "Elon Musk Testifies That He Started OpenAI to Prevent a ‘Terminator Outcome’",
       "link": "https://www.wired.com/story/model-behavior-elon-musk-testifies-at-musk-v-altman-trial/",
       "score": 85,
-      "insight": "AI巨头公开博弈，揭示行业深层冲突与监管挑战",
+      "summary": "埃隆·马斯克作证称，他创立OpenAI的初衷是为了防止出现类似‘终结者’的AI灾难性后果，并推动AI向安全、对人类有益的方向发展。这一证词揭示了AI领域早期发展的核心伦理关切，对从业者理解当前AI安全争论的根源、以及投资者评估AI公司治理与长期风险具有重要参考价值。",
       "source_name": "WIRED",
       "publish_time": "2026-04-29 05:35:17"
     },
     {
-      "category": "AI与前沿",
-      "title": "An Intelligent Fault Diagnosis Method for General Aviation Aircraft Based on Multi-Fidelity Digital Twin and FMEA Knowledge Enhancement",
-      "link": "https://arxiv.org/abs/2604.22777",
+      "category": "商业金融",
+      "title": "Stocks Sink in Broad AI Rout Sparked by China's DeepSeek",
+      "link": "https://www.wsj.com/articles/nikkei-may-rise-as-weak-yen-raises-earnings-hopes-776a8056?mod=rss_markets_main",
       "score": 85,
-      "insight": "数字孪生与LLM融合，提升航空故障诊断的泛化与解释性",
-      "source_name": "cs.AI updates on arXiv.org",
-      "publish_time": "2026-04-28 12:00:00"
-    },
-    {
-      "category": "AI与前沿",
-      "title": "PExA: Parallel Exploration Agent for Complex Text-to-SQL",
-      "link": "https://arxiv.org/abs/2604.22934",
-      "score": 85,
-      "insight": "并行测试提升Text-to-SQL效率与准确性",
-      "source_name": "cs.AI updates on arXiv.org",
-      "publish_time": "2026-04-28 12:00:00"
+      "summary": "中国AI公司深度求索（DeepSeek）引发全球市场对AI基础设施板块的广泛抛售，导致美国股市普遍下跌，纳斯达克指数领跌。英伟达股价暴跌16%，其他AI基础设施提供商股价亦出现两位数大幅下挫。此事件凸显了全球AI竞争加剧对产业链估值的直接影响，以及单一市场技术突破可能引发的连锁反应。",
+      "source_name": "WSJ.com: Markets",
+      "publish_time": "2025-01-28 03:26:00"
     },
     {
       "category": "AI与前沿",
       "title": "The Power of Power Law: Asymmetry Enables Compositional Reasoning",
       "link": "https://arxiv.org/abs/2604.22951",
       "score": 85,
-      "insight": "长尾数据遵循幂律分布更利于模型组合推理",
+      "summary": "该研究提出一个反直觉的发现：在组合推理任务（如状态跟踪、多步运算）上，使用符合自然语言幂律分布的数据训练模型，其性能优于使用均匀分布数据。这一结果表明，数据中的不对称性（长尾分布）反而有助于模型学习组合技能，为当前大语言模型的数据处理与训练策略提供了新的理论视角。",
       "source_name": "cs.AI updates on arXiv.org",
       "publish_time": "2026-04-28 12:00:00"
     },
@@ -88,34 +97,34 @@
       "title": "Introducing NVIDIA Nemotron 3 Nano Omni: Long-Context Multimodal Intelligence for Documents, Audio and Video Agents",
       "link": "https://huggingface.co/blog/nvidia/nemotron-3-nano-omni-multimodal-intelligence",
       "score": 85,
-      "insight": "英伟达推出小尺寸多模态AI模型，赋能边缘智能应用",
+      "summary": "英伟达推出Nemotron 3 Nano Omni模型，这是一个专为文档、音频和视频智能体设计的轻量级多模态模型。其核心价值在于支持长上下文处理，并能理解文本、图像、音频和视频多种输入。该模型在Hugging Face开源，旨在降低开发者构建本地多模态AI应用的门槛，为边缘计算和端侧智能代理提供了新的工具选择。",
       "source_name": "Hugging Face - Blog",
       "publish_time": "2026-04-28 23:58:57"
+    },
+    {
+      "category": "AI与前沿",
+      "title": "How to build scalable web apps with OpenAI's Privacy Filter",
+      "link": "https://huggingface.co/blog/openai-privacy-filter-web-apps",
+      "score": 85,
+      "summary": "本文介绍了如何利用OpenAI的隐私过滤器（Privacy Filter）构建可扩展的Web应用。该技术旨在帮助开发者在调用大语言模型（LLM）处理用户数据前，自动过滤掉敏感或个人身份信息（PII），从而提升应用的数据隐私合规性，降低安全风险。对于需要在产品中集成AI能力又必须遵守数据保护法规的团队而言，这是一个关键的工程实践指南。",
+      "source_name": "Hugging Face - Blog",
+      "publish_time": "2026-04-27 08:00:00"
     },
     {
       "category": "AI与前沿",
       "title": "DeepSeek-V4: a million-token context that agents can actually use",
       "link": "https://huggingface.co/blog/deepseekv4",
       "score": 85,
-      "insight": "百万上下文实用化，智能体能力跃升",
+      "summary": "DeepSeek-V4发布，其核心突破在于实现了真正可用的百万token上下文长度，并针对智能体（Agents）应用进行了优化。这意味着模型能处理更长的文档和复杂的多步骤任务，极大提升了开源模型在长文本理解和自动化工作流中的实用性与竞争力。",
       "source_name": "Hugging Face - Blog",
       "publish_time": "2026-04-24 08:00:00"
-    },
-    {
-      "category": "科学深度",
-      "title": "To hire good scientists, look at their peer-reviewing records",
-      "link": "https://www.nature.com/articles/d41586-026-01368-0",
-      "score": 85,
-      "insight": "同行评审记录是评估科研人才潜力的新维度",
-      "source_name": "Nature",
-      "publish_time": "2026-04-29 10:41:37"
     },
     {
       "category": "中国视角",
       "title": "对话曦智科技沈亦晨：一个 MIT 博士与光计算穿越死亡谷的十年",
       "link": "https://www.latepost.com/news/dj_detail?id=3532",
       "score": 85,
-      "insight": "光计算穿越死亡谷，揭示硬科技创新的长期性与现实挑战",
+      "summary": "专访曦智科技创始人沈亦晨，回顾其从MIT博士到带领光计算公司穿越技术商业化“死亡谷”的十年历程。核心信息揭示了光计算这一前沿技术从实验室走向产业化的挑战、关键突破与商业化前景，为关注AI算力、下一代计算架构的从业者与投资人提供了重要的行业洞察与决策参考。",
       "source_name": "晚点 - 最新报道",
       "publish_time": "2026-04-28 13:04:00"
     },
@@ -124,18 +133,9 @@
       "title": "一代人有一代人的 VC",
       "link": "https://www.latepost.com/news/dj_detail?id=3531",
       "score": 85,
-      "insight": "VC行业随技术周期代际更迭，AI浪潮催生新格局",
+      "summary": "文章核心观点是风险投资行业正经历代际更迭，新一代VC在投资理念、关注赛道与组织模式上与传统机构存在显著差异。这为从业者与创业者揭示了当下的资本流向趋势、新兴投资范式以及可能的合作机会，对把握下一波创新浪潮具有重要参考价值。",
       "source_name": "晚点 - 最新报道",
       "publish_time": "2026-04-27 20:04:00"
-    },
-    {
-      "category": "中国视角",
-      "title": "10后，开始用AI给自己编黄冈密卷了",
-      "link": "https://www.huxiu.com/article/4854662.html",
-      "score": 85,
-      "insight": "AI正重塑学习范式，催生新工具与市场机会",
-      "source_name": "虎嗅资讯-全部",
-      "publish_time": "2026-04-29 10:37:36"
     }
   ]
 }
