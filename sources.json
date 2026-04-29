@@ -1,48 +1,70 @@
 {
-    "科技创投": [
+    "科技与产品": [
         "https://news.ycombinator.com/rss",
         "https://techcrunch.com/feed/",
         "https://www.theverge.com/rss/index.xml",
-        "https://stratechery.com/feed/",
         "https://www.wired.com/feed/rss",
         "https://arstechnica.com/feed/",
-        "https://venturebeat.com/feed/"
-    ],
-    "商业金融": [
-        "https://feeds.a.dj.com/rss/RSSMarketsMain.xml",
-        "https://search.cnbc.com/rs/search/combinedcms/view.xml?profile=1000014&id=10000664",
-        "https://www.reuters.com/rssFeed/technologyNews"
+        "https://www.producthunt.com/feed",
+        "https://developer.apple.com/news/rss/news.rss"
     ],
     "AI与前沿": [
         "https://export.arxiv.org/rss/cs.AI",
         "https://huggingface.co/blog/feed.xml",
+        "https://blog.google/technology/ai/rss/",
+        "https://developers.googleblog.com/feed/",
         "https://rsshub.rssforever.com/jiqizhixin/post",
-        "https://rsshub.rssforever.com/quantumman/daily"
+        "https://rsshub.rssforever.com/quantumman/daily",
+        "https://news.mit.edu/topic/mitquantum-computing-rss.xml"
     ],
-    "科学深度": [
-        "https://www.nature.com/nature.rss",
-        "https://www.science.org/rss/express.xml"
+    "工程与开源": [
+        "https://blog.cloudflare.com/rss/",
+        "https://netflixtechblog.com/feed",
+        "https://blog.bytebytego.com/feed",
+        "https://github.blog/feed/",
+        "https://developer.nvidia.com/blog/feed/",
+        "https://thenewstack.io/feed/"
+    ],
+    "硬科技产业": [
+        "https://spectrum.ieee.org/rss/fulltext",
+        "https://semianalysis.com/feed",
+        "https://electrek.co/feed/",
+        "https://cleantechnica.com/feed/",
+        "https://spacenews.com/feed/"
+    ],
+    "商业与金融": [
+        "https://feeds.a.dj.com/rss/RSSMarketsMain.xml",
+        "https://seekingalpha.com/market_currents.xml",
+        "https://news.crunchbase.com/feed/"
+    ],
+    "地缘政治": [
+        "https://feeds.bbci.co.uk/news/world/rss.xml",
+        "https://foreignpolicy.com/feed/"
+    ],
+    "生物医药": [
+        "https://www.fiercebiotech.com/rss.xml",
+        "https://www.statnews.com/feed/",
+        "https://www.nature.com/nature.rss"
+    ],
+    "加密货币": [
+        "https://cointelegraph.com/rss",
+        "https://coindesk.com/arc/outboundfeeds/rss/",
+        "https://decrypt.co/feed"
+    ],
+    "娱乐与文化": [
+        "https://variety.com/feed/",
+        "https://pagesix.com/feed/",
+        "https://deadline.com/feed/",
+        "https://www.buzzfeed.com/celebrity.xml",
+        "https://www.gamespot.com/feeds/mashup/",
+        "https://www.pcgamer.com/rss/",
+        "https://www.eurogamer.net/feed",
+        "https://www.billboard.com/feed/",
+        "https://www.nme.com/rss"
     ],
     "中国视角": [
         "https://rsshub.rssforever.com/36kr/newsflashes",
         "https://rsshub.rssforever.com/latepost",
-        "https://rsshub.rssforever.com/huxiu/article",
-        "https://rsshub.rssforever.com/sspai/matrix"
-    ],
-    "硬核工程与架构": [
-        "https://blog.cloudflare.com/rss/",
-        "https://netflixtechblog.com/feed",
-        "https://blog.bytebytego.com/feed"
-    ],
-    "算力与模型部署": [
-        "https://developer.nvidia.com/blog/feed/"
-    ],
-    "移动端与渲染": [
-        "https://medium.com/feed/flutter",
-        "https://android-developers.blogspot.com/feeds/posts/default"
-    ],
-    "亚太技术生态": [
-        "https://zenn.dev/feed",
-        "https://coralcap.co/feed/"
+        "https://rsshub.rssforever.com/zhihu/hot"
     ]
 }

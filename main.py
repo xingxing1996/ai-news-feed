@@ -26,6 +26,18 @@ def to_beijing_time(raw_time):
     except Exception:
         return raw_time
 
+def is_similar_title(a, b, threshold=0.6):
+    """简单的标题相似度检测（基于词重叠率），不会太严格"""
+    def normalize(s):
+        return re.sub(r'[^\w]', '', s.lower()).split()
+    words_a = normalize(a)
+    words_b = normalize(b)
+    if not words_a or not words_b:
+        return False
+    common = set(words_a) & set(words_b)
+    overlap = len(common) / min(len(set(words_a)), len(set(words_b)))
+    return overlap >= threshold
+
 def fetch_article_text(url):
     """尝试抓取文章正文，失败则返回空字符串"""
     try:
@@ -124,13 +136,27 @@ def main():
     }
 
     # 第一阶段：解析所有 RSS，收集条目
+    now = datetime.now(BJ_TZ)
+    cutoff = now - timedelta(days=7) # 只保留最近7天内的文章
     all_entries = []
     for category, urls in SOURCES.items():
         print(f">>> 解析 RSS: {category}")
         for url in urls:
             try:
                 feed = feedparser.parse(url)
-                for entry in feed.entries[:3]:
+                for entry in feed.entries[:5]:
+                    # 过滤掉太旧的文章
+                    raw_time = getattr(entry, 'published', None)
+                    if raw_time:
+                        try:
+                            pub_dt = dp.parse(raw_time)
+                            if pub_dt.tzinfo is None:
+                                pub_dt = pub_dt.replace(tzinfo=timezone.utc)
+                            pub_dt = pub_dt.astimezone(BJ_TZ)
+                            if pub_dt < cutoff:
+                                continue
+                        except Exception:
+                            pass  # 解析不了时间的就放过
                     summary_text = getattr(entry, 'summary', getattr(entry, 'description', '无摘要'))
                     all_entries.append({
                         "category": category,
@@ -184,7 +210,26 @@ def main():
         print("!!! 错误：未筛选出任何文章（0条），可能所有 AI 调用均失败，不更新 feed.json !!!")
         sys.exit(1)
 
+    # 去重：先按分数排序，然后 URL 去重 + 标题相似度去重
     final_data["articles"] = sorted(final_data["articles"], key=lambda x: x["score"], reverse=True)
+    seen_urls = set()
+    seen_titles = []
+    deduped = []
+    for article in final_data["articles"]:
+        # URL 去重
+        url = article.get("link", "")
+        if url in seen_urls:
+            continue
+        seen_urls.add(url)
+        # 标题相似度去重（保留高分的那条）
+        title = article.get("title_cn") or article.get("title", "")
+        if any(is_similar_title(title, t) for t in seen_titles):
+            print(f"    去重: {title[:30]}...")
+            continue
+        seen_titles.append(title)
+        deduped.append(article)
+    final_data["articles"] = deduped
+    print(f"去重后保留 {len(deduped)} 条文章")
 
     with open("feed.json", "w", encoding="utf-8") as f:
         json.dump(final_data, f, ensure_ascii=False, indent=2)
