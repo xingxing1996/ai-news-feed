@@ -1,94 +1,76 @@
 {
-  "update_time": "2026-04-29 11:04:37",
-  "total_scanned": 42,
+  "update_time": "2026-04-29 11:27:09",
+  "total_scanned": 63,
   "articles": [
     {
       "category": "科技创投",
       "title": "2026.17: He Came, He Saw, He Cooked",
       "link": "https://stratechery.com/2026/he-came-he-saw-he-cooked/",
-      "score": 95,
-      "summary": "本文深度剖析了OpenAI CEO山姆·奥特曼在近期开发者大会上的战略布局，核心观点是：他通过一系列看似微小的API更新与定价调整，实质性地“烹制”（构建）了一个对开发者极具吸引力的新生态系统，旨在巩固其平台地位并拓展商业边界。文章对AI行业的竞争格局、平台战略与开发者生态具有高价值的洞察，是理解当前AI产业演进的关键读物。",
+      "score": 92,
+      "summary": "本文剖析了OpenAI最新模型o1的发布，指出其核心突破在于将“思考”过程显式化、可追溯，并探讨了其对传统搜索引擎、知识工作以及AI行业竞争格局（尤其是对谷歌）带来的颠覆性冲击。文章认为，这标志着AI从“统计模式匹配”向“类人推理”的关键转变，是一个里程碑级事件。",
       "source_name": "Stratechery by Ben Thompson",
       "publish_time": "2026-04-25 01:00:00"
     },
     {
-      "category": "科技创投",
-      "title": "Claude system prompt bug wastes user money and bricks managed agents",
-      "link": "https://github.com/anthropics/claude-code/issues/49363",
-      "score": 85,
-      "summary": "Anthropic的Claude因系统提示词（system prompt）存在漏洞，导致其托管的智能体（managed agents）功能失效（被“砖化”）并造成用户资金浪费。此事件暴露了底层AI代理服务在安全性和稳定性方面的重大风险，对依赖此类服务进行开发和商业部署的从业者与投资者是重要警示，凸显了技术成熟度与成本控制的关键挑战。",
-      "source_name": "Hacker News",
-      "publish_time": "2026-04-29 07:59:57"
-    },
-    {
-      "category": "科技创投",
-      "title": "How ChatGPT serves ads",
-      "link": "https://www.buchodi.com/how-chatgpt-serves-ads-heres-the-full-attribution-loop/",
-      "score": 85,
-      "summary": "文章深度解析了ChatGPT广告服务的完整归因链路。其广告平台由两部分构成：在ChatGPT后端，系统将结构化的广告单元对象注入对话流；在商户侧，OpenAI的跟踪SDK（OAIQ）在用户浏览器中运行并报告商品浏览。两者通过每则广告附带的四个Fernet加密点击令牌进行关联。这揭示了其广告技术栈的核心工作原理与数据追踪机制，对理解AI产品的商业化路径具有重要参考价值。",
-      "source_name": "Hacker News",
-      "publish_time": "2026-04-29 07:54:14"
-    },
-    {
-      "category": "科技创投",
-      "title": "How one venture firm is investing in an increasingly fragmented world",
-      "link": "https://techcrunch.com/2026/04/28/how-one-venture-firm-is-navigating-an-increasingly-fragmented-world/",
-      "score": 85,
-      "summary": "本文以一家风投机构（Kompas）为例，探讨了在全球化进程受阻、世界日益割裂的背景下，风险投资策略的演变。核心观点是：投资重点正从追求全球统一的规模化模式，转向适应特定区域（如欧洲、东南亚）本地化需求的“深度科技”和工业创新。这为投资人指明了地缘政治风险下的新方向，也为创业者提供了在碎片化市场中寻找机会的关键思路。",
-      "source_name": "TechCrunch",
-      "publish_time": "2026-04-29 11:00:00"
-    },
-    {
-      "category": "科技创投",
-      "title": "Amazon is already offering new OpenAI products on AWS",
-      "link": "https://techcrunch.com/2026/04/28/amazon-is-already-offering-new-openai-products-on-aws/",
-      "score": 85,
-      "summary": "亚马逊AWS已开始提供OpenAI的新产品。此举意味着云巨头正加速整合顶级AI模型，开发者与企业在AWS上可直接使用OpenAI最新技术，这强化了AWS的AI服务生态，同时可能改变云服务商与AI公司的合作竞争格局，为市场带来新的选择与组合。",
-      "source_name": "TechCrunch",
-      "publish_time": "2026-04-29 03:48:02"
+      "category": "AI与前沿",
+      "title": "DeepSeek-V4: a million-token context that agents can actually use",
+      "link": "https://huggingface.co/blog/deepseekv4",
+      "score": 86,
+      "summary": "深度求索发布DeepSeek-V4，其核心突破是实现了真正可用、长达百万token的超长上下文窗口，并特别优化了智能体（Agent）的实用性能。这标志着开源大模型在工程化和实用化上迈出关键一步，大幅提升了处理复杂、超长文档和分析任务的能力，将对AI应用开发、特别是需要长期记忆和复杂推理的Agent场景产生深远影响。",
+      "source_name": "Hugging Face - Blog",
+      "publish_time": "2026-04-24 08:00:00"
     },
     {
       "category": "科技创投",
       "title": "An Interview with OpenAI CEO Sam Altman and AWS CEO Matt Garman About Bedrock Managed Agents",
       "link": "https://stratechery.com/2026/an-interview-with-openai-ceo-sam-altman-and-aws-ceo-matt-garman-about-bedrock-managed-agents/",
       "score": 85,
-      "summary": "OpenAI CEO萨姆·奥特曼与AWS CEO马特·加尔曼在访谈中深入探讨了Bedrock托管代理服务的战略意义。核心观点是，AI的未来在于构建强大的基础模型与开发便捷的应用工具并重。双方的合作（OpenAI提供模型，AWS提供基础设施和托管服务）旨在降低开发者构建AI代理的门槛，加速企业级AI应用的落地。关键结论是：AI行业正从模型竞争转向平台与生态竞争，基础设施的易用性和集成能力将成为下一阶段的关键胜负手。",
+      "summary": "OpenAI CEO Sam Altman与AWS CEO Matt Garman罕见同台，深度探讨了AWS Bedrock托管代理服务。核心要点包括：双方将深化战略合作，将OpenAI前沿模型深度集成至AWS企业级平台；强调企业客户对安全、可控AI代理的需求；预示AI正从通用模型向可执行复杂任务、集成企业系统的“智能体”阶段演进。此举将加速生成式AI在企业级市场的落地与竞争格局重塑。",
       "source_name": "Stratechery by Ben Thompson",
       "publish_time": "2026-04-29 01:00:00"
+    },
+    {
+      "category": "科学深度",
+      "title": "Severe obesity in human HFpEF alters contractile protein function and organization | Science",
+      "link": "https://www.science.org/doi/10.1126/science.adz7118",
+      "score": 85,
+      "summary": "《科学》杂志研究揭示，肥胖相关的射血分数保留型心衰（HFpEF）患者，其心肌收缩蛋白功能和结构发生特异性改变，这不同于传统高血压导致的HFpEF。该发现从分子层面解释了HFpEF的异质性，为开发针对肥胖型HFpEF的精准疗法提供了关键靶点，可能深刻影响未来心血管疾病的新药研发方向。",
+      "source_name": "Science First Release",
+      "publish_time": "2026-04-23 21:01:00"
+    },
+    {
+      "category": "亚太技术生态",
+      "title": "日本のアポロ計画──ダイヤモンド半導体という挑戦",
+      "link": "https://coralcap.co/2026/04/japans-apollo-moment-diamond-semiconductors/",
+      "score": 84,
+      "summary": "日本将发展钻石半导体技术提升至国家战略高度，称之为“日本的阿波罗计划”。该技术利用金刚石作为半导体材料，有望制造出耐高压、耐高温、高频率的下一代功率器件，目标是到2040年实现年销售额1万亿日元。此举旨在重塑日本在半导体领域的竞争力，可能对电动汽车、可再生能源和通信等关键行业产生深远影响。",
+      "source_name": "Coral Capital",
+      "publish_time": "2026-04-08 16:00:00"
+    },
+    {
+      "category": "科技创投",
+      "title": "Amazon is already offering new OpenAI products on AWS",
+      "link": "https://techcrunch.com/2026/04/28/amazon-is-already-offering-new-openai-products-on-aws/",
+      "score": 78,
+      "summary": "亚马逊AWS在OpenAI发布新模型后迅速将其集成至其云平台，提供包括最新GPT-4o模型在内的服务。此举表明AWS正加速整合前沿AI能力，以强化其与微软Azure、Google Cloud在AI云服务市场的竞争地位，为开发者提供更便捷的模型访问途径，加剧了云巨头间对AI基础设施主导权的争夺。",
+      "source_name": "TechCrunch",
+      "publish_time": "2026-04-29 03:48:02"
     },
     {
       "category": "科技创投",
       "title": "AI Hardware, Meta Display, Redefining VR and AR",
       "link": "https://stratechery.com/2026/ai-hardware-meta-display-redefining-vr-and-ar/",
-      "score": 85,
-      "summary": "本文深入分析了AI硬件与Meta显示技术如何重塑VR/AR的未来。核心论点是，专用AI硬件（如NPU）的普及将驱动计算范式从云端向设备端转移，而Meta在显示技术（如微透镜阵列）上的突破可能大幅降低VR头显成本与体积。关键结论是，这两股趋势的结合将推动VR/AR设备走向主流消费市场，并为开发者与投资者在下一代人机交互平台领域指明重要方向。",
+      "score": 78,
+      "summary": "本文分析了AI硬件、元宇宙显示技术以及VR/AR的重新定义。核心观点指出，专用AI硬件（如NPU）的普及正在改变计算架构，而Meta在显示技术（如Micro-OLED）上的进展可能模糊VR与AR的界限，推动设备向更轻薄、高分辨率发展。这预示着下一代人机交互界面的竞争焦点，对硬件生态、内容开发及投资方向具有重要参考价值。",
       "source_name": "Stratechery by Ben Thompson",
       "publish_time": "2026-04-27 18:00:00"
-    },
-    {
-      "category": "科技创投",
-      "title": "Elon Musk Testifies That He Started OpenAI to Prevent a ‘Terminator Outcome’",
-      "link": "https://www.wired.com/story/model-behavior-elon-musk-testifies-at-musk-v-altman-trial/",
-      "score": 85,
-      "summary": "埃隆·马斯克作证称，他创立OpenAI的初衷是为了防止出现类似‘终结者’的AI灾难性后果，并推动AI向安全、对人类有益的方向发展。这一证词揭示了AI领域早期发展的核心伦理关切，对从业者理解当前AI安全争论的根源、以及投资者评估AI公司治理与长期风险具有重要参考价值。",
-      "source_name": "WIRED",
-      "publish_time": "2026-04-29 05:35:17"
-    },
-    {
-      "category": "商业金融",
-      "title": "Stocks Sink in Broad AI Rout Sparked by China's DeepSeek",
-      "link": "https://www.wsj.com/articles/nikkei-may-rise-as-weak-yen-raises-earnings-hopes-776a8056?mod=rss_markets_main",
-      "score": 85,
-      "summary": "中国AI公司深度求索（DeepSeek）引发全球市场对AI基础设施板块的广泛抛售，导致美国股市普遍下跌，纳斯达克指数领跌。英伟达股价暴跌16%，其他AI基础设施提供商股价亦出现两位数大幅下挫。此事件凸显了全球AI竞争加剧对产业链估值的直接影响，以及单一市场技术突破可能引发的连锁反应。",
-      "source_name": "WSJ.com: Markets",
-      "publish_time": "2025-01-28 03:26:00"
     },
     {
       "category": "AI与前沿",
       "title": "The Power of Power Law: Asymmetry Enables Compositional Reasoning",
       "link": "https://arxiv.org/abs/2604.22951",
-      "score": 85,
-      "summary": "该研究提出一个反直觉的发现：在组合推理任务（如状态跟踪、多步运算）上，使用符合自然语言幂律分布的数据训练模型，其性能优于使用均匀分布数据。这一结果表明，数据中的不对称性（长尾分布）反而有助于模型学习组合技能，为当前大语言模型的数据处理与训练策略提供了新的理论视角。",
+      "score": 78,
+      "summary": "这篇来自arXiv的AI论文提出了一个反直觉的发现：在组合推理任务（如状态跟踪、多步算术）中，使用遵循幂律分布（即长尾分布）的自然语言数据进行训练，其效果优于使用均匀分布数据。这挑战了业界为提升长尾技能学习而进行数据重加权或均匀化处理的常见直觉。研究通过引入理论分析来解释这一优势，指出数据中的不对称性（幂律）是促进组合推理的关键。这一发现对大规模语言模型的训练数据构建策略具有重要参考价值。",
       "source_name": "cs.AI updates on arXiv.org",
       "publish_time": "2026-04-28 12:00:00"
     },
@@ -96,46 +78,406 @@
       "category": "AI与前沿",
       "title": "Introducing NVIDIA Nemotron 3 Nano Omni: Long-Context Multimodal Intelligence for Documents, Audio and Video Agents",
       "link": "https://huggingface.co/blog/nvidia/nemotron-3-nano-omni-multimodal-intelligence",
-      "score": 85,
-      "summary": "英伟达推出Nemotron 3 Nano Omni模型，这是一个专为文档、音频和视频智能体设计的轻量级多模态模型。其核心价值在于支持长上下文处理，并能理解文本、图像、音频和视频多种输入。该模型在Hugging Face开源，旨在降低开发者构建本地多模态AI应用的门槛，为边缘计算和端侧智能代理提供了新的工具选择。",
+      "score": 78,
+      "summary": "英伟达发布Nemotron 3 Nano Omni模型，这是一个专为文档、音频和视频处理设计的长上下文多模态小模型。其核心特点是在保持较小参数规模（“Nano”级别）的同时，支持长上下文理解，并原生整合了文本、图像、音频和视频的智能处理能力。该模型旨在赋能本地化、低成本的智能体应用，为开发者提供了更易部署的多模态AI工具，可能推动边缘AI和轻量级智能助手的发展。",
       "source_name": "Hugging Face - Blog",
       "publish_time": "2026-04-28 23:58:57"
     },
     {
-      "category": "AI与前沿",
-      "title": "How to build scalable web apps with OpenAI's Privacy Filter",
-      "link": "https://huggingface.co/blog/openai-privacy-filter-web-apps",
-      "score": 85,
-      "summary": "本文介绍了如何利用OpenAI的隐私过滤器（Privacy Filter）构建可扩展的Web应用。该技术旨在帮助开发者在调用大语言模型（LLM）处理用户数据前，自动过滤掉敏感或个人身份信息（PII），从而提升应用的数据隐私合规性，降低安全风险。对于需要在产品中集成AI能力又必须遵守数据保护法规的团队而言，这是一个关键的工程实践指南。",
-      "source_name": "Hugging Face - Blog",
-      "publish_time": "2026-04-27 08:00:00"
-    },
-    {
-      "category": "AI与前沿",
-      "title": "DeepSeek-V4: a million-token context that agents can actually use",
-      "link": "https://huggingface.co/blog/deepseekv4",
-      "score": 85,
-      "summary": "DeepSeek-V4发布，其核心突破在于实现了真正可用的百万token上下文长度，并针对智能体（Agents）应用进行了优化。这意味着模型能处理更长的文档和复杂的多步骤任务，极大提升了开源模型在长文本理解和自动化工作流中的实用性与竞争力。",
-      "source_name": "Hugging Face - Blog",
-      "publish_time": "2026-04-24 08:00:00"
+      "category": "科学深度",
+      "title": "Structural N- and O-glycans revealed by high-resolution cryo-EM analysis of tubular mastigonemes | Science",
+      "link": "https://www.science.org/doi/10.1126/science.aef4958",
+      "score": 78,
+      "summary": "研究人员利用高分辨率冷冻电镜技术，首次解析了金藻Ochromonas danica管状鞭毛丝中N-和O-连接糖链的结构。这项突破克服了糖类化学复杂性和非模板生物合成的分析难题，为建立糖类序列与结构关系提供了关键方法，对糖生物学、结构生物学及生物制药领域（如糖蛋白药物开发）具有重要实践价值。",
+      "source_name": "Science First Release",
+      "publish_time": "2026-04-23 21:01:00"
     },
     {
       "category": "中国视角",
       "title": "对话曦智科技沈亦晨：一个 MIT 博士与光计算穿越死亡谷的十年",
       "link": "https://www.latepost.com/news/dj_detail?id=3532",
-      "score": 85,
-      "summary": "专访曦智科技创始人沈亦晨，回顾其从MIT博士到带领光计算公司穿越技术商业化“死亡谷”的十年历程。核心信息揭示了光计算这一前沿技术从实验室走向产业化的挑战、关键突破与商业化前景，为关注AI算力、下一代计算架构的从业者与投资人提供了重要的行业洞察与决策参考。",
+      "score": 78,
+      "summary": "文章深度访谈了曦智科技创始人、MIT博士沈亦晨，回顾其带领公司探索光计算技术长达十年的艰难历程。核心聚焦于光芯片这一前沿技术路径如何从实验室走向产业化，穿越“死亡谷”所面临的技术挑战、工程化难题与商业化思考。这对于关注AI算力底层创新、下一代计算架构的从业者和投资人具有重要参考价值，揭示了前沿硬科技创业的典型路径与关键节点。",
       "source_name": "晚点 - 最新报道",
       "publish_time": "2026-04-28 13:04:00"
+    },
+    {
+      "category": "硬核工程与架构",
+      "title": "How Stripe Detects Fraudulent Transactions Within 100 ms",
+      "link": "https://blog.bytebytego.com/p/how-stripe-detects-fraudulent-transactions",
+      "score": 78,
+      "summary": "文章深入剖析了全球支付巨头Stripe如何在100毫秒内完成欺诈交易检测。其核心在于构建了一个融合了机器学习模型、实时风险信号和复杂规则引擎的“三明治”架构。该系统能够处理每秒数百万次交易，在保证极低延迟的同时，将欺诈损失降低了数个百分点。这对于金融科技、电商及所有在线交易平台具有极高的工程实践参考价值，展示了大规模实时风控系统的前沿设计思路。",
+      "source_name": "ByteByteGo Newsletter",
+      "publish_time": "2026-04-28 11:03:50"
+    },
+    {
+      "category": "算力与模型部署",
+      "title": "NVIDIA Nemotron 3 Nano Omni Powers Multimodal Agent Reasoning in a Single Efficient Open Model",
+      "link": "https://developer.nvidia.com/blog/nvidia-nemotron-3-nano-omni-powers-multimodal-agent-reasoning-in-a-single-efficient-open-model/",
+      "score": 78,
+      "summary": "英伟达发布Nemotron 3 Nano Omni模型，这是一个高效、开源的单一模型，旨在驱动多模态智能体推理。该模型整合了文本、图像等多种模态的理解与生成能力，为开发者在边缘设备或资源受限环境中部署复杂的多模态AI应用提供了新选择，有望推动AI智能体在成本与效率上的平衡发展。",
+      "source_name": "NVIDIA Technical Blog",
+      "publish_time": "2026-04-29 00:01:12"
+    },
+    {
+      "category": "亚太技术生态",
+      "title": "SpaceX出身の起業家はなぜ核燃料を作るのか",
+      "link": "https://coralcap.co/2026/04/interview-with-scott-nolan-nuclear-fuel-and-the-us-japan-energy-alliance/",
+      "score": 78,
+      "summary": "文章采访了SpaceX前高管、现核燃料初创公司创始人Scott Nolan，探讨其投身核燃料领域的动机。核心在于利用美国与日本的能源联盟关系，以及先进的核燃料技术（如高丰度低浓铀HALEU），旨在解决全球能源安全和脱碳挑战。此举标志着航天科技人才正将系统工程经验跨界应用于下一代核能领域，可能加速先进核反应堆的商业化进程，对全球能源格局产生深远影响。",
+      "source_name": "Coral Capital",
+      "publish_time": "2026-04-20 18:37:54"
+    },
+    {
+      "category": "AI与前沿",
+      "title": "An Intelligent Fault Diagnosis Method for General Aviation Aircraft Based on Multi-Fidelity Digital Twin and FMEA Knowledge Enhancement",
+      "link": "https://arxiv.org/abs/2604.22777",
+      "score": 77,
+      "summary": "该研究针对通航飞机故障诊断中真实数据稀缺、故障类型多样等挑战，提出了一种基于多保真度数字孪体与FMEA知识增强的智能诊断框架。该框架整合了高保真飞行模拟、FMEA驱动的故障注入、多保真数据融合等模块，旨在提升诊断精度与效率。其方法融合仿真数据与工程知识，对航空安全运维及工业数字孪体应用具有重要实践价值。",
+      "source_name": "cs.AI updates on arXiv.org",
+      "publish_time": "2026-04-28 12:00:00"
+    },
+    {
+      "category": "科学深度",
+      "title": "Stopping phase reveals abrupt arrest of large strike-slip earthquakes | Science",
+      "link": "https://www.science.org/doi/10.1126/science.aef3733",
+      "score": 76,
+      "summary": "《科学》杂志研究首次通过近场地震记录，直接观测到大地震破裂的突然停止过程。研究揭示了地震震级由破裂在何处、何时停止所控制，这一发现有助于理解地震终止机制，对地震物理模型和未来灾害预测具有重要科学价值，但短期内对互联网行业直接影响有限。",
+      "source_name": "Science First Release",
+      "publish_time": "2026-04-23 21:01:00"
+    },
+    {
+      "category": "硬核工程与架构",
+      "title": "How Amazon Uses LLMs to Recommend Products",
+      "link": "https://blog.bytebytego.com/p/how-amazon-uses-llms-to-recommend",
+      "score": 76,
+      "summary": "亚马逊正在将大型语言模型深度整合到其产品推荐系统中。LLMs能够更精准地理解用户查询意图、分析商品评论文本情感，并生成个性化的推荐理由。此举旨在提升推荐的相关性和用户体验，代表了电商平台从传统协同过滤向更智能、语义理解驱动的下一代推荐系统的关键演进，对行业技术路径有重要参考价值。",
+      "source_name": "ByteByteGo Newsletter",
+      "publish_time": "2026-04-27 23:30:57"
+    },
+    {
+      "category": "科技创投",
+      "title": "Before GitHub",
+      "link": "https://lucumr.pocoo.org/2026/4/28/before-github/",
+      "score": 75,
+      "summary": "知名开发者Armin Ronacher回顾了GitHub出现前的开源世界，指出当时开源协作主要依赖个人声誉，且流程充满摩擦。文章通过对比，揭示了GitHub通过降低贡献门槛、标准化工作流（如Pull Request）如何深刻改变了开源文化，使其从精英驱动转向大众参与，对当今软件开发和工程实践产生了深远影响。",
+      "source_name": "Hacker News",
+      "publish_time": "2026-04-29 05:17:40"
+    },
+    {
+      "category": "算力与模型部署",
+      "title": "Scaling Biomolecular Modeling Using Context Parallelism in NVIDIA BioNeMo",
+      "link": "https://developer.nvidia.com/blog/scaling-biomolecular-modeling-using-context-parallelism-in-nvidia-bionemo/",
+      "score": 75,
+      "summary": "NVIDIA发布BioNeMo框架，利用“上下文并行性”技术扩展生物分子建模，显著提升大型语言模型在蛋白质、DNA等序列上的训练和推理效率。该技术通过优化GPU内存使用，使研究人员能处理更长的生物序列，加速药物发现和生命科学研究进程，是AI for Science领域的重要工程实践。",
+      "source_name": "NVIDIA Technical Blog",
+      "publish_time": "2026-04-29 03:00:00"
+    },
+    {
+      "category": "科技创投",
+      "title": "Elon Musk Testifies That He Started OpenAI to Prevent a ‘Terminator Outcome’",
+      "link": "https://www.wired.com/story/model-behavior-elon-musk-testifies-at-musk-v-altman-trial/",
+      "score": 73,
+      "summary": "埃隆·马斯克在法庭作证时透露，他共同创立OpenAI的初衷是为了防止出现类似《终结者》的灾难性后果，即确保人工智能的发展安全且有益于人类。这一证词揭示了OpenAI早期创立时的核心安全理念，也反映了当前AI巨头间关于发展路径与治理的深刻分歧，对理解AI行业的战略走向和伦理争议具有重要参考价值。",
+      "source_name": "WIRED",
+      "publish_time": "2026-04-29 05:35:17"
+    },
+    {
+      "category": "科学深度",
+      "title": "The equity paradox of environmental DNA for biodiversity monitoring",
+      "link": "https://www.nature.com/articles/d41586-026-01349-3",
+      "score": 73,
+      "summary": "《自然》期刊评论文章指出，环境DNA（eDNA）技术在生物多样性监测中存在“公平性悖论”。该技术虽能高效、低成本地大规模监测物种，但其应用和解读高度依赖于发达国家的技术、资金和专业知识，可能加剧全球生物多样性监测能力的不平等，使发展中国家在数据获取和决策中处于不利地位。这对全球环境治理和政策制定提出了重要挑战。",
+      "source_name": "Nature",
+      "publish_time": "2026-04-29 11:31:25"
+    },
+    {
+      "category": "硬核工程与架构",
+      "title": "Making Rust Workers reliable: panic and abort recovery in wasm‑bindgen",
+      "link": "https://blog.cloudflare.com/making-rust-workers-reliable/",
+      "score": 73,
+      "summary": "本文深入探讨了在 wasm‑bindgen 环境中提高 Rust Workers 可靠性的关键技术，重点解决了 panic 和 abort 的恢复机制。这一进展对于在生产环境中稳定部署基于 WebAssembly 的 Rust 后端服务至关重要，能显著减少因未捕获异常导致的进程崩溃，提升了云原生无服务器架构的鲁棒性，对开发者构建高可用边缘计算应用具有重要实践价值。",
+      "source_name": "The Cloudflare Blog",
+      "publish_time": "2026-04-22 21:00:00"
+    },
+    {
+      "category": "算力与模型部署",
+      "title": "24/7 Simulation Loops: How Agentic AI Keeps Subsurface Engineering Moving",
+      "link": "https://developer.nvidia.com/blog/24-7-simulation-loops-how-agentic-ai-keeps-subsurface-engineering-moving/",
+      "score": 73,
+      "summary": "文章探讨了智能体AI如何通过24/7不间断的模拟循环驱动地下工程（如油气勘探）的自动化进程。这种技术能持续处理数据、优化模型并自主决策，大幅提升勘探效率和准确性，降低人工成本与项目风险。这代表了AI在传统工业领域向自主化、智能化运营的关键演进。",
+      "source_name": "NVIDIA Technical Blog",
+      "publish_time": "2026-04-28 23:00:00"
+    },
+    {
+      "category": "AI与前沿",
+      "title": "PExA: Parallel Exploration Agent for Complex Text-to-SQL",
+      "link": "https://arxiv.org/abs/2604.22934",
+      "score": 72,
+      "summary": "论文提出PExA，一种用于复杂Text-to-SQL的并行探索智能体。它创新性地将SQL生成问题重构为软件测试覆盖问题，通过并行执行一系列更简单的原子SQL测试用例来收集语义信息，从而在延迟与性能之间取得更好平衡。该方法为解决大模型智能体在数据库查询任务中的效率瓶颈提供了新的工程化思路，对提升AI应用的数据交互能力有参考价值。",
+      "source_name": "cs.AI updates on arXiv.org",
+      "publish_time": "2026-04-28 12:00:00"
     },
     {
       "category": "中国视角",
       "title": "一代人有一代人的 VC",
       "link": "https://www.latepost.com/news/dj_detail?id=3531",
-      "score": 85,
-      "summary": "文章核心观点是风险投资行业正经历代际更迭，新一代VC在投资理念、关注赛道与组织模式上与传统机构存在显著差异。这为从业者与创业者揭示了当下的资本流向趋势、新兴投资范式以及可能的合作机会，对把握下一波创新浪潮具有重要参考价值。",
+      "score": 72,
+      "summary": "文章《一代人有一代人的 VC》探讨了风险投资行业随时代变迁而产生的代际更迭现象。它分析了不同代际投资人（如从互联网时代到移动互联网、再到AI时代的投资者）在投资理念、关注领域与决策方式上的演变，揭示了新经济周期催生新投资范式这一核心趋势。对于互联网从业者与投资人而言，这有助于理解当前资本市场的结构性变化及未来机遇所在。",
       "source_name": "晚点 - 最新报道",
       "publish_time": "2026-04-27 20:04:00"
+    },
+    {
+      "category": "移动端与渲染",
+      "title": "Level up your development with Planning Mode and Next Edit Prediction in Android Studio Panda 4",
+      "link": "http://android-developers.googleblog.com/2026/04/android-studio-panda-4-planning-mode-next-edit-prediction.html",
+      "score": 72,
+      "summary": "Android Studio Panda 4（或为Canary版本代号）引入了两项AI辅助开发功能：“规划模式”允许开发者通过自然语言描述生成代码结构或修改建议；“下一编辑预测”则能智能预测并推荐开发者接下来可能进行的代码编辑。这些功能旨在通过AI提升Android应用开发效率，代表了IDE向智能化、辅助编程演进的重要趋势，对开发者工作流有直接影响。",
+      "source_name": "Android Developers Blog",
+      "publish_time": "2026-04-21 22:00:00"
+    },
+    {
+      "category": "移动端与渲染",
+      "title": "We rebuilt Flutter’s websites with Dart and Jaspr",
+      "link": "https://blog.flutter.dev/we-rebuilt-flutters-websites-with-dart-and-jaspr-317c00e8b400?source=rss----4da7dfd21a33---4",
+      "score": 71,
+      "summary": "谷歌 Dart/Flutter 团队宣布，其三个核心官网（dart.dev、flutter.dev、docs.flutter.dev）已从原本依赖多种非 Dart 工具（如 Eleventy）的碎片化技术栈，统一迁移至基于 Dart 的开源 Web 框架 Jaspr。此举实现了技术栈的统一，使贡献者仅需掌握 Dart 语言即可参与开发，提升了开发体验的一致性。这标志着 Dart 在 Web 开发领域的进一步回归与巩固，为开发者构建 Flutter Web 应用之外的标准网站提供了官方实践参考。",
+      "source_name": "Flutter - Medium",
+      "publish_time": "2026-04-16 02:31:01"
+    },
+    {
+      "category": "亚太技术生态",
+      "title": "97%のPermission確認を自動化するCoding Agent用OSS「ccgate」が誕生した",
+      "link": "https://zenn.dev/layerx/articles/20260428-ccgate",
+      "score": 70,
+      "summary": "一款名为“ccgate”的开源工具发布，旨在为AI编码助手（Coding Agent）自动处理代码库权限确认，宣称自动化率高达97%。该工具能减少开发者在集成AI编程工具时频繁进行权限审核的手动操作，提升开发流程的自动化程度与安全性，对促进AI辅助编程的落地有实用价值。",
+      "source_name": "Zennのトレンド",
+      "publish_time": "2026-04-28 17:23:21"
+    },
+    {
+      "category": "科技创投",
+      "title": "How ChatGPT serves ads",
+      "link": "https://www.buchodi.com/how-chatgpt-serves-ads-heres-the-full-attribution-loop/",
+      "score": 68,
+      "summary": "文章揭示了ChatGPT广告服务的后端技术细节：其广告平台由两部分构成，一是在ChatGPT对话流中注入结构化广告单元，二是在商户侧通过名为OAIQ的追踪SDK收集用户产品浏览数据。两者通过每则广告附带的四个Fernet加密点击令牌进行关联，完成完整的广告归因闭环。这对于理解OpenAI商业化路径及AI原生广告技术架构有参考价值。",
+      "source_name": "Hacker News",
+      "publish_time": "2026-04-29 07:54:14"
+    },
+    {
+      "category": "科技创投",
+      "title": "How one venture firm is investing in an increasingly fragmented world",
+      "link": "https://techcrunch.com/2026/04/28/how-one-venture-firm-is-navigating-an-increasingly-fragmented-world/",
+      "score": 68,
+      "summary": "本文介绍了某风险投资机构（推测为Kompas）在全球日益“碎片化”背景下的投资策略。核心观点是，面对地缘政治、供应链和科技标准的分化，该机构正调整其投资方法论，重点关注工业科技等能够适应或利用这种分散化趋势的领域。这为科技从业者和投资人理解未来投资方向与行业挑战提供了参考视角。",
+      "source_name": "TechCrunch",
+      "publish_time": "2026-04-29 11:00:00"
+    },
+    {
+      "category": "科技创投",
+      "title": "At his OpenAI trial, Musk relitigates an old friendship",
+      "link": "https://techcrunch.com/2026/04/28/at-his-openai-trial-musk-relitigates-an-old-friendship/",
+      "score": 68,
+      "summary": "文章报道了埃隆·马斯克与OpenAI的诉讼案庭审情况，焦点在于马斯克重提与谷歌联合创始人拉里·佩奇的旧日友谊与分歧。核心事实涉及马斯克对OpenAI背离其创立初衷（作为非营利性开源项目）的指控，以及其中牵扯的早期硅谷AI理念之争。这起诉讼揭示了巨头在AI治理与商业化路径上的深刻矛盾，对行业竞争格局和AI开源生态有持续影响。",
+      "source_name": "TechCrunch",
+      "publish_time": "2026-04-29 08:40:16"
+    },
+    {
+      "category": "商业金融",
+      "title": "Stocks Sink in Broad AI Rout Sparked by China's DeepSeek",
+      "link": "https://www.wsj.com/articles/nikkei-may-rise-as-weak-yen-raises-earnings-hopes-776a8056?mod=rss_markets_main",
+      "score": 68,
+      "summary": "中国AI公司深度求索（DeepSeek）引发市场对AI基础设施股票广泛抛售，美国股市普遍下跌，纳斯达克指数领跌。英伟达股价重挫16%，多家AI基础设施供应商股价出现两位数跌幅。此事件突显全球AI竞争加剧，单一技术进展即可引发市场剧烈波动，对行业估值产生影响。",
+      "source_name": "WSJ.com: Markets",
+      "publish_time": "2025-01-28 03:26:00"
+    },
+    {
+      "category": "商业金融",
+      "title": "DeepSeek Won't Sink U.S. AI Titans",
+      "link": "https://www.wsj.com/articles/deepseek-us-ai-stocks-nvidia-broadcom-6cdfae81?mod=rss_markets_main",
+      "score": 68,
+      "summary": "文章针对近期因中国AI公司DeepSeek发展而引发的美国科技股（如英伟达、博通）抛售潮进行评论，认为市场恐慌被过度夸大。核心观点指出，美国AI巨头的基本面并未因此受到根本性动摇，当前的下跌反应过度。该分析为投资者提供了针对市场情绪波动的理性视角。",
+      "source_name": "WSJ.com: Markets",
+      "publish_time": "2025-01-28 02:12:00"
+    },
+    {
+      "category": "科学深度",
+      "title": "Author Correction: Quantum error correction below the surface code threshold",
+      "link": "https://www.nature.com/articles/s41586-026-10559-8",
+      "score": 68,
+      "summary": "本文为《自然》杂志上关于量子纠错研究的作者更正声明。原研究《量子纠错低于表面码阈值》探讨了在量子计算中，通过纠错技术将逻辑错误率降低到物理错误率以下的关键进展。这标志着量子纠错向实用化迈出了重要一步，对实现大规模、容错的量子计算机具有参考价值。",
+      "source_name": "Nature",
+      "publish_time": "2026-04-29 11:31:16"
+    },
+    {
+      "category": "移动端与渲染",
+      "title": "That’s a wrap: Everything Flutter at Google Cloud Next",
+      "link": "https://blog.flutter.dev/thats-a-wrap-everything-flutter-at-google-cloud-next-1f4d3c6c6a6e?source=rss----4da7dfd21a33---4",
+      "score": 68,
+      "summary": "本文总结了2026年Google Cloud Next大会上Flutter和Dart团队的主要动态。核心发布是Dart支持Firebase Functions的预览版，标志着Dart向全栈开发迈进，并推出了与Firebase Admin SDK的深度集成以提高开发效率。此外，团队在现场展示了基于Flutter GenUI构建的AI咖啡店应用。这些更新主要面向Flutter开发者，旨在巩固其开发生态，但属于渐进式增强，未带来颠覆性变革。",
+      "source_name": "Flutter - Medium",
+      "publish_time": "2026-04-28 03:19:56"
+    },
+    {
+      "category": "亚太技术生态",
+      "title": "大規模案件のSlackにAI社員3人を常駐させたら、2年目が参画1週間で設計根本に踏み込んだ",
+      "link": "https://zenn.dev/nttdata_tech/articles/bf6b694144e55a",
+      "score": 68,
+      "summary": "文章报道了一项实验：在大型项目的Slack协作工具中部署三名AI“员工”，结果其中一名AI在加入仅一周后，便开始对项目的根本设计提出质疑和介入。这揭示了AI辅助工具在复杂开发流程中，已能超越简单问答，展现出主动分析并提出架构层面建议的潜力，为软件开发流程的自动化与智能化升级提供了新的观察视角。",
+      "source_name": "Zennのトレンド",
+      "publish_time": "2026-04-28 11:52:37"
+    },
+    {
+      "category": "科技创投",
+      "title": "It’s primetime for conspiracy theorist video creators",
+      "link": "https://www.theverge.com/streaming/919291/white-house-correspondents-dinner-conspiracy-videos-false-flag",
+      "score": 65,
+      "summary": "文章报道了在白宫记者协会晚宴枪击事件后，YouTube、TikTok等平台的阴谋论内容创作者正大量制作并传播相关虚假信息视频，将事件描述为“假旗行动”。这反映了当前社交媒体算法和推荐机制在重大公共事件中，可能助长误导性内容传播的行业现状，对内容平台的治理提出了挑战。",
+      "source_name": "The Verge",
+      "publish_time": "2026-04-29 07:31:53"
+    },
+    {
+      "category": "科技创投",
+      "title": "Elon Musk appeared more petty than prepared",
+      "link": "https://www.theverge.com/ai-artificial-intelligence/920191/elon-musk-sam-altman-trial-day-one",
+      "score": 65,
+      "summary": "文章报道了马斯克起诉OpenAI及山姆·阿尔特曼一案的庭审首日情况。核心观察是马斯克作为证人的表现不佳，证词显得琐碎且缺乏重点，甚至偏离到其旗下其他公司的事务上，未能有力地支持其诉讼主张。这起诉讼本身是AI领域巨头间的重大法律纠纷，但首日庭审并未出现实质性的技术或商业信息披露，更多是程序性内容和个人表现，对行业有参考但影响有限。",
+      "source_name": "The Verge",
+      "publish_time": "2026-04-29 07:17:12"
+    },
+    {
+      "category": "科技创投",
+      "title": "OpenAI Really Wants Codex to Shut Up About Goblins",
+      "link": "https://www.wired.com/story/openai-really-wants-codex-to-shut-up-about-goblins/",
+      "score": 65,
+      "summary": "文章报道了OpenAI在调试其代码生成模型Codex时遇到的意外问题：模型会固执地生成关于“哥布林”（goblins）的无关代码和评论。这揭示了当前大语言模型在安全对齐和可控性方面存在的深层挑战，即如何有效抑制模型产生不必要、有偏见或有害的“幻觉”输出，对于依赖AI生成代码的开发者而言具有实际参考价值。",
+      "source_name": "WIRED",
+      "publish_time": "2026-04-29 07:45:05"
+    },
+    {
+      "category": "科技创投",
+      "title": "Sniffies’ Users Worry About a ‘Straightification’ of the Gay Hookup App",
+      "link": "https://www.wired.com/story/sniffies-users-worry-about-straightification-gay-cruising-app/",
+      "score": 65,
+      "summary": "美国知名男同性恋社交应用Sniffies近期被用户担忧其正在“直化”，即为了扩大用户基础而吸引更多非同性恋用户或改变产品调性，可能影响其核心社群的专属性和文化氛围。这反映了小众社交产品在追求增长与维持社区纯粹性之间面临的普遍挑战，对关注LGBTQ+市场、社区运营和产品定位的从业者有参考价值。",
+      "source_name": "WIRED",
+      "publish_time": "2026-04-29 04:25:33"
+    },
+    {
+      "category": "科技创投",
+      "title": "FCC orders review of ABC licenses after Kimmel joke offends Trump and first lady",
+      "link": "https://arstechnica.com/tech-policy/2026/04/fcc-orders-review-of-abc-licenses-after-kimmel-joke-offends-trump-and-first-lady/",
+      "score": 65,
+      "summary": "美国联邦通信委员会（FCC）主席下令对ABC电视台的广播执照进行审查，起因是吉米·坎摩尔深夜秀节目中的笑话冒犯了前总统特朗普及其夫人。此事凸显了美国媒体监管机构在政治压力下的潜在干预风险，可能对广播电视内容的独立性与言论自由产生影响，是媒体行业与政治权力关系的一个敏感案例。",
+      "source_name": "Ars Technica",
+      "publish_time": "2026-04-29 03:57:13"
+    },
+    {
+      "category": "科学深度",
+      "title": "To hire good scientists, look at their peer-reviewing records",
+      "link": "https://www.nature.com/articles/d41586-026-01368-0",
+      "score": 65,
+      "summary": "发表于《自然》杂志的一篇读者来信提出，评估科学家在同行评审中的贡献可作为招聘时的有效参考指标。文章认为，积极的同行评审活动体现了科学家的专业知识、严谨性及对学术社区的投入，这些是传统论文发表指标所不能完全反映的。这一观点为科技企业及研究机构的人才评估体系提供了新的补充维度。",
+      "source_name": "Nature",
+      "publish_time": "2026-04-29 11:31:32"
+    },
+    {
+      "category": "中国视角",
+      "title": "独家丨零跑计划 2027 年推出第二品牌",
+      "link": "https://www.latepost.com/news/dj_detail?id=3533",
+      "score": 65,
+      "summary": "据晚点独家报道，零跑汽车计划在2027年推出第二品牌。此举意味着零跑在借助Stellantis集团全球渠道加速出海的同时，也在规划更长远的多品牌战略，以覆盖更广泛的市场区间，应对日益激烈的中国新能源汽车市场竞争。",
+      "source_name": "晚点 - 最新报道",
+      "publish_time": "2026-04-27 23:04:00"
+    },
+    {
+      "category": "中国视角",
+      "title": "欧洲航班，将大面积取消？",
+      "link": "https://www.huxiu.com/article/4854673.html",
+      "score": 65,
+      "summary": "文章主要讨论了欧洲航空业因空中交通管制人员短缺、地缘政治冲突及能源成本高企等因素，可能面临航班大面积取消或延误的风险。这属于行业动态分析，对关注国际物流、出行及航空相关投资的从业者有一定参考价值，但未涉及重大技术突破或战略变革，影响范围相对有限。",
+      "source_name": "虎嗅资讯-全部",
+      "publish_time": "2026-04-29 11:15:39"
+    },
+    {
+      "category": "中国视角",
+      "title": "“谢绝探店”的店里，窝藏着最多的探店博主？",
+      "link": "https://www.huxiu.com/article/4854672.html",
+      "score": 65,
+      "summary": "本文探讨了餐饮行业一个有趣的现象：一些明确标注“谢绝探店”的店铺，反而吸引了更多探店博主以“野生”或“偷拍”形式进行内容创作。文章分析了这种“反向营销”策略背后的流量逻辑，揭示了当代社交媒体营销中，规则设定与用户行为之间复杂的互动关系，为关注本地生活、内容营销和消费趋势的从业者提供了观察视角。",
+      "source_name": "虎嗅资讯-全部",
+      "publish_time": "2026-04-29 11:14:45"
+    },
+    {
+      "category": "中国视角",
+      "title": "我如何用三个 CLI 工具取代文档创建需求",
+      "link": "https://sspai.com/post/109187",
+      "score": 65,
+      "summary": "作者分享了使用三个命令行工具（CLI）替代传统文档创建流程的个人经验。文章核心在于通过技术工具（如Pandoc、LaTeX模板等）将Markdown等轻量格式高效转换为PDF等正式文档，旨在提升开发者和技术写作者的文档生成自动化程度与效率。这对追求效率的从业者有参考价值，但属于个人经验分享，未涉及重大技术或行业变革。",
+      "source_name": "少数派 -- Matrix",
+      "publish_time": "2026-04-28 17:49:08"
+    },
+    {
+      "category": "中国视角",
+      "title": "鼠须管 Squirrel 皮肤配置指北",
+      "link": "https://sspai.com/post/109164",
+      "score": 65,
+      "summary": "本文是一篇针对开源输入法“鼠须管 (Squirrel)”在 macOS 上的皮肤配置教程。文章面向已在使用或对高度定制化输入法有需求的用户，提供了简洁的配置步骤，旨在帮助用户个性化输入法的外观。内容属于特定工具的使用技巧分享，对 macOS 开发者及高级用户有一定实用价值，但影响范围相对垂直。",
+      "source_name": "少数派 -- Matrix",
+      "publish_time": "2026-04-28 11:50:16"
+    },
+    {
+      "category": "硬核工程与架构",
+      "title": "Shutdowns, power outages, and conflict: a review of Q1 2026 Internet disruptions",
+      "link": "https://blog.cloudflare.com/q1-2026-internet-disruption-summary/",
+      "score": 65,
+      "summary": "文章回顾了2026年第一季度的全球互联网中断事件，主要归因于政府强制关停、电力中断和地区冲突。这类报告为互联网基础设施的稳定性和地缘政治风险提供了重要参考，对网络运营商、跨国企业和关注数字韧性的投资者具有警示价值，属于行业动态监测类内容。",
+      "source_name": "The Cloudflare Blog",
+      "publish_time": "2026-04-28 21:00:00"
+    },
+    {
+      "category": "硬核工程与架构",
+      "title": "EP212: Data Warehouse vs Data Lake vs Data Mesh",
+      "link": "https://blog.bytebytego.com/p/ep212-data-warehouse-vs-data-lake",
+      "score": 65,
+      "summary": "本期内容（EP212）对比了数据仓库、数据湖和数据网格这三种主流数据架构。文章旨在帮助从业者理解它们各自的核心概念、适用场景与优缺点。这类概念梳理对于数据工程师和架构师进行技术选型、理解行业演进路径具有基础性的参考价值，属于数据基础设施领域的常规知识更新。",
+      "source_name": "ByteByteGo Newsletter",
+      "publish_time": "2026-04-25 23:30:59"
+    },
+    {
+      "category": "移动端与渲染",
+      "title": "Streamline User Journeys with Verified Email via Credential Manager",
+      "link": "http://android-developers.googleblog.com/2026/04/streamline-auth-credential-manager-verified-email.html",
+      "score": 65,
+      "summary": "谷歌官方博客宣布，通过Android的Credential Manager API，开发者现可集成“已验证电子邮件”功能。该功能允许用户使用其Google账户中已验证的电子邮件地址，在应用和网站中一键安全登录，旨在简化登录流程、提升用户体验并降低密码依赖，是安卓生态系统在身份验证领域的一次实用更新。",
+      "source_name": "Android Developers Blog",
+      "publish_time": "2026-04-23 04:00:00"
+    },
+    {
+      "category": "AI与前沿",
+      "title": "How to build scalable web apps with OpenAI's Privacy Filter",
+      "link": "https://huggingface.co/blog/openai-privacy-filter-web-apps",
+      "score": 62,
+      "summary": "本文介绍了如何利用OpenAI的隐私过滤器（Privacy Filter）来构建可扩展的Web应用。该技术旨在处理用户输入时自动过滤敏感信息，以增强数据隐私保护。文章可能提供了相关的技术实现示例或指南，对于在开发中集成AI功能同时需遵守数据合规要求的开发者具有实用参考价值。这是一篇技术实践类文章，由Hugging Face发布。",
+      "source_name": "Hugging Face - Blog",
+      "publish_time": "2026-04-27 08:00:00"
+    },
+    {
+      "category": "亚太技术生态",
+      "title": "Hono公式の Inertia アダプタが来た！Hono × Inertia × React によるSPA新体験",
+      "link": "https://zenn.dev/ashunar0/articles/cc351badf8681c",
+      "score": 62,
+      "summary": "轻量级Web框架Hono发布了官方的Inertia.js适配器，实现了Hono后端与React前端的深度集成。该组合允许开发者使用经典的服务器端路由和控制器模式来构建现代的单页面应用，无需创建REST API，简化了全栈开发流程。这为偏好传统MVC架构但希望获得SPA体验的团队提供了一个新的技术选型。",
+      "source_name": "Zennのトレンド",
+      "publish_time": "2026-04-28 18:14:55"
+    },
+    {
+      "category": "科技创投",
+      "title": "Ghostty is leaving GitHub",
+      "link": "https://mitchellh.com/writing/ghostty-leaving-github",
+      "score": 61,
+      "summary": "著名开发者Mitchell Hashimoto宣布，其终端模拟器项目Ghostty将离开GitHub。作为平台元老级用户，他表达了个人对GitHub深厚的情感依赖，但暗示了因平台政策或体验变化而迁移的决定。此举虽非重大技术事件，但反映了部分核心开源贡献者对主流代码托管平台的信任动摇，可能引发社区对平台去中心化的讨论。",
+      "source_name": "Hacker News",
+      "publish_time": "2026-04-29 03:44:52"
     }
   ]
 }
