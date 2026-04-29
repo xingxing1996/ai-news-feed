@@ -28,5 +28,21 @@
         "https://rsshub.rssforever.com/latepost",
         "https://rsshub.rssforever.com/huxiu/article",
         "https://rsshub.rssforever.com/sspai/matrix"
+    ],
+    "硬核工程与架构": [
+        "https://blog.cloudflare.com/rss/",
+        "https://netflixtechblog.com/feed",
+        "https://blog.bytebytego.com/feed"
+    ],
+    "算力与模型部署": [
+        "https://developer.nvidia.com/blog/feed/"
+    ],
+    "移动端与渲染": [
+        "https://medium.com/feed/flutter",
+        "https://android-developers.blogspot.com/feeds/posts/default"
+    ],
+    "亚太技术生态": [
+        "https://zenn.dev/feed",
+        "https://coralcap.co/feed/"
     ]
 }

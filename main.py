@@ -2,6 +2,7 @@ import feedparser
 import json
 import os
 import re
+import sys
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone, timedelta
@@ -62,16 +63,24 @@ def analyze_with_llm(title, summary, article_text="", max_retries=3):
     content = article_text if article_text else summary
     content = content[:1500]
 
-    prompt = f"""你是一个资深的科技/商业主编。请完成以下两个任务：
+    prompt = f"""你是一位资深科技财经主编，正在为互联网从业者、投资人和开发者筛选有价值的资讯。
 
-1. 评估这篇资讯对互联网从业者、投资人或开发者的价值(0-100分)
-2. 用中文写一段约100字的摘要，提炼核心信息和关键结论，让读者不打开链接也能获取核心价值
+内容可能为英文、日文或中文，但摘要必须用中文输出。
+
+请评估以下文章，完成两个任务：
+1. 评分(0-100)：
+   - 50-59：日常更新，小版本发布
+   - 60-70：有一定参考价值的技术文章或行业动态
+   - 71-80：重要技术突破、行业趋势分析、有实践价值的工程经验
+   - 81-90：重大产品发布、关键架构演进、影响行业的战略变化
+   - 91-100：里程碑级事件，深刻影响多个行业
+2. 用中文写约100字摘要：提炼核心事实、关键数据/技术点和行业影响，让读者不打开链接就能获取核心价值。
 
 标题：{title}
 内容：{content}
 
-请严格只输出纯 JSON 格式，不要有任何 Markdown 标记：
-{{"score": 评分数字, "summary": "100字左右的中文摘要"}}"""
+请严格只输出纯 JSON，不要任何额外文字或 Markdown 标记：
+{{"score": 数字, "summary": "中文摘要"}}"""
 
     for attempt in range(max_retries):
         try:
@@ -103,7 +112,7 @@ def analyze_with_llm(title, summary, article_text="", max_retries=3):
 def main():
     if not API_KEY:
         print("致命错误：找不到 ARK_API_KEY 环境变量！")
-        return
+        sys.exit(1)
 
     final_data = {
         "update_time": datetime.now(BJ_TZ).strftime("%Y-%m-%d %H:%M:%S"),
@@ -154,7 +163,7 @@ def main():
         score, summary = analyze_with_llm(entry.title, item["summary_text"], article_text)
         print(f"[{score}分] {entry.title[:30]}...")
 
-        if score >= 85:
+        if score >= 60:
             final_data["articles"].append({
                 "category": item["category"],
                 "title": entry.title,
@@ -164,6 +173,11 @@ def main():
                 "source_name": item["source_name"],
                 "publish_time": to_beijing_time(getattr(entry, 'published', None))
             })
+
+    # 0条数据则报错退出，不更新文件
+    if len(final_data["articles"]) == 0:
+        print("!!! 错误：未筛选出任何文章（0条），可能所有 AI 调用均失败，不更新 feed.json !!!")
+        sys.exit(1)
 
     final_data["articles"] = sorted(final_data["articles"], key=lambda x: x["score"], reverse=True)
 
