@@ -219,7 +219,7 @@ def main():
         for url in urls:
             try:
                 feed = feedparser.parse(url)
-                for entry in feed.entries[:15]:
+                for entry in feed.entries[:10]:
                     # 过滤掉太旧的文章
                     raw_time = getattr(entry, 'published', None)
                     if raw_time:
