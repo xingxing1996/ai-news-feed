@@ -122,6 +122,55 @@ def analyze_with_llm(title, summary, source_name="未知来源", article_text=""
 
     return 0, None
 
+def generate_daily_insight(articles):
+    """将高分文章汇总，让大模型生成今日洞察报告"""
+    if not articles:
+        return []
+
+    # 取评分 >= 70 的文章用于洞察分析
+    top_articles = [a for a in articles if a["score"] >= 70]
+    if not top_articles:
+        top_articles = articles[:10]
+
+    # 构建文章摘要列表
+    article_list = ""
+    for i, a in enumerate(top_articles[:20], 1):
+        article_list += f"{i}. [{a['category']}] {a['title_cn']}（{a['source_cn']}，{a['score']}分）\n   摘要：{a['summary']}\n   机遇：{a['opportunity']}\n\n"
+
+    prompt = f"""你是一位资深科技财经分析师，请基于以下 {len(top_articles[:20])} 篇今日热门资讯，生成一份"今日洞察报告"。
+
+要求：
+- 输出 3-5 条核心洞察
+- 每条洞察包含：趋势标题、详细分析（150字以内）、相关投资/创业/职业机会
+- 要跨领域关联分析，发现隐藏趋势
+- 所有输出用中文
+
+今日资讯：
+{article_list}
+
+请严格只输出纯 JSON 数组，不要任何额外文字或 Markdown 标记：
+[{{"title": "洞察标题", "analysis": "详细分析", "action": "建议关注的方向或机会"}}]"""
+
+    for attempt in range(3):
+        try:
+            time.sleep(3.0)
+            response = client.chat.completions.create(
+                model=MODEL_NAME,
+                messages=[{"role": "user", "content": prompt}],
+                max_tokens=1000,
+                thinking={"type": "disabled"},
+            )
+            content = response.choices[0].message.content
+            content = content.replace("```json", "").replace("```", "").strip()
+            result = json.loads(content)
+            if isinstance(result, list):
+                return result
+        except Exception as e:
+            print(f"[-] 洞察生成失败 (尝试 {attempt+1}/3): {e}")
+            time.sleep(10 * (2 ** attempt))
+
+    return []
+
 # ==========================================
 # 3. 主流程
 # ==========================================
@@ -138,14 +187,14 @@ def main():
 
     # 第一阶段：解析所有 RSS，收集条目
     now = datetime.now(BJ_TZ)
-    cutoff = now - timedelta(days=7) # 只保留最近7天内的文章
+    cutoff = now - timedelta(hours=48) # 只保留最近48小时内的文章
     all_entries = []
     for category, urls in SOURCES.items():
         print(f">>> 解析 RSS: {category}")
         for url in urls:
             try:
                 feed = feedparser.parse(url)
-                for entry in feed.entries[:5]:
+                for entry in feed.entries[:15]:
                     # 过滤掉太旧的文章
                     raw_time = getattr(entry, 'published', None)
                     if raw_time:
@@ -233,10 +282,28 @@ def main():
     final_data["articles"] = deduped
     print(f"去重后保留 {len(deduped)} 条文章")
 
-    with open("feed.json", "w", encoding="utf-8") as f:
+    # 生成今日洞察
+    print("开始生成今日洞察报告...")
+    insights = generate_daily_insight(deduped)
+    final_data["daily_insights"] = insights
+    if insights:
+        print(f"生成 {len(insights)} 条洞察")
+    else:
+        print("洞察生成失败，跳过")
+
+    # 备份上一份 feed.json 到 feedLastTime.json
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    feed_path = os.path.join(script_dir, "feed.json")
+    backup_path = os.path.join(script_dir, "feedLastTime.json")
+    if os.path.exists(feed_path):
+        import shutil
+        shutil.copy2(feed_path, backup_path)
+        print("已备份 feed.json -> feedLastTime.json")
+
+    with open(feed_path, "w", encoding="utf-8") as f:
         json.dump(final_data, f, ensure_ascii=False, indent=2)
 
-    print(f"=== 执行完毕！筛选出 {len(final_data['articles'])} 条干货。 ===")
+    print(f"=== 执行完毕！筛选出 {len(final_data['articles'])} 条干货，{len(insights)} 条洞察。 ===")
 
 if __name__ == "__main__":
     main()

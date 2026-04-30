@@ -5,7 +5,7 @@ on:
     branches:
       - main
   schedule:
-    - cron: '0 0,15 * * *'
+    - cron: '7 0,15 * * *'
   workflow_dispatch:
 
 jobs:
@@ -34,6 +34,6 @@ jobs:
         git config --local user.name "GitHub Action"
         git fetch origin main
         git reset origin/main
-        git add feed.json
+        git add feed.json feedLastTime.json
         git commit -m "Auto-update feed.json" || exit 0
         git push
