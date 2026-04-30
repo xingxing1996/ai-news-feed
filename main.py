@@ -13,14 +13,39 @@ import requests
 # 北京时间 UTC+8
 BJ_TZ = timezone(timedelta(hours=8))
 
+# 常见缩写时区映射
+TZ_MAP = {
+    "PST": timezone(timedelta(hours=-8)),
+    "PDT": timezone(timedelta(hours=-7)),
+    "EST": timezone(timedelta(hours=-5)),
+    "EDT": timezone(timedelta(hours=-4)),
+    "CST": timezone(timedelta(hours=-6)),
+    "CDT": timezone(timedelta(hours=-5)),
+    "MST": timezone(timedelta(hours=-7)),
+    "MDT": timezone(timedelta(hours=-6)),
+    "GMT": timezone.utc,
+    "BST": timezone(timedelta(hours=1)),
+    "CET": timezone(timedelta(hours=1)),
+    "CEST": timezone(timedelta(hours=2)),
+    "JST": timezone(timedelta(hours=9)),
+    "IST": timezone(timedelta(hours=5, minutes=30)),
+    "AEST": timezone(timedelta(hours=10)),
+    "NZST": timezone(timedelta(hours=12)),
+}
+
+def parse_time_aware(raw_time):
+    """解析时间字符串，正确处理缩写时区"""
+    dt = dp.parse(raw_time, tzinfos=TZ_MAP)
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    return dt
+
 def to_beijing_time(raw_time):
     """将各种格式的时间统一转为北京时间字符串"""
     if not raw_time:
         return datetime.now(BJ_TZ).strftime("%Y-%m-%d %H:%M:%S")
     try:
-        dt = dp.parse(raw_time)
-        if dt.tzinfo is None:
-            dt = dt.replace(tzinfo=timezone.utc)
+        dt = parse_time_aware(raw_time)
         dt = dt.astimezone(BJ_TZ)
         return dt.strftime("%Y-%m-%d %H:%M:%S")
     except Exception:
@@ -199,9 +224,7 @@ def main():
                     raw_time = getattr(entry, 'published', None)
                     if raw_time:
                         try:
-                            pub_dt = dp.parse(raw_time)
-                            if pub_dt.tzinfo is None:
-                                pub_dt = pub_dt.replace(tzinfo=timezone.utc)
+                            pub_dt = parse_time_aware(raw_time)
                             pub_dt = pub_dt.astimezone(BJ_TZ)
                             if pub_dt < cutoff:
                                 continue
