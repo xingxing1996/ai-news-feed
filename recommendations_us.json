@@ -1,0 +1,183 @@
+{
+  "update_time": "2026-07-31 17:42:09",
+  "horizon_days": 20,
+  "note": "量化模型(LightGBM+XGBoost)预测：未来 horizon 日跑赢行业的概率；非买卖建议",
+  "n": 10,
+  "recommendations": [
+    {
+      "code": "005930.KS",
+      "name": "三星电子",
+      "industry": "半导体",
+      "market": "kr",
+      "prob": 0.931242758940295,
+      "score": 93,
+      "confidence": "高",
+      "data_completeness": 1.0,
+      "reasons": [
+        "综合因子打分靠前"
+      ],
+      "risks": [
+        "价格波动放大（截面 91% 分位）",
+        "价格波动放大（截面 88% 分位）"
+      ]
+    },
+    {
+      "code": "000660.KS",
+      "name": "SK海力士",
+      "industry": "半导体",
+      "market": "kr",
+      "prob": 0.9269019850158338,
+      "score": 93,
+      "confidence": "高",
+      "data_completeness": 1.0,
+      "reasons": [
+        "ROE 较高（盈利能力强）（截面 94% 分位）",
+        "净利率较高（截面 100% 分位）",
+        "毛利率较高（截面 76% 分位）"
+      ],
+      "risks": [
+        "价格波动放大（截面 98% 分位）",
+        "价格波动放大（截面 97% 分位）"
+      ]
+    },
+    {
+      "code": "SOXL",
+      "name": "SOXL",
+      "industry": "指数",
+      "market": "us",
+      "prob": 0.9254190159882598,
+      "score": 93,
+      "confidence": "高",
+      "data_completeness": 0.93,
+      "reasons": [
+        "综合因子打分靠前"
+      ],
+      "risks": [
+        "价格波动放大（截面 100% 分位）",
+        "价格波动放大（截面 97% 分位）"
+      ]
+    },
+    {
+      "code": "AMAT",
+      "name": "Applied Materials",
+      "industry": "半导体",
+      "market": "us",
+      "prob": 0.8918436703483432,
+      "score": 89,
+      "confidence": "高",
+      "data_completeness": 1.0,
+      "reasons": [
+        "综合因子打分靠前"
+      ],
+      "risks": [
+        "价格波动放大（截面 79% 分位）",
+        "价格波动放大（截面 79% 分位）"
+      ]
+    },
+    {
+      "code": "GS",
+      "name": "Goldman Sachs",
+      "industry": "金融",
+      "market": "us",
+      "prob": 0.8213871939445432,
+      "score": 82,
+      "confidence": "高",
+      "data_completeness": 1.0,
+      "reasons": [
+        "毛利率较高（截面 94% 分位）"
+      ],
+      "risks": [
+        "需关注个股与行业层面的突发风险"
+      ]
+    },
+    {
+      "code": "AAPL",
+      "name": "Apple",
+      "industry": "科技",
+      "market": "us",
+      "prob": 0.8082258438248243,
+      "score": 81,
+      "confidence": "高",
+      "data_completeness": 1.0,
+      "reasons": [
+        "新闻·Amazon财报后股价大涨12%（影响 0.8）",
+        "价格波动收敛（截面 19% 分位）",
+        "ROE 较高（盈利能力强）（截面 100% 分位）",
+        "价格波动收敛（截面 21% 分位）"
+      ],
+      "risks": [
+        "新闻·Apple财报后股价下跌7%（影响 0.7）",
+        "需关注个股与行业层面的突发风险"
+      ]
+    },
+    {
+      "code": "GOLD",
+      "name": "Barrick",
+      "industry": "黄金",
+      "market": "us",
+      "prob": 0.7793620143662625,
+      "score": 78,
+      "confidence": "高",
+      "data_completeness": 1.0,
+      "reasons": [
+        "综合因子打分靠前"
+      ],
+      "risks": [
+        "ROE 偏低（截面 24% 分位）",
+        "净利率偏低（截面 6% 分位）"
+      ]
+    },
+    {
+      "code": "GOOGL",
+      "name": "Alphabet",
+      "industry": "科技",
+      "market": "us",
+      "prob": 0.7673978527844287,
+      "score": 77,
+      "confidence": "高",
+      "data_completeness": 1.0,
+      "reasons": [
+        "ROE 较高（盈利能力强）（截面 76% 分位）",
+        "净利率较高（截面 91% 分位）"
+      ],
+      "risks": [
+        "需关注个股与行业层面的突发风险"
+      ]
+    },
+    {
+      "code": "SMH",
+      "name": "SMH",
+      "industry": "指数",
+      "market": "us",
+      "prob": 0.7556422337220978,
+      "score": 76,
+      "confidence": "高",
+      "data_completeness": 0.93,
+      "reasons": [
+        "综合因子打分靠前"
+      ],
+      "risks": [
+        "与市场相关性上升（截面 99% 分位）",
+        "量能波动加大（截面 77% 分位）"
+      ]
+    },
+    {
+      "code": "SPY",
+      "name": "SPDR S&P 500",
+      "industry": "指数",
+      "market": "us",
+      "prob": 0.6800185371128447,
+      "score": 68,
+      "confidence": "高",
+      "data_completeness": 0.93,
+      "reasons": [
+        "价格波动收敛（截面 2% 分位）",
+        "价格波动收敛（截面 2% 分位）",
+        "量能平稳（截面 7% 分位）"
+      ],
+      "risks": [
+        "与市场相关性上升（截面 79% 分位）"
+      ]
+    }
+  ]
+}
