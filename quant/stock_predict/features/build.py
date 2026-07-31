@@ -75,6 +75,20 @@ def build_feature_matrix() -> tuple[pd.DataFrame, dict]:
     lab = labels.compute_labels(daily, universe, horizon)
     mat = mat.join(lab, how="left")
 
+    # 大盘（同市场等权）未来收益，供日报展示「跑赢大盘」参照
+    if "bench_excess" not in mat.columns:
+        _mkt = universe.set_index("code")["market"].to_dict()
+        _d = daily[["date", "code", "close"]].copy()
+        _d["market"] = _d["code"].map(_mkt).fillna("other")
+        _d["future_return"] = _d.groupby("code")["close"].transform(
+            lambda c: c.shift(-horizon) / c - 1
+        )
+        _bf = _d.dropna(subset=["future_return"]).groupby(["date", "market"])["future_return"].mean()
+        _d = _d.set_index(["date", "market"]).join(_bf.rename("bench_future")).reset_index()
+        _d = _d.set_index(["date", "code"])[["bench_future"]]
+        mat = mat.join(_d, how="left")
+        mat["bench_excess"] = mat["future_return"] - mat["bench_future"]
+
     # 挂 industry / market 元信息（供截面分组与日报解释）
     meta = universe.set_index("code")[["industry", "market", "name"]]
     mat = mat.join(meta, how="left")
@@ -87,7 +101,8 @@ def build_feature_matrix() -> tuple[pd.DataFrame, dict]:
     # —— 机构级预处理（无未来函数：全部按日截面操作）——
     fcfg = cfg.feature
     feat_cols_now = [c for c in mat.columns if c not in ("future_return", "industry_excess", "industry_excess_neu",
-                                                          "label", "industry", "market", "name", "market_cap")]
+                                                          "label", "abs_label", "bench_label", "bench_excess", "bench_future",
+                                                          "industry", "market", "name", "market_cap")]
     # 1) 因子去极值 + 截面标准化
     pmethod = fcfg.get("process", "zscore")
     if pmethod != "none" and feat_cols_now:
@@ -111,7 +126,8 @@ def build_feature_matrix() -> tuple[pd.DataFrame, dict]:
     write_parquet(mat.reset_index(), "features")
 
     feat_cols = [c for c in mat.columns if c not in ("future_return", "industry_excess", "industry_excess_neu",
-                                                       "label", "industry", "market", "name", "market_cap")]
+                                                       "label", "abs_label", "bench_label", "bench_excess", "bench_future",
+                                                       "industry", "market", "name", "market_cap")]
     stats = {
         "rows": int(len(mat)),
         "feature_cols": int(len(feat_cols)),

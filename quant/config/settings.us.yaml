@@ -51,7 +51,7 @@ backtest:
   benchmark: "QQQ"
 
 report:
-  top_k: 10
+  top_k: 0                              # 0=全部股票都列出
   min_probability: 0.55
   out_path: data/output/recommendations_us.md
   explain_method: shap

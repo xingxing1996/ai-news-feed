@@ -33,6 +33,9 @@ def _load_model(state_dir: str | None = None):
         return None, []
     with open(path, "rb") as fh:
         blob = pickle.load(fh)
+    # 兼容新旧格式：旧版 {model, feat_cols}；新版 {models: {target: {model, ...}}, feat_cols}
+    if "models" in blob:
+        return blob["models"]["label"]["model"], blob["feat_cols"]
     return blob["model"], blob["feat_cols"]
 
 
@@ -69,12 +72,17 @@ def generate_daily_report(as_of: str | None = None, pred_df=None, feats_df=None,
         as_of = cand_dates[-1]
         pred_d = pred[pred["date"] == as_of].copy()
 
+    # 主概率列：跑赢行业（prob）；兼容新旧 predictions 命名
+    if "prob" not in pred_d.columns and "prob_label" in pred_d.columns:
+        pred_d["prob"] = pred_d["prob_label"]
     min_p = float(cfg.report.get("min_probability", 0.5))
     top_k = int(cfg.report.get("top_k", 10))
-    pred_d = pred_d[pred_d["prob"] >= min_p].sort_values("prob", ascending=False).head(top_k)
+    pred_d = pred_d[pred_d["prob"] >= min_p].sort_values("prob", ascending=False)
     if pred_d.empty:
-        # 退而取 Top-K 不设阈值
-        pred_d = pred[pred["date"] == as_of].sort_values("prob", ascending=False).head(top_k)
+        # 退而取全部不设阈值
+        pred_d = pred[pred["date"] == as_of].sort_values("prob", ascending=False)
+    if top_k > 0:
+        pred_d = pred_d.head(top_k)
 
     # 当日截面
     section = feats.xs(as_of, level="date") if as_of in feats.index.get_level_values("date") else pd.DataFrame()
@@ -102,6 +110,8 @@ def generate_daily_report(as_of: str | None = None, pred_df=None, feats_df=None,
     for _, r in pred_d.iterrows():
         code = r["code"]
         prob = float(r["prob"])
+        prob_up = float(r.get("prob_abs_label", r.get("prob_up", prob)))
+        prob_bench = float(r.get("prob_bench_label", r.get("prob_bench", prob)))
         if (as_of, code) not in feats.index:
             continue
         row = feats.loc[(as_of, code)]
@@ -129,6 +139,8 @@ def generate_daily_report(as_of: str | None = None, pred_df=None, feats_df=None,
                 "industry": meta.get("industry") or "—",
                 "market": meta.get("market") or "—",
                 "prob": prob,
+                "prob_up": prob_up,
+                "prob_bench": prob_bench,
                 "score": round(prob * 100),
                 "confidence": confidence,
                 "data_completeness": completeness,
@@ -137,9 +149,19 @@ def generate_daily_report(as_of: str | None = None, pred_df=None, feats_df=None,
             }
         )
 
-    # 回测指标（若已有）
+    # 回测指标（若已有）→ 原始 JSON + 一句句可读解读
     bt_path = Path(cfg.paths.output_dir) / "backtest_metrics.txt"
-    bt_summary = bt_path.read_text(encoding="utf-8") if bt_path.exists() else None
+    bt_summary = None
+    bt_explain = None
+    if bt_path.exists():
+        bt_summary = bt_path.read_text(encoding="utf-8")
+        try:
+            import json as _j
+            from ..backtest import metrics as _metrics
+
+            bt_explain = _metrics.explain(_j.loads(bt_summary))
+        except Exception:  # noqa: BLE001
+            bt_explain = None
 
     env = Environment(
         loader=FileSystemLoader(str(Path(__file__).parent / "templates")),
@@ -149,7 +171,7 @@ def generate_daily_report(as_of: str | None = None, pred_df=None, feats_df=None,
     )
     tmpl = env.get_template("daily.md.j2")
     text = tmpl.render(as_of=as_of, horizon=int(cfg.feature.label_horizon), cards=cards,
-                       backtest=bt_summary, project=str(PROJECT_ROOT.name))
+                       backtest=bt_summary, bt_explain=bt_explain, project=str(PROJECT_ROOT.name))
 
     out_path = Path(cfg.report.get("out_path", "data/output/daily_report.md"))
     out_path.parent.mkdir(parents=True, exist_ok=True)
@@ -163,7 +185,7 @@ def generate_daily_report(as_of: str | None = None, pred_df=None, feats_df=None,
     rec = {
         "update_time": datetime.now(_bj).strftime("%Y-%m-%d %H:%M:%S"),
         "horizon_days": int(cfg.feature.label_horizon),
-        "note": "量化模型(LightGBM+XGBoost)预测：未来 horizon 日跑赢行业的概率；非买卖建议",
+        "note": "概率含义：prob=跑赢行业概率, prob_up=未来上涨概率, prob_bench=跑赢大盘概率；非买卖建议",
         "n": len(cards),
         "recommendations": cards,
     }

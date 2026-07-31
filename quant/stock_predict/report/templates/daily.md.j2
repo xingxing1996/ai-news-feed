@@ -1,13 +1,26 @@
 # AI 投资日报 · {{ as_of }}
 
-> 基于 LightGBM + Qlib 因子引擎。概率 = 「未来 {{ horizon }} 个交易日跑赢所在行业」的预测概率。
+> 基于 LightGBM + Qlib 因子引擎。三个概率（未来 {{ horizon }} 个交易日）：
+> **上涨概率**=绝对收益>0 的概率；**跑赢大盘**=收益超过同市场等权指数；**跑赢行业**=收益超过同行业均值。
 > 仅作研究用途，不构成投资建议。
 
 {% if backtest %}
 **最近回测摘要**
+
+{% if bt_explain %}
+{% for line in bt_explain %}- {{ line }}
+{% endfor %}
+<details><summary>原始指标</summary>
+
 ```
 {{ backtest }}
 ```
+</details>
+{% else %}
+```
+{{ backtest }}
+```
+{% endif %}
 {% endif %}
 
 ---
@@ -15,7 +28,9 @@
 {% for c in cards %}
 ### {{ loop.index }}. {{ c.name }}（{{ c.code }}） · {{ c.industry }} / {{ c.market|upper }}
 
-- **未来 {{ horizon }} 交易日跑赢行业概率**：`{{ "%.0f"|format(c.prob * 100) }}%`
+- **未来上涨概率**：`{{ "%.0f"|format(c.prob_up * 100) }}%`
+- **跑赢大盘概率**：`{{ "%.0f"|format(c.prob_bench * 100) }}%`
+- **跑赢行业概率**：`{{ "%.0f"|format(c.prob * 100) }}%`
 - **评分**：`{{ c.score }}/100`
 - **可信度**：`{{ c.confidence }}`（数据完整度 `{{ "%.0f"|format(c.data_completeness * 100) }}%`）
 

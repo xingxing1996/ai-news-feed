@@ -69,8 +69,9 @@ def run_news_pipeline(universe: pd.DataFrame | None = None, max_codes: int | Non
             text = (it.title + "。 " + it.content)[:1200]
             pairs.append((text, [code]))
 
-    batched = extract_events_batch(pairs, batch_size=6) if pairs else {}
-    n_calls = max(1, (len(pairs) + 5) // 6)
+    bsize = int(ncfg.get("batch_size", 3))
+    batched = extract_events_batch(pairs, batch_size=bsize) if pairs else {}
+    n_calls = max(1, (len(pairs) + bsize - 1) // bsize)
 
     records = []
     for code in ordered:
