@@ -14,3 +14,7 @@ venv/
 # quant 本地数据/产物（重，可重新生成；GHA 里用 artifact 存模型）
 quant/data/
 quant/config/settings.local.yaml
+
+# 自动生成的 feed JSON（sources.json 是配置，保留）
+feed.json
+feedLastTime.json
