@@ -107,6 +107,15 @@ def generate_daily_report(as_of: str | None = None, pred_df=None, feats_df=None,
         row = feats.loc[(as_of, code)]
         reasons, risks = explain.explain_row(row, feat_cols, section, model=model)
 
+        # —— 数据质量：特征完整度 + 关键价量特征是否缺失（缺数据→标低可信）——
+        fcols = [c for c in feat_cols if c in row.index]
+        n_present = sum(1 for c in fcols if pd.notna(row[c]))
+        completeness = round(n_present / max(len(feat_cols), 1), 2)
+        key_missing = [c for c in ("ROC20", "MA20", "RET1D") if c in feat_cols and pd.isna(row.get(c))]
+        if completeness < 0.7 or key_missing:
+            risks.append(f"⚠️ 数据缺失（特征完整度 {completeness:.0%}）")
+        confidence = "低" if completeness < 0.6 else ("中" if completeness < 0.85 else "高")
+
         # 叠加新闻事件（设计文档：新闻应给「HBM需求增加」这类上下文理由）
         nreason, nrisk = _news_reason_risk(news_events.get(code, []))
         reasons = nreason + reasons
@@ -121,6 +130,8 @@ def generate_daily_report(as_of: str | None = None, pred_df=None, feats_df=None,
                 "market": meta.get("market") or "—",
                 "prob": prob,
                 "score": round(prob * 100),
+                "confidence": confidence,
+                "data_completeness": completeness,
                 "reasons": reasons,
                 "risks": risks,
             }

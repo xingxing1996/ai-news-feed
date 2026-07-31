@@ -77,14 +77,19 @@ def fetch_daily(code: str, start: str, end: str, market: str = "cn") -> pd.DataF
 
 
 def fetch_valuation(code: str, start: str, end: str, market: str = "cn") -> pd.DataFrame:
-    """历史 PE/PB。A股用 stock_zh_valuation_baidu（stock_a_indicator_lg 在新版已移除）。"""
-    if market != "cn":
-        return _empty_valuation()  # 港股历史 PE/PB 暂略（stock_hk_valuation_baidu 可后续接入）
+    """历史 PE/PB。A股 stock_zh_valuation_baidu / 港股 stock_hk_valuation_baidu（同源百度）。"""
     try:
         ak = _ak()
-        sym = _to_ak_symbol(code)
-        pe = _baidu_val(ak, sym, "市盈率(TTM)")
-        pb = _baidu_val(ak, sym, "市净率")
+        if market == "cn":
+            sym = _to_ak_symbol(code)
+            pe = _baidu_val(ak, "stock_zh_valuation_baidu", sym, "市盈率(TTM)")
+            pb = _baidu_val(ak, "stock_zh_valuation_baidu", sym, "市净率")
+        elif market == "hk":
+            sym = code.split(".")[0].rjust(5, "0")  # 0700.HK → 00700
+            pe = _baidu_val(ak, "stock_hk_valuation_baidu", sym, "市盈率(TTM)")
+            pb = _baidu_val(ak, "stock_hk_valuation_baidu", sym, "市净率")
+        else:
+            return _empty_valuation()
         if pe is None and pb is None:
             return _empty_valuation()
         df = pd.merge(pe, pb, on="date", how="outer") if (pe is not None and pb is not None) else (pe or pb)
@@ -95,10 +100,11 @@ def fetch_valuation(code: str, start: str, end: str, market: str = "cn") -> pd.D
         return _empty_valuation()
 
 
-def _baidu_val(ak, sym: str, indicator: str):
-    """从 stock_zh_valuation_baidu 取单个指标，返回 [date, pe|pb]。"""
+def _baidu_val(ak, func_name: str, sym: str, indicator: str):
+    """从百度估值接口（zh/hk）取单个指标，返回 [date, pe|pb]。"""
     try:
-        df = ak.stock_zh_valuation_baidu(symbol=sym, indicator=indicator, period="全部")
+        func = getattr(ak, func_name)
+        df = func(symbol=sym, indicator=indicator, period="全部")
         if df is None or df.empty:
             return None
         col = "pe" if "盈" in indicator else "pb"

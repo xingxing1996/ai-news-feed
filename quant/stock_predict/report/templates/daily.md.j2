@@ -17,6 +17,7 @@
 
 - **未来 {{ horizon }} 交易日跑赢行业概率**：`{{ "%.0f"|format(c.prob * 100) }}%`
 - **评分**：`{{ c.score }}/100`
+- **可信度**：`{{ c.confidence }}`（数据完整度 `{{ "%.0f"|format(c.data_completeness * 100) }}%`）
 
 **原因**
 {% for r in c.reasons %}- + {{ r }}
