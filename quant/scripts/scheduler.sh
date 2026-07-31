@@ -54,7 +54,8 @@ gen_plist() {
   <key>EnvironmentVariables</key>
   <dict>
     <key>PATH</key><string>${BIN_DIR}:/usr/local/bin:/usr/bin:/bin</string>
-    <key>STOCK_PREDICT_CONFIG</key><string>${ROOT}/config/settings.prod.yaml</string>
+    <key>PYTHONPATH</key><string>${ROOT}/..:${ROOT}</string>
+    <key>STOCK_PREDICT_CONFIG</key><string>${ROOT}/config/settings.cn.yaml</string>
 ${keyline}
   </dict>
   <key>StandardOutPath</key><string>${ROOT}/data/output/scheduler.log</string>
@@ -73,7 +74,7 @@ case "${1:-install}" in
     launchctl load "$PLIST"
     echo "✅ 已安装：每天 ${HOUR}:${MIN} 自动运行 'stock-predict run'（拉最新数据 + 重训 + 日报）"
     echo "   入口:   $BIN"
-    echo "   配置:   $ROOT/config/settings.prod.yaml  (real 数据, 全量新闻)"
+    echo "   配置:   $ROOT/config/settings.cn.yaml  (A股+港股, 增量采集)"
     echo "   日志:   $ROOT/data/output/scheduler.log"
     echo "   日报:   $ROOT/data/output/daily_report.md"
     echo "   立即测试: bash scripts/scheduler.sh test"

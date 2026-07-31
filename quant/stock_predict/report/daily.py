@@ -167,7 +167,7 @@ def generate_daily_report(as_of: str | None = None, pred_df=None, feats_df=None,
         "n": len(cards),
         "recommendations": cards,
     }
-    rec_path = out_path.parent / "recommendations.json"
+    rec_path = out_path.with_suffix(".json")  # out_path 为 *.md → 同名 .json
     rec_path.write_text(_json.dumps(rec, ensure_ascii=False, indent=2), encoding="utf-8")
 
     log.info("[report] 日报: %s；recommendations.json: %s（%d 只）", out_path, rec_path, len(cards))

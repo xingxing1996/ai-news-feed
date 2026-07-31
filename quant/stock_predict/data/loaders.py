@@ -14,7 +14,7 @@ import pandas as pd
 
 from ..config import AttrDict, get_settings
 from .models import DailyPrice, Financial
-from .warehouse import upsert_dataframe, write_parquet
+from .warehouse import read_parquet, upsert_dataframe, write_parquet
 
 log = logging.getLogger(__name__)
 
@@ -43,21 +43,26 @@ def _get_loader(market: str, synthetic: bool):
     return L
 
 
-def fetch_all(universe_df: pd.DataFrame, start: str, end: str, synthetic: bool) -> dict[str, pd.DataFrame]:
-    """对整个股票池拉数据，返回 {daily, valuation, financial} 三个大表。"""
+def fetch_all(universe_df: pd.DataFrame, start: str, end: str, synthetic: bool,
+              start_by_code: dict | None = None) -> dict[str, pd.DataFrame]:
+    """对整个股票池拉数据，返回 {daily, valuation, financial} 三个大表。
+
+    start_by_code: {code: 起始日}，增量采集时每只股票只拉「已有最后日期之后」。
+    """
     daily_parts, val_parts, fin_parts = [], [], []
     rows = list(universe_df.itertuples(index=False))
     for r in tqdm(rows, desc="ingest", disable=len(rows) <= 3):
         L = _get_loader(r.market, synthetic)
         is_ak = (not synthetic) and r.market in ("cn", "hk")
-        d = L.fetch_daily(r.code, start, end, r.market) if is_ak else L.fetch_daily(r.code, start, end)
+        s = (start_by_code or {}).get(r.code, start)  # 增量起始日
+        d = L.fetch_daily(r.code, s, end, r.market) if is_ak else L.fetch_daily(r.code, s, end)
         if not d.empty:
             daily_parts.append(d)
         if hasattr(L, "fetch_valuation"):
-            v = L.fetch_valuation(r.code, start, end, r.market) if is_ak else L.fetch_valuation(r.code, start, end)
+            v = L.fetch_valuation(r.code, s, end, r.market) if is_ak else L.fetch_valuation(r.code, s, end)
             if not v.empty:
                 val_parts.append(v)
-        f = L.fetch_financial(r.code)
+        f = L.fetch_financial(r.code, r.market) if is_ak else L.fetch_financial(r.code)
         if not f.empty:
             fin_parts.append(f)
 
@@ -77,22 +82,46 @@ def fetch_and_store(universe_df: pd.DataFrame | None = None, settings: AttrDict 
 
     start, end = _date_range(cfg)
     synthetic = bool(cfg.data.get("synthetic", False))
-    log.info("采集区间 %s ~ %s, synthetic=%s, 标的数=%d", start, end, synthetic, len(universe_df))
+    incremental = bool(cfg.data.get("incremental", False)) and not synthetic
 
-    data = fetch_all(universe_df, start, end, synthetic)
+    existing_daily = read_parquet("daily_price") if incremental else pd.DataFrame()
+    existing_val = read_parquet("valuation") if incremental else pd.DataFrame()
+    start_by_code = None
+    if incremental and not existing_daily.empty:
+        existing_daily["date"] = existing_daily["date"].astype(str)
+        last = existing_daily.groupby("code")["date"].max().to_dict()
+        start_by_code = {
+            c: (pd.to_datetime(d) + timedelta(days=1)).strftime("%Y-%m-%d") for c, d in last.items()
+        }
+        log.info("增量采集：%d 只已有数据，仅拉各自最新日之后", len(start_by_code))
 
-    stats: dict[str, Any] = {"start": start, "end": end, "synthetic": synthetic}
+    log.info("采集区间 %s ~ %s, synthetic=%s, incremental=%s, 标的数=%d",
+             start, end, synthetic, incremental, len(universe_df))
+    data = fetch_all(universe_df, start, end, synthetic, start_by_code=start_by_code)
+
+    # 增量合并去重
+    daily = data["daily"]
+    valuation = data["valuation"]
+    if incremental:
+        if not existing_daily.empty:
+            daily = pd.concat([existing_daily, daily], ignore_index=True) if not daily.empty else existing_daily
+            daily = daily.drop_duplicates(["date", "code"], keep="last")
+        if not existing_val.empty:
+            valuation = pd.concat([existing_val, valuation], ignore_index=True) if not valuation.empty else existing_val
+            valuation = valuation.drop_duplicates(["date", "code"], keep="last")
+
+    stats: dict[str, Any] = {"start": start, "end": end, "synthetic": synthetic, "incremental": incremental}
 
     # daily_price → SQLite + Parquet
-    if not data["daily"].empty:
-        upsert_dataframe(data["daily"], DailyPrice)
-        write_parquet(data["daily"], "daily_price")
-    stats["daily_rows"] = len(data["daily"])
+    if not daily.empty:
+        upsert_dataframe(daily, DailyPrice)
+        write_parquet(daily, "daily_price")
+    stats["daily_rows"] = len(daily)
 
     # valuation → Parquet（点在时间上的 pe/pb）
-    if not data["valuation"].empty:
-        write_parquet(data["valuation"], "valuation")
-    stats["valuation_rows"] = len(data["valuation"])
+    if not valuation.empty:
+        write_parquet(valuation, "valuation")
+    stats["valuation_rows"] = len(valuation)
 
     # financial → SQLite
     if not data["financial"].empty:

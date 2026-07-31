@@ -8,6 +8,7 @@ AKShare 函数签名随版本变化频繁，这里做防御式封装：
 from __future__ import annotations
 
 import logging
+import time
 from datetime import datetime
 
 import pandas as pd
@@ -25,6 +26,21 @@ def _ak():
     return _AK
 
 
+def _call_ak(func, retries: int = 2, **kwargs):
+    """调用 AKShare，连接被拒/断开/超时自动重试（国内偶发抖动）。"""
+    for i in range(retries + 1):
+        try:
+            return func(**kwargs)
+        except Exception as e:  # noqa: BLE001
+            s = str(e)
+            if i < retries and ("Connection" in s or "RemoteDisconnected" in s or "timeout" in s.lower()
+                                or "reset" in s.lower()):
+                time.sleep(1.5 * (i + 1))
+                continue
+            raise
+    return func(**kwargs)
+
+
 def _to_ak_symbol(code: str) -> str:
     """600519.SH / 000001.SZ → 600519 / 000001。"""
     return code.split(".")[0]
@@ -40,7 +56,7 @@ def fetch_daily(code: str, start: str, end: str, market: str = "cn") -> pd.DataF
         ak = _ak()
         if market == "hk":
             sym = code.split(".")[0].rjust(5, "0")  # 0700.HK → 00700
-            df = ak.stock_hk_daily(symbol=sym, adjust="qfq")
+            df = _call_ak(ak.stock_hk_daily, symbol=sym, adjust="qfq")
             if df is None or df.empty:
                 return _empty_daily()
             df["date"] = pd.to_datetime(df["date"]).dt.strftime("%Y-%m-%d")
@@ -52,7 +68,8 @@ def fetch_daily(code: str, start: str, end: str, market: str = "cn") -> pd.DataF
 
         # A股
         sym = _to_ak_symbol(code)
-        df = ak.stock_zh_a_hist(
+        df = _call_ak(
+            ak.stock_zh_a_hist,
             symbol=sym,
             period="daily",
             start_date=pd.to_datetime(start).strftime("%Y%m%d"),
@@ -104,7 +121,7 @@ def _baidu_val(ak, func_name: str, sym: str, indicator: str):
     """从百度估值接口（zh/hk）取单个指标，返回 [date, pe|pb]。"""
     try:
         func = getattr(ak, func_name)
-        df = func(symbol=sym, indicator=indicator, period="全部")
+        df = _call_ak(func, symbol=sym, indicator=indicator, period="全部")
         if df is None or df.empty:
             return None
         col = "pe" if "盈" in indicator else "pb"
@@ -115,15 +132,16 @@ def _baidu_val(ak, func_name: str, sym: str, indicator: str):
         return None
 
 
-def fetch_financial(code: str) -> pd.DataFrame:
-    """下载财务摘要。AKShare 字段多变，尽量稳健地映射，失败返回空。"""
+def fetch_financial(code: str, market: str = "cn") -> pd.DataFrame:
+    """下载财务摘要。仅 A股 用 stock_financial_abstract；港股财务接口结构不同，暂返回空（不报错）。"""
+    if market != "cn":
+        return _empty_fin()  # 港股财务：AKShare 接口结构与 A股 不同，暂略（质量因子对该市场为空）
     try:
         ak = _ak()
         sym = _to_ak_symbol(code)
         df = ak.stock_financial_abstract(symbol=sym)
         if df is None or df.empty:
             return _empty_fin()
-        # 常见列：指标 / 报告期 / 数值… 结构不稳定，这里尽量解析
         return _normalize_financial_ak(df, code)
     except Exception as exc:  # noqa: BLE001
         log.warning("[akshare] %s 财务下载失败: %s", code, exc)

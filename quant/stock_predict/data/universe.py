@@ -34,8 +34,12 @@ def resolve_universe(demo: bool | None = None) -> pd.DataFrame:
     raw = load_universe_file()
 
     demo_size = dict(cfg.universe.get("demo_size", {})) or {}
+    # 按市场过滤（拆分训练用：GHA 只跑 us/kr，中国机器跑 cn/hk）
+    only_markets = cfg.universe.get("markets") or ["cn", "hk", "us", "kr"]
     rows: list[dict] = []
     for market in ("cn", "hk", "us", "kr"):
+        if market not in only_markets:
+            continue
         items = raw.get(market, []) or []
         if demo and market in demo_size:
             items = items[: int(demo_size[market])]

@@ -50,7 +50,7 @@ def fetch_valuation(code: str, start: str, end: str) -> pd.DataFrame:
     return _empty_valuation()
 
 
-def fetch_financial(code: str) -> pd.DataFrame:
+def fetch_financial(code: str, market: str = "us") -> pd.DataFrame:
     try:
         yf = _yf()
         tk = yf.Ticker(code)

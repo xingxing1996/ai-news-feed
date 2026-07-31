@@ -102,7 +102,7 @@ def fetch_valuation(code: str, start: str, end: str) -> pd.DataFrame:
     return df[["date", "code", "pe", "pb"]].copy()
 
 
-def fetch_financial(code: str) -> pd.DataFrame:
+def fetch_financial(code: str, market: str = "cn") -> pd.DataFrame:
     """从最新一期合成行情反推一个财务快照（够做 quality 因子）。"""
     today_dt = datetime.today()
     today = today_dt.strftime("%Y-%m-%d")
