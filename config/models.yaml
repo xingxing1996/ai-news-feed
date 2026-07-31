@@ -1,0 +1,10 @@
+# 模型配置（你维护「逻辑名」，具体版本 id 由 resolve_models 自动填到 resolved）。
+# 改这里的 models 列表即可换模型；resolve-models workflow 会每天自动把 resolved 刷成最新版本。
+# deepseek-v3-2 已下掉（过时）。
+models:
+  - glm-5-2
+  - doubao-seed-2-1-pro
+resolved:
+  glm-5-2: ""
+  doubao-seed-2-1-pro: ""
+base_url: "https://ark.cn-beijing.volces.com/api/v3"

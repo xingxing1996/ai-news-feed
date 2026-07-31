@@ -1,0 +1,38 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+
+# Notebooks
+.ipynb_checkpoints/
+
+# Data (本地数据不入库；太大且可重新生成)
+data/raw/
+data/qlib_data/
+data/warehouse/
+data/meta.db
+data/meta.db-journal
+data/output/
+*.parquet
+*.bin
+
+# 但保留目录结构
+!data/.gitkeep
+
+# Secrets / 本地配置覆盖
+config/settings.local.yaml
+.env
+*.key
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/

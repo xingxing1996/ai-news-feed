@@ -1,0 +1,156 @@
+# 股票池定义
+# market: cn(A股) / hk(港股) / us(美股)
+# industry 用于「超额收益 vs 行业」label 与行业分位。
+# 覆盖：恒生科技、银行、存储/半导体、美国七巨头、科创50、QQQ/SPY 等。
+
+cn:
+  # —— 消费 / 白酒 ——
+  - {code: "600519.SH", name: "贵州茅台", industry: "食品饮料"}
+  - {code: "000858.SZ", name: "五粮液",   industry: "食品饮料"}
+  - {code: "000568.SZ", name: "泸州老窖", industry: "食品饮料"}
+  - {code: "600887.SH", name: "伊利股份", industry: "食品饮料"}
+  - {code: "000333.SZ", name: "美的集团", industry: "家用电器"}
+  - {code: "000651.SZ", name: "格力电器", industry: "家用电器"}
+  # —— 金融 / 银行 ——
+  - {code: "601318.SH", name: "中国平安", industry: "非银金融"}
+  - {code: "600030.SH", name: "中信证券", industry: "非银金融"}
+  - {code: "601628.SH", name: "中国人寿", industry: "非银金融"}
+  - {code: "600036.SH", name: "招商银行", industry: "银行"}
+  - {code: "601398.SH", name: "工商银行", industry: "银行"}
+  - {code: "601939.SH", name: "建设银行", industry: "银行"}
+  - {code: "601988.SH", name: "中国银行", industry: "银行"}
+  - {code: "601288.SH", name: "农业银行", industry: "银行"}
+  - {code: "601328.SH", name: "交通银行", industry: "银行"}
+  - {code: "600016.SH", name: "民生银行", industry: "银行"}
+  - {code: "601166.SH", name: "兴业银行", industry: "银行"}
+  - {code: "600000.SH", name: "浦发银行", industry: "银行"}
+  # —— 医药 ——
+  - {code: "600276.SH", name: "恒瑞医药", industry: "医药生物"}
+  - {code: "603259.SH", name: "药明康德", industry: "医药生物"}
+  # —— 新能源 / 电力设备 / 汽车 ——
+  - {code: "300750.SZ", name: "宁德时代", industry: "电力设备"}
+  - {code: "601012.SH", name: "隆基绿能", industry: "电力设备"}
+  - {code: "600406.SH", name: "国电南瑞", industry: "电力设备"}
+  - {code: "002594.SZ", name: "比亚迪",   industry: "汽车"}
+  # —— 存储 / 半导体（含科创50权重）——
+  - {code: "000725.SZ", name: "京东方A",  industry: "电子"}
+  - {code: "002475.SZ", name: "立讯精密", industry: "电子"}
+  - {code: "603986.SH", name: "兆易创新", industry: "半导体"}      # 存储(MCU/NOR Flash)
+  - {code: "300223.SZ", name: "北京君正", industry: "半导体"}      # 存储(DRAM/SRAM)
+  - {code: "301308.SZ", name: "江波龙",   industry: "半导体"}      # 存储模组
+  - {code: "603501.SH", name: "韦尔股份", industry: "半导体"}      # CIS
+  - {code: "002371.SZ", name: "北方华创", industry: "半导体"}      # 半导体设备
+  - {code: "688981.SH", name: "中芯国际", industry: "半导体"}      # 晶圆代工(科创50)
+  - {code: "688012.SH", name: "中微公司", industry: "半导体"}      # 刻蚀设备(科创50)
+  - {code: "688256.SH", name: "寒武纪",   industry: "半导体"}      # AI芯片(科创50)
+  - {code: "688111.SH", name: "金山办公", industry: "计算机"}      # 科创50
+  - {code: "688036.SH", name: "传音控股", industry: "电子"}        # 科创50
+  - {code: "688271.SH", name: "联影医疗", industry: "医药生物"}    # 科创50
+  # —— 其他龙头 ——
+  - {code: "601888.SH", name: "中国中免", industry: "商贸零售"}
+  - {code: "600031.SH", name: "三一重工", industry: "机械设备"}
+  - {code: "601668.SH", name: "中国建筑", industry: "建筑装饰"}
+  - {code: "600048.SH", name: "保利发展", industry: "房地产"}
+  - {code: "600585.SH", name: "海螺水泥", industry: "建筑材料"}
+  - {code: "601857.SH", name: "中国石油", industry: "石油石化"}
+  - {code: "600028.SH", name: "中国石化", industry: "石油石化"}
+  # —— 黄金 ——
+  - {code: "601899.SH", name: "紫金矿业", industry: "黄金"}
+  - {code: "600547.SH", name: "山东黄金", industry: "黄金"}
+  # —— 电信 ——
+  - {code: "601728.SH", name: "中国电信", industry: "电信"}
+  - {code: "600941.SH", name: "中国移动", industry: "电信"}
+  # —— 存储相关（A股）——
+  - {code: "688347.SH", name: "华虹半导体", industry: "半导体"}
+  # —— ETF / 指数代理 ——
+  - {code: "510300.SH", name: "沪深300ETF", industry: "指数"}
+  - {code: "588000.SH", name: "科创50ETF", industry: "指数"}
+
+hk:
+  # —— 恒生科技核心 ——
+  - {code: "0700.HK", name: "腾讯控股", industry: "互联网"}
+  - {code: "9988.HK", name: "阿里巴巴", industry: "互联网"}
+  - {code: "3690.HK", name: "美团",     industry: "互联网"}
+  - {code: "1810.HK", name: "小米集团", industry: "消费电子"}
+  - {code: "9618.HK", name: "京东集团", industry: "互联网"}
+  - {code: "9999.HK", name: "网易",     industry: "互联网"}
+  - {code: "1024.HK", name: "快手",     industry: "互联网"}
+  - {code: "9961.HK", name: "携程集团", industry: "互联网"}
+  - {code: "9866.HK", name: "蔚来",     industry: "汽车"}
+  - {code: "2015.HK", name: "理想汽车", industry: "汽车"}
+  - {code: "9868.HK", name: "小鹏汽车", industry: "汽车"}
+  # —— 半导体 / 存储（港股）——
+  - {code: "0981.HK", name: "中芯国际", industry: "半导体"}
+  - {code: "0992.HK", name: "联想集团", industry: "消费电子"}
+  - {code: "1347.HK", name: "华虹半导体", industry: "半导体"}
+  # —— 石油 / 电信（港股）——
+  - {code: "0386.HK", name: "中国石化", industry: "石油石化"}
+  - {code: "0728.HK", name: "中国电信", industry: "电信"}
+  # —— 金融 / 银行 / 保险 ——
+  - {code: "2318.HK", name: "中国平安", industry: "保险"}
+  - {code: "1299.HK", name: "友邦保险", industry: "保险"}
+  - {code: "1398.HK", name: "工商银行", industry: "银行"}
+  - {code: "0939.HK", name: "建设银行", industry: "银行"}
+  - {code: "3968.HK", name: "招商银行", industry: "银行"}
+  - {code: "1288.HK", name: "农业银行", industry: "银行"}
+  # —— 资源 / 电信 ——
+  - {code: "0941.HK", name: "中国移动", industry: "电信"}
+  - {code: "0883.HK", name: "中海油",   industry: "石油石化"}
+  # —— 恒生科技指数代理 ——
+  - {code: "3033.HK", name: "恒生科技ETF", industry: "指数"}
+
+us:
+  # —— 美国七巨头 (Magnificent 7) ——
+  - {code: "AAPL",  name: "Apple",      industry: "科技"}
+  - {code: "MSFT",  name: "Microsoft",  industry: "科技"}
+  - {code: "NVDA",  name: "NVIDIA",     industry: "半导体"}
+  - {code: "GOOGL", name: "Alphabet",   industry: "科技"}
+  - {code: "AMZN",  name: "Amazon",     industry: "互联网"}
+  - {code: "META",  name: "Meta",       industry: "互联网"}
+  - {code: "TSLA",  name: "Tesla",      industry: "汽车"}
+  # —— 存储 / 半导体设备 ——
+  - {code: "MU",    name: "Micron",     industry: "半导体"}        # 存储(DRAM/NAND)
+  - {code: "WDC",   name: "Western Digital", industry: "半导体"}   # 存储
+  - {code: "AVGO",  name: "Broadcom",   industry: "半导体"}
+  - {code: "AMD",   name: "AMD",        industry: "半导体"}
+  - {code: "TSM",   name: "TSMC",       industry: "半导体"}        # 台积电 ADR
+  - {code: "ASML",  name: "ASML",       industry: "半导体"}        # 半导体设备
+  - {code: "AMAT",  name: "Applied Materials", industry: "半导体"} # 半导体设备
+  - {code: "LRCX",  name: "Lam Research", industry: "半导体"}      # 半导体设备
+  - {code: "ARM",   name: "Arm Holdings", industry: "半导体"}
+  - {code: "QCOM",  name: "Qualcomm",   industry: "半导体"}
+  - {code: "INTC",  name: "Intel",      industry: "半导体"}
+  # —— 金融 ——
+  - {code: "JPM",   name: "JPMorgan",   industry: "银行"}
+  - {code: "BAC",   name: "Bank of America", industry: "银行"}
+  - {code: "V",     name: "Visa",       industry: "金融"}
+  - {code: "GS",    name: "Goldman Sachs", industry: "金融"}
+  # —— 通信 ——
+  - {code: "NOK",   name: "Nokia",      industry: "通信"}
+  # —— 原油 / 能源 ——
+  - {code: "XOM",   name: "ExxonMobil", industry: "石油石化"}
+  - {code: "CVX",   name: "Chevron",    industry: "石油石化"}
+  - {code: "COP",   name: "ConocoPhillips", industry: "石油石化"}
+  - {code: "OXY",   name: "Occidental", industry: "石油石化"}
+  - {code: "SLB",   name: "SLB",        industry: "油田服务"}
+  - {code: "XLE",   name: "Energy ETF", industry: "指数"}          # 能源ETF
+  - {code: "USO",   name: "Crude Oil ETF", industry: "指数"}       # 原油ETF
+  # —— 黄金 ——
+  - {code: "NEM",   name: "Newmont",    industry: "黄金"}
+  - {code: "GOLD",  name: "Barrick",    industry: "黄金"}
+  - {code: "AEM",   name: "Agnico Eagle", industry: "黄金"}
+  - {code: "KGC",   name: "Kinross",    industry: "黄金"}
+  - {code: "GDX",   name: "Gold Miners ETF", industry: "指数"}     # 金矿ETF
+  - {code: "GLD",   name: "Gold ETF",   industry: "指数"}          # 黄金ETF
+  # —— 半导体 / DRAM ETF ——
+  - {code: "SOXX",  name: "SOXX",       industry: "指数"}          # 半导体ETF
+  - {code: "SMH",   name: "SMH",        industry: "指数"}          # 半导体ETF
+  - {code: "SOXL",  name: "SOXL",       industry: "指数"}          # 半导体杠杆ETF
+  # —— ETF / 指数 ——
+  - {code: "QQQ",   name: "Invesco QQQ", industry: "指数"}         # 纳斯达克100
+  - {code: "SPY",   name: "SPDR S&P 500", industry: "指数"}        # 标普500
+
+kr:
+  # —— 存储 / 半导体（韩国；yfinance 路径，国内可能需代理）——
+  - {code: "005930.KS", name: "三星电子", industry: "半导体"}        # 存储(DRAM/NAND) + 代工
+  - {code: "000660.KS", name: "SK海力士", industry: "半导体"}        # 存储(DRAM/HBM)

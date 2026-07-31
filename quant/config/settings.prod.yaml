@@ -1,0 +1,98 @@
+# 生产配置（定时任务/容器部署用）：真实数据 + 全量新闻(A股AKShare/美股SEC/RSS)。
+# 无密钥——ARK_API_KEY 走环境变量。与 settings.yaml 的区别：news 全开。
+# 用法：STOCK_PREDICT_CONFIG=config/settings.prod.yaml stock-predict run
+
+paths:
+  project_root: .
+  raw_dir: data/raw
+  qlib_dir: data/qlib_data
+  warehouse_dir: data/warehouse
+  sqlite_path: data/meta.db
+  output_dir: data/output
+
+universe:
+  config_file: config/universe.yaml
+  demo_mode: false                      # 全量（A股+港股+美股+韩股 119 只）
+  demo_size: {cn: 43, hk: 20, us: 24}
+
+data:
+  synthetic: false                      # ★真实采集（A股+港股走 AKShare；美股/韩股需代理）
+  years_back: 6
+  sources: {cn: akshare, hk: akshare, us: yfinance}
+  fmp_key: ""
+  alphavantage_key: ""
+  finnhub_key: ""
+
+feature:
+  use_alpha158: true
+  use_qlib_alpha: false
+  label_horizon: 20
+  process: rank                         # 因子截面 rank 归一化
+  neutralize: true                      # label 行业+市值中性化
+  valuation: true
+  quality: true
+  industry: false
+  news: false
+
+model:
+  name: lightgbm
+  ensemble: true                        # LightGBM + XGBoost rank 平均
+  lightgbm:
+    objective: binary
+    n_estimators: 500
+    learning_rate: 0.02
+    num_leaves: 64
+    max_depth: -1
+    min_child_samples: 80
+    subsample: 0.8
+    colsample_bytree: 0.8
+    reg_alpha: 0.1
+    reg_lambda: 1.0
+    random_state: 42
+  split:
+    train_end: "2022-12-31"
+    valid_start: "2023-01-01"
+    valid_end: "2023-12-31"
+    test_start: "2024-01-01"
+    test_end: ""
+
+backtest:
+  top_n: 20
+  hold_days: 20
+  commission_bps: 3.0
+  slippage_bps: 5.0
+  impact_coef: 10.0
+  weighting: inv_vol
+  max_weight: 0.10
+  max_industry: 0.40
+  n_drop: 5
+  benchmark: "^HS300"
+
+report:
+  top_k: 10
+  min_probability: 0.55
+  out_path: data/output/daily_report.md
+  explain_method: shap
+
+news:
+  enabled: true
+  sources: [akshare, sec, rss]          # ★全量：A股个股新闻 + 美股SEC公告 + 港美RSS
+  rss_feeds:
+    - "https://feeds.content.dowjones.io/public/rss/SB1000.xml"
+    - "https://www.cnbc.com/id/100003114/device/rss/rss.html"
+    - "https://www.marketwatch.com/rss/topstories"
+  dedup: true
+  max_codes: 20
+  per_stock: 3
+
+embedding:
+  model_path: ""
+  dim: 1024
+  index_path: data/output/news.faiss
+
+llm:
+  base_url: "https://ark.cn-beijing.volces.com/api/v3"
+  api_key: ""                           # 读环境变量 ARK_API_KEY
+  model: "deepseek-v3-2-251201"
+  temperature: 0.1
+  timeout: 60

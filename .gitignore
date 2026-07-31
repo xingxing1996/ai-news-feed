@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.pyc
+*.egg-info/
+.venv/
+venv/
+
+# OS / IDE
+.DS_Store
+.idea/
+.vscode/
+.claude/
+
+# quant 本地数据/产物（重，可重新生成；GHA 里用 artifact 存模型）
+quant/data/
+quant/config/settings.local.yaml

@@ -1,0 +1,16 @@
+# 不打进镜像的数据/缓存/本地配置
+data/
+.git/
+.gitignore
+.claude/
+config/settings.local.yaml
+**/__pycache__/
+*.pyc
+.venv/
+venv/
+.idea/
+.vscode/
+.DS_Store
+*.egg-info/
+build/
+dist/

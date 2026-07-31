@@ -9,6 +9,9 @@ from datetime import datetime, timezone, timedelta
 from dateutil import parser as dp
 from volcenginesdkarkruntime import Ark
 import requests
+import logging
+from common.logger import setup_logger, log_status
+from common.models import get_model_pool
 
 # 北京时间 UTC+8
 BJ_TZ = timezone(timedelta(hours=8))
@@ -89,8 +92,42 @@ def load_sources():
 SOURCES = load_sources()
 
 API_KEY = os.environ.get("ARK_API_KEY")
-MODEL_NAME = "deepseek-v3-2-251201"
-client = Ark(api_key=API_KEY)
+# 模型从 config/models.yaml 读（逻辑名→具体版本），不再写死；deepseek-v3-2 已下掉
+MODELS = get_model_pool()
+client = Ark(api_key=API_KEY) if API_KEY else None
+logger = logging.getLogger("news-feed")
+
+
+def _ark_chat(prompt, max_tokens=500, max_retries=3):
+    """调用 Ark：轮询模型池；thinking 参数按模型兼容（GLM 等不认则去掉）。"""
+    if client is None:
+        raise RuntimeError("无 ARK_API_KEY，Ark 客户端未初始化")
+    last = None
+    for attempt in range(max_retries):
+        model = MODELS[attempt % len(MODELS)]  # 轮询分摊
+        try:
+            time.sleep(3.0)
+            try:
+                return client.chat.completions.create(
+                    model=model,
+                    messages=[{"role": "user", "content": prompt}],
+                    max_tokens=max_tokens,
+                    thinking={"type": "disabled"},
+                )
+            except Exception as e:
+                # 某些模型不支持 thinking 参数，去掉重试
+                if "thinking" in str(e).lower() or "BadRequest" in str(e):
+                    return client.chat.completions.create(
+                        model=model,
+                        messages=[{"role": "user", "content": prompt}],
+                        max_tokens=max_tokens,
+                    )
+                raise
+        except Exception as e:
+            last = e
+            logger.warning("Ark 调用失败(%s，尝试 %d/%d): %s", model, attempt + 1, max_retries, e)
+            time.sleep(10 * (2 ** (attempt % len(MODELS))))
+    raise last
 
 # ==========================================
 # 2. AI 处理函数 (适配火山引擎 Ark API)
@@ -123,29 +160,15 @@ def analyze_with_llm(title, summary, source_name="未知来源", article_text=""
 请严格只输出纯 JSON，不要任何额外文字或 Markdown 标记：
 {{"score": 数字, "title_cn": "中文标题", "source_cn": "中文来源名", "summary": "中文摘要", "opportunity": "机遇与商机分析"}}"""
 
-    for attempt in range(max_retries):
-        try:
-            time.sleep(3.0)
-            response = client.chat.completions.create(
-                model=MODEL_NAME,
-                messages=[{"role": "user", "content": prompt}],
-                max_tokens=500,
-                thinking={"type": "disabled"},
-            )
-
-            content = response.choices[0].message.content
-            content = content.replace("```json", "").replace("```", "").strip()
-            result = json.loads(content)
-
-            return result.get('score', 0), result
-
-        except Exception as e:
-            print(f"[-] Ark 解析报错 (尝试 {attempt+1}/{max_retries}): {e}")
-            wait_time = 10 * (2 ** attempt)
-            print(f"    等待 {wait_time} 秒后重试...")
-            time.sleep(wait_time)
-
-    return 0, None
+    try:
+        response = _ark_chat(prompt, max_tokens=500)
+        content = response.choices[0].message.content
+        content = content.replace("```json", "").replace("```", "").strip()
+        result = json.loads(content)
+        return result.get('score', 0), result
+    except Exception as e:
+        logger.warning("analyze_with_llm 失败: %s", e)
+        return 0, None
 
 def generate_daily_insight(articles):
     """将高分文章汇总，让大模型生成今日洞察报告"""
@@ -176,23 +199,15 @@ def generate_daily_insight(articles):
 请严格只输出纯 JSON 数组，不要任何额外文字或 Markdown 标记：
 [{{"title": "洞察标题", "analysis": "详细分析", "action": "建议关注的方向或机会"}}]"""
 
-    for attempt in range(3):
-        try:
-            time.sleep(3.0)
-            response = client.chat.completions.create(
-                model=MODEL_NAME,
-                messages=[{"role": "user", "content": prompt}],
-                max_tokens=1000,
-                thinking={"type": "disabled"},
-            )
-            content = response.choices[0].message.content
-            content = content.replace("```json", "").replace("```", "").strip()
-            result = json.loads(content)
-            if isinstance(result, list):
-                return result
-        except Exception as e:
-            print(f"[-] 洞察生成失败 (尝试 {attempt+1}/3): {e}")
-            time.sleep(10 * (2 ** attempt))
+    try:
+        response = _ark_chat(prompt, max_tokens=1000)
+        content = response.choices[0].message.content
+        content = content.replace("```json", "").replace("```", "").strip()
+        result = json.loads(content)
+        if isinstance(result, list):
+            return result
+    except Exception as e:
+        logger.warning("洞察生成失败: %s", e)
 
     return []
 
@@ -200,8 +215,11 @@ def generate_daily_insight(articles):
 # 3. 主流程
 # ==========================================
 def main():
+    setup_logger()
+    logger.info("=== news-feed 开始 === 模型池: %s", MODELS)
     if not API_KEY:
-        print("致命错误：找不到 ARK_API_KEY 环境变量！")
+        logger.error("找不到 ARK_API_KEY 环境变量")
+        log_status("news-feed", False, "无 ARK_API_KEY")
         sys.exit(1)
 
     final_data = {
@@ -281,7 +299,8 @@ def main():
 
     # 0条数据则报错退出，不更新文件
     if len(final_data["articles"]) == 0:
-        print("!!! 错误：未筛选出任何文章（0条），可能所有 AI 调用均失败，不更新 feed.json !!!")
+        logger.error("未筛选出任何文章（0条），AI 调用可能全失败，不更新 feed.json")
+        log_status("news-feed", False, "0 文章")
         sys.exit(1)
 
     # 去重：先按分数排序，然后 URL 去重 + 标题相似度去重
@@ -326,7 +345,8 @@ def main():
     with open(feed_path, "w", encoding="utf-8") as f:
         json.dump(final_data, f, ensure_ascii=False, indent=2)
 
-    print(f"=== 执行完毕！筛选出 {len(final_data['articles'])} 条干货，{len(insights)} 条洞察。 ===")
+    logger.info("=== news-feed 完成 === %d 条干货, %d 条洞察", len(final_data['articles']), len(insights))
+    log_status("news-feed", True, "ok", n_articles=len(final_data['articles']), n_insights=len(insights))
 
 if __name__ == "__main__":
     main()

@@ -1,11 +1,11 @@
 name: Update AI Feed
 
+# 每 2 小时跑一次：RSS → Ark LLM 评分/摘要 → feed.json（与量化推荐互不相关）
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   schedule:
-    - cron: '7 0,15 * * *'
+    - cron: '7 */2 * * *'   # 每 2 小时（UTC）
   workflow_dispatch:
 
 jobs:
@@ -28,12 +28,12 @@ jobs:
         ARK_API_KEY: ${{ secrets.ARK_API_KEY }}
       run: python main.py
 
-    - name: Commit and push JSON
+    - name: Commit feed.json + logs
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
         git fetch origin main
         git reset origin/main
-        git add feed.json feedLastTime.json
-        git commit -m "Auto-update feed.json" || exit 0
+        git add feed.json feedLastTime.json logs/ || true
+        git commit -m "Auto-update feed.json (every 2h)" || exit 0
         git push

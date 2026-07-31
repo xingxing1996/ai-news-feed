@@ -1,0 +1,58 @@
+name: Daily Quant Train
+
+# 每天：完整量化训练（A股+港股 AKShare 拉数据 → 重训 LightGBM+XGBoost → 回测 → 日报）
+# 产出 recommendations.json（跑赢行业概率+评分+理由），与新闻 feed.json 无关。
+# 注意：GHA 是美国机器，A股 AKShare 数据可能部分拉不到 → 降级跳过，不中断。
+on:
+  schedule:
+    - cron: '27 1 * * *'   # 每天 01:27 UTC（与 resolve-models 错峰）
+  workflow_dispatch:
+
+jobs:
+  train:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: 安装 quant 依赖
+      run: |
+        pip install -r quant/requirements.txt
+        pip install -e ./quant
+
+    - name: 先解析模型版本（保证 config/models.yaml 最新）
+      env:
+        ARK_API_KEY: ${{ secrets.ARK_API_KEY }}
+      run: MODELS_CONFIG=config/models.yaml python resolve_models.py || true
+
+    - name: 训练 + 回测 + 日报
+      env:
+        ARK_API_KEY: ${{ secrets.ARK_API_KEY }}
+      working-directory: quant
+      run: |
+        STOCK_PREDICT_CONFIG=config/settings.prod.yaml stock-predict run \
+          || STOCK_PREDICT_CONFIG=config/settings.prod.yaml python -m stock_predict.cli run
+
+    - name: 上传模型 artifact
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: quant-model
+        path: quant/data/output/model.lgb
+        if-no-files-found: ignore
+
+    - name: 提交 recommendations.json + 日报 + 日志
+      if: always()
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git fetch origin main && git reset origin/main
+        # 把量化产物拷到仓库根（便于在 GitHub 直接看）
+        cp quant/data/output/recommendations.json recommendations.json 2>/dev/null || true
+        cp quant/data/output/daily_report.md daily_report.md 2>/dev/null || true
+        cp quant/data/output/backtest_metrics.txt backtest_metrics.json 2>/dev/null || true
+        git add recommendations.json daily_report.md backtest_metrics.json logs/ || true
+        git commit -m "Daily quant train: recommendations + report" || exit 0
+        git push

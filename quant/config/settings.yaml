@@ -1,0 +1,105 @@
+# stock-predict 全局配置 —— 所有可调项集中于此。
+# 可被 config/settings.local.yaml 覆盖（不入库），也可用环境变量 STOCK_PREDICT_CONFIG 指定别的文件。
+
+paths:
+  project_root: .                       # 运行时由 config.py 解析为绝对路径
+  raw_dir: data/raw                     # 原始下载 (parquet)
+  qlib_dir: data/qlib_data              # Qlib .bin 根目录（provider_uri）
+  warehouse_dir: data/warehouse         # 分析层 parquet
+  sqlite_path: data/meta.db             # 元数据库
+  output_dir: data/output               # 模型/回测/日报产物
+
+universe:
+  config_file: config/universe.yaml     # 股票池定义
+  demo_mode: false                      # false=全量（恒生科技/银行/存储/Mag7/科创50/QQQ…）；true=取前 N 只快速演示
+  demo_size:
+    cn: 43                              # demo_mode=true 时 A股 取前 N 只
+    hk: 20
+    us: 24
+
+data:
+  synthetic: false                      # true=用合成数据（无网络/测试/演示）；false=真实采集
+  years_back: 6                         # 回填年数（用于估值历史分位至少要长一点）
+  sources:
+    cn: akshare                         # A股：akshare
+    hk: yfinance                        # 港股：yfinance
+    us: yfinance                        # 美股：yfinance
+  # 商业 API 后备（Phase 1 可留空，留接口）
+  fmp_key: ""
+  alphavantage_key: ""
+  finnhub_key: ""
+
+feature:
+  use_alpha158: true                    # Qlib 内置 158 个价量因子
+  use_qlib_alpha: false                 # Qlib 原生 Alpha158 读取（默认关，走 pandas 兜底；要用 qrun 再开）
+  label_horizon: 20                     # 未来 N 个交易日
+  process: rank                         # 因子预处理：rank(默认,快,稳健) | zscore | none
+  neutralize: true                      # label 行业+市值中性化（剥离风格暴露）
+  # 自定义因子开关
+  valuation: true                       # pe/pb/fcf_yield 历史分位
+  quality: true                         # ROE / 利润增长 / 收入增长 / 毛利率 / FCF
+  industry: false                       # 行业周期（需外部数据，默认关）
+  news: false                           # Phase 2 news_score（默认关）
+
+model:
+  name: lightgbm
+  ensemble: true                       # LightGBM + XGBoost rank 平均集成
+  lightgbm:
+    objective: binary                   # 二分类：跑赢行业概率
+    n_estimators: 500
+    learning_rate: 0.02
+    num_leaves: 64
+    max_depth: -1
+    min_child_samples: 80
+    subsample: 0.8
+    colsample_bytree: 0.8
+    reg_alpha: 0.1
+    reg_lambda: 1.0
+    random_state: 42
+  split:
+    # 段切分；需与 data.years_back 对齐（默认 years_back=6 → 数据约 2020~今）
+    train_end: "2022-12-31"
+    valid_start: "2023-01-01"
+    valid_end: "2023-12-31"
+    test_start: "2024-01-01"
+    test_end: ""                        # 空=取到最新
+
+backtest:
+  top_n: 20                             # 每日买入 Top-N
+  hold_days: 20                         # 持有天数
+  commission_bps: 3.0                   # 单边手续费 (bp)
+  slippage_bps: 5.0                     # 滑点/买卖价差 (bp)
+  impact_coef: 10.0                     # 平方根市场冲击系数 (bp)，impact = coef*√换手
+  weighting: inv_vol                    # 持仓加权：inv_vol(风险加权) | equal
+  max_weight: 0.10                      # 单票权重上限
+  max_industry: 0.40                    # 单行业权重上限
+  n_drop: 5                             # TopkDropout 每次调仓替换数（Qlib 兼容）
+  benchmark: "^HS300"                   # 基准（演示用沪深300概念）
+
+report:
+  top_k: 10                             # 日报列出前 K 只
+  min_probability: 0.55                 # 日报只列跑赢概率高于此值的
+  out_path: data/output/daily_report.md
+  explain_method: shap                  # shap | rules（rules=规则兜底，无需 shap）
+
+# ===== Phase 2 接入点（Phase 1 不使用，留接口） =====
+news:
+  enabled: false
+  sources: [rss]                        # rss | akshare | ir | sec | fmp | finnhub
+  rss_feeds: []                         # 在此填 Reuters/CNBC/Yahoo RSS
+  dedup: true
+  max_codes: 20                         # 事件抽取的股票上限（控 LLM 成本）
+  per_stock: 3                          # 每只股票分析的新闻条数
+
+embedding:
+  model_path: ""                        # 指向本地 qwen3-embedding-0.6B
+  dim: 1024
+  index_path: data/output/news.faiss
+
+llm:
+  # 火山方舟 Ark（OpenAI 兼容），模型写死 DeepSeek-V3.2（见 news/llm_events.py）
+  base_url: "https://ark.cn-beijing.volces.com/api/v3"
+  api_key: ""                           # 留空则读环境变量 ARK_API_KEY；真实 key 放 settings.local.yaml
+  model: "deepseek-v3-2-251201"
+  temperature: 0.1
+  timeout: 60
