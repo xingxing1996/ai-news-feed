@@ -174,6 +174,17 @@ def report(as_of: str = typer.Option(None, help="指定报告日 YYYY-MM-DD，�
     console.print(text)
 
 
+@app.command()
+def refresh():
+    """每 2h 刷新日报：复用每日训练的模型 + 最新特征快照 + 实时新闻，不重训。"""
+    from .report.daily import refresh_report
+
+    text = refresh_report()
+    console.print("[green]refresh 完成[/green]（复用模型，仅刷新新闻+日报）")
+    console.rule("AI 投资日报(刷新)")
+    console.print(text)
+
+
 @app.command(name="run")
 def run_all():
     """顺序执行：ingest → features → train → backtest → report。"""

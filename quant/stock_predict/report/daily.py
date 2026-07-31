@@ -24,8 +24,11 @@ log = logging.getLogger(__name__)
 _META = {"future_return", "industry_excess", "label", "industry", "market", "name"}
 
 
-def _load_model():
-    path = Path(get_settings().paths.output_dir) / "model.lgb"
+def _load_model(state_dir: str | None = None):
+    if state_dir:
+        path = Path(state_dir) / "model.lgb"
+    else:
+        path = Path(get_settings().paths.output_dir) / "model.lgb"
     if not path.exists():
         return None, []
     with open(path, "rb") as fh:
@@ -46,10 +49,11 @@ def _news_reason_risk(events: list[dict]) -> tuple[list[str], list[str]]:
     return reasons, risks
 
 
-def generate_daily_report(as_of: str | None = None) -> str:
+def generate_daily_report(as_of: str | None = None, pred_df=None, feats_df=None,
+                          state_dir: str | None = None) -> str:
     cfg = get_settings()
-    pred = read_parquet("predictions")
-    feats = read_parquet("features")
+    pred = pred_df if pred_df is not None else read_parquet("predictions")
+    feats = feats_df if feats_df is not None else read_parquet("features")
     if pred.empty or feats.empty:
         raise RuntimeError("predictions/features 为空，请先 train。")
 
@@ -76,7 +80,7 @@ def generate_daily_report(as_of: str | None = None) -> str:
     section = feats.xs(as_of, level="date") if as_of in feats.index.get_level_values("date") else pd.DataFrame()
     section_rank = section.rank(pct=True)
 
-    model, feat_cols = _load_model()
+    model, feat_cols = _load_model(state_dir=state_dir)
 
     # 新闻事件（若已跑 news 流程）→ 作为「理由/风险」的定性补充
     news_events: dict[str, list[dict]] = {}
@@ -156,4 +160,27 @@ def generate_daily_report(as_of: str | None = None) -> str:
     rec_path.write_text(_json.dumps(rec, ensure_ascii=False, indent=2), encoding="utf-8")
 
     log.info("[report] 日报: %s；recommendations.json: %s（%d 只）", out_path, rec_path, len(cards))
+    return text
+
+
+def refresh_report() -> str:
+    """每 2h 刷新：复用每日训练持久化的模型+最新特征快照，拉实时新闻，重出 recommendations.json。
+    不重训、不重拉历史行情（日线日内不变）。"""
+    cfg = get_settings()
+    state = Path(cfg.paths.output_dir).parent.parent / "state"  # quant/state
+    if not (state / "model.lgb").exists() or not (state / "features_latest.parquet").exists():
+        raise RuntimeError(f"{state} 下缺 model.lgb/features_latest.parquet，请先跑每日训练(train)。")
+    feats = pd.read_parquet(state / "features_latest.parquet")
+    pred = pd.read_parquet(state / "predictions_latest.parquet")
+
+    # 实时新闻刷新（量化自己的新闻管线，与 feed.json 无关；失败不致命）
+    try:
+        from ..news.pipeline import run_news_pipeline
+
+        run_news_pipeline()
+    except Exception as exc:  # noqa: BLE001
+        log.warning("[refresh] 新闻刷新失败（非致命，用上次新闻）：%s", exc)
+
+    text = generate_daily_report(pred_df=pred, feats_df=feats, state_dir=str(state))
+    log.info("[refresh] recommendations.json 已刷新")
     return text

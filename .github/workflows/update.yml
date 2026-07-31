@@ -2,8 +2,6 @@ name: Update AI Feed
 
 # 每 2 小时跑一次：RSS → Ark LLM 评分/摘要 → feed.json（与量化推荐互不相关）
 on:
-  push:
-    branches: [main]
   schedule:
     - cron: '7 */2 * * *'   # 每 2 小时（UTC）
   workflow_dispatch:

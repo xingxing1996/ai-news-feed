@@ -148,4 +148,23 @@ def train_and_predict() -> dict:
         if not seg_df.empty:
             metrics[name] = evaluate.summarize(seg_df["prob"], seg_df["label"].astype(int), seg_df["date"])
     log.info("[model] 评估: %s", {k: v for k, v in metrics.items() if k in ("valid", "test")})
+
+    # 持久化「最新一天」快照到 quant/state/（小文件、入库），供每 2h 的 report 复用模型、免重训
+    try:
+        import shutil
+
+        state_dir = Path(cfg.paths.output_dir).parent.parent / "state"  # quant/data/output -> quant/state
+        state_dir.mkdir(parents=True, exist_ok=True)
+        shutil.copy(model_path, state_dir / "model.lgb")
+        last_date = pred["date"].max()
+        pred[pred["date"] == last_date].to_parquet(state_dir / "predictions_latest.parquet", index=False)
+        feats_all = read_parquet("features")
+        if not feats_all.empty:
+            feats_all[feats_all["date"] == str(last_date)].to_parquet(
+                state_dir / "features_latest.parquet", index=False
+            )
+        log.info("[model] state 快照已保存到 %s", state_dir)
+    except Exception as exc:  # noqa: BLE001
+        log.warning("[model] 保存 state 快照失败: %s", exc)
+
     return metrics
