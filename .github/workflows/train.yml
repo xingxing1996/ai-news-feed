@@ -4,6 +4,8 @@ name: Daily Quant Train
 # 产出 recommendations.json（跑赢行业概率+评分+理由），与新闻 feed.json 无关。
 # 注意：GHA 是美国机器，A股 AKShare 数据可能部分拉不到 → 降级跳过，不中断。
 on:
+  push:
+    branches: [main]
   schedule:
     - cron: '27 1 * * *'   # 每天 01:27 UTC（与 resolve-models 错峰）
   workflow_dispatch:

@@ -3,6 +3,8 @@ name: Resolve Model Versions
 # 每天：查 Ark /models，把 config/models.yaml 里逻辑名的最新版本写回 resolved。
 # 模型一更新/下线，第二天自动落到配置，无需手动改版本号。
 on:
+  push:
+    branches: [main]
   schedule:
     - cron: '17 1 * * *'   # 每天 01:17 UTC
   workflow_dispatch:
