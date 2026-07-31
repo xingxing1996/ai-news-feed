@@ -1,0 +1,171 @@
+"""A股数据加载（AKShare）。
+
+AKShare 函数签名随版本变化频繁，这里做防御式封装：
+- 失败不抛异常，返回空 DataFrame 并打日志（不让单只股票中断整条流水线）。
+- 统一输出 schema：date / code / ohlcv / market_cap。
+- 财务统一输出 schema：code / report_period / pub_date / revenue / profit / roe / gross_margin / cashflow / pe / pb。
+"""
+from __future__ import annotations
+
+import logging
+from datetime import datetime
+
+import pandas as pd
+
+log = logging.getLogger(__name__)
+
+_AK = None  # 延迟导入
+
+
+def _ak():
+    global _AK
+    if _AK is None:
+        import akshare as ak  # noqa: WPS433
+        _AK = ak
+    return _AK
+
+
+def _to_ak_symbol(code: str) -> str:
+    """600519.SH / 000001.SZ → 600519 / 000001。"""
+    return code.split(".")[0]
+
+
+def _to_date(s) -> str:
+    return pd.to_datetime(s).strftime("%Y-%m-%d")
+
+
+def fetch_daily(code: str, start: str, end: str, market: str = "cn") -> pd.DataFrame:
+    """下载前复权日线（A股 stock_zh_a_hist / 港股 stock_hk_daily）。返回统一 schema。"""
+    try:
+        ak = _ak()
+        if market == "hk":
+            sym = code.split(".")[0].rjust(5, "0")  # 0700.HK → 00700
+            df = ak.stock_hk_daily(symbol=sym, adjust="qfq")
+            if df is None or df.empty:
+                return _empty_daily()
+            df["date"] = pd.to_datetime(df["date"]).dt.strftime("%Y-%m-%d")
+            df = df[(df["date"] >= start) & (df["date"] <= end)]
+            out = df[["date", "open", "high", "low", "close", "volume"]].copy()
+            out["code"] = code
+            out["market_cap"] = pd.NA
+            return out[["date", "code", "open", "high", "low", "close", "volume", "market_cap"]]
+
+        # A股
+        sym = _to_ak_symbol(code)
+        df = ak.stock_zh_a_hist(
+            symbol=sym,
+            period="daily",
+            start_date=pd.to_datetime(start).strftime("%Y%m%d"),
+            end_date=pd.to_datetime(end).strftime("%Y%m%d"),
+            adjust="qfq",
+        )
+        if df is None or df.empty:
+            return _empty_daily()
+        colmap = {
+            "日期": "date", "开盘": "open", "最高": "high", "最低": "low",
+            "收盘": "close", "成交量": "volume", "成交额": "amount",
+        }
+        df = df.rename(columns=colmap)
+        df["date"] = pd.to_datetime(df["date"]).dt.strftime("%Y-%m-%d")
+        df["code"] = code
+        out = df[["date", "code", "open", "high", "low", "close", "volume"]].copy()
+        out["market_cap"] = pd.NA
+        return out
+    except Exception as exc:  # noqa: BLE001
+        log.warning("[akshare] %s 行情下载失败: %s", code, exc)
+        return _empty_daily()
+
+
+def fetch_valuation(code: str, start: str, end: str, market: str = "cn") -> pd.DataFrame:
+    """历史 PE/PB。A股用 stock_zh_valuation_baidu（stock_a_indicator_lg 在新版已移除）。"""
+    if market != "cn":
+        return _empty_valuation()  # 港股历史 PE/PB 暂略（stock_hk_valuation_baidu 可后续接入）
+    try:
+        ak = _ak()
+        sym = _to_ak_symbol(code)
+        pe = _baidu_val(ak, sym, "市盈率(TTM)")
+        pb = _baidu_val(ak, sym, "市净率")
+        if pe is None and pb is None:
+            return _empty_valuation()
+        df = pd.merge(pe, pb, on="date", how="outer") if (pe is not None and pb is not None) else (pe or pb)
+        df = df[(df["date"] >= start) & (df["date"] <= end)]
+        return df.assign(code=code)[["date", "code", "pe", "pb"]]
+    except Exception as exc:  # noqa: BLE001
+        log.debug("[akshare] %s 估值下载失败: %s", code, exc)
+        return _empty_valuation()
+
+
+def _baidu_val(ak, sym: str, indicator: str):
+    """从 stock_zh_valuation_baidu 取单个指标，返回 [date, pe|pb]。"""
+    try:
+        df = ak.stock_zh_valuation_baidu(symbol=sym, indicator=indicator, period="全部")
+        if df is None or df.empty:
+            return None
+        col = "pe" if "盈" in indicator else "pb"
+        df = df.rename(columns={df.columns[0]: "date", df.columns[-1]: col})
+        df["date"] = pd.to_datetime(df["date"]).dt.strftime("%Y-%m-%d")
+        return df[["date", col]]
+    except Exception:  # noqa: BLE001
+        return None
+
+
+def fetch_financial(code: str) -> pd.DataFrame:
+    """下载财务摘要。AKShare 字段多变，尽量稳健地映射，失败返回空。"""
+    try:
+        ak = _ak()
+        sym = _to_ak_symbol(code)
+        df = ak.stock_financial_abstract(symbol=sym)
+        if df is None or df.empty:
+            return _empty_fin()
+        # 常见列：指标 / 报告期 / 数值… 结构不稳定，这里尽量解析
+        return _normalize_financial_ak(df, code)
+    except Exception as exc:  # noqa: BLE001
+        log.warning("[akshare] %s 财务下载失败: %s", code, exc)
+        return _empty_fin()
+
+
+def _normalize_financial_ak(df: pd.DataFrame, code: str) -> pd.DataFrame:
+    """尽力把 AKShare 财务表拍平成统一 schema（容忍字段缺失）。"""
+    # 不同版本列名差异大；这里用通用兜底：取不到就留空
+    rows = []
+    today = datetime.today().strftime("%Y-%m-%d")
+    # 尝试取最近一期作为代表（避免被复杂结构拖垮）
+    try:
+        rec = {
+            "code": code,
+            "report_period": None,
+            "pub_date": today,
+            "revenue": _pick(df, ["营业总收入", "营业收入", "总营收"]),
+            "profit": _pick(df, ["净利润", "归母净利润"]),
+            "roe": _pick(df, ["净资产收益率", "ROE"]),
+            "gross_margin": _pick(df, ["销售毛利率", "毛利率"]),
+            "cashflow": _pick(df, ["经营活动现金流量净额", "经营现金流净额"]),
+            "pe": pd.NA,
+            "pb": pd.NA,
+        }
+        rows.append(rec)
+    except Exception:  # noqa: BLE001
+        return _empty_fin()
+    return pd.DataFrame(rows)
+
+
+def _pick(df: pd.DataFrame, names: list[str]):
+    for n in names:
+        if n in df.columns:
+            return pd.to_numeric(df[n].iloc[0], errors="coerce")
+    return pd.NA
+
+
+def _empty_daily() -> pd.DataFrame:
+    return pd.DataFrame(columns=["date", "code", "open", "high", "low", "close", "volume", "market_cap"])
+
+
+def _empty_valuation() -> pd.DataFrame:
+    return pd.DataFrame(columns=["date", "code", "pe", "pb"])
+
+
+def _empty_fin() -> pd.DataFrame:
+    return pd.DataFrame(
+        columns=["code", "report_period", "pub_date", "revenue", "profit", "roe",
+                 "gross_margin", "cashflow", "pe", "pb"]
+    )
