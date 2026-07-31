@@ -102,4 +102,4 @@ llm:
   api_key: ""                           # 留空则读环境变量 ARK_API_KEY；真实 key 放 settings.local.yaml
   model: "deepseek-v3-2-251201"
   temperature: 0.1
-  timeout: 60
+  timeout: 180

@@ -91,7 +91,7 @@ def _llm_client():
     try:
         from openai import OpenAI  # noqa: WPS433
 
-        return OpenAI(base_url=base_url, api_key=api_key), base_url
+        return OpenAI(base_url=base_url, api_key=api_key, max_retries=0), base_url
     except Exception:  # noqa: BLE001
         log.info("[news] openai 库未安装，使用规则抽取")
         return None, base_url
@@ -146,9 +146,11 @@ def _create_retry(client, kwargs, retries: int = 1):
                 return _call(model)
             except Exception as exc:  # noqa: BLE001
                 s = str(exc)
-                if "429" in s or "RateLimit" in s or "TooMany" in s:
-                    log.warning("[news] %s 限流，切换到下一个模型", model)
-                    continue
+                sl = s.lower()
+                if ("429" in s or "ratelimit" in sl or "toomany" in sl
+                        or "timed out" in sl or "timeout" in sl or "apitimeout" in sl):
+                    log.warning("[news] %s 限流/超时，切换到下一个模型", model)
+                    continue  # failover 到池里下一个模型，不直接抛
                 raise
         if cycle < retries:
             log.warning("[news] 整个模型池都被限流，等 20s 后再轮一轮")
@@ -156,7 +158,7 @@ def _create_retry(client, kwargs, retries: int = 1):
     raise RuntimeError("LLM 模型池全部限流，请稍后重试或在方舟控制台提升端点 RPM")
 
 
-def extract_events_batch(pairs: list[tuple[str, list[str]]], batch_size: int = 6) -> dict[str, list[dict]]:
+def extract_events_batch(pairs: list[tuple[str, list[str]]], batch_size: int = 3) -> dict[str, list[dict]]:
     """批量事件抽取：把多条新闻一次性发给 LLM，降低 RPM 压力。
 
     pairs: [(text, [code]), ...]。返回 {code: [events]}。失败项退化规则。
