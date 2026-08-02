@@ -20,3 +20,4 @@
 2026-08-01 21:09:39 [INFO] root: resolve_models 成功: {'ok': True, 'resolved': {'glm-5-2': 'glm-5-2-260617', 'doubao-seed-2-1-pro': 'doubao-seed-2-1-pro-260628'}, 'missing': [], 'n_available': 127}
 2026-08-01 23:11:10 [INFO] root: resolve_models 成功: {'ok': True, 'resolved': {'glm-5-2': 'glm-5-2-260617', 'doubao-seed-2-1-pro': 'doubao-seed-2-1-pro-260628'}, 'missing': [], 'n_available': 127}
 2026-08-02 03:52:34 [INFO] root: resolve_models 成功: {'ok': True, 'resolved': {'glm-5-2': 'glm-5-2-260617', 'doubao-seed-2-1-pro': 'doubao-seed-2-1-pro-260628'}, 'missing': [], 'n_available': 127}
+2026-08-02 04:36:17 [INFO] root: resolve_models 成功: {'ok': True, 'resolved': {'glm-5-2': 'glm-5-2-260617', 'doubao-seed-2-1-pro': 'doubao-seed-2-1-pro-260628'}, 'missing': [], 'n_available': 127}
