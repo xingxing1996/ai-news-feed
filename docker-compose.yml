@@ -1,0 +1,20 @@
+# docker compose up -d   → 构建 + 常驻（cron 调度 + API）
+# 查结果：curl localhost:8000/recommendations
+services:
+  quant:
+    build: .
+    image: quant-cn:latest
+    container_name: quant-cn
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      TZ: Asia/Shanghai
+      ARK_API_KEY: ${ARK_API_KEY}        # 新闻 LLM 用；可空（退化规则）
+      CRON_TRAIN: "0 9 * * 1-5"          # 工作日 北京17:00(UTC09:00) 训练
+      CRON_REFRESH: "0 */2 * * *"        # 每 2h 刷新日报
+      API_PORT: "8000"
+    volumes:
+      - quant-data:/app/quant/data       # 行情/模型/日报持久化
+volumes:
+  quant-data:
