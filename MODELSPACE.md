@@ -3,10 +3,11 @@
 把 A股+港股 量化系统部署到 ModelScope 创空间：Gradio 看板 + APScheduler 进程内调度 + `/mnt/workspace` 持久化。
 
 ## 文件
-- `app.py` — Gradio 看板 + APScheduler（创空间入口）
+- `api.py` — **FastAPI + APScheduler 一体化**（创空间入口，Dockerfile.modelspace 默认跑这个）：REST API + 浏览器看板(`/`) + 进程内调度
+- `app.py` — Gradio 版看板（备选；想用 Gradio 就 `CMD python app.py`）
 - `config/settings.modelspace.yaml` — A股+港股，数据/模型全走 `/mnt/workspace`
-- `requirements-modelspace.txt` — quant 全量 + gradio + apscheduler
-- `Dockerfile.modelspace` — Docker 类型创空间构建
+- `requirements-modelspace.txt` — quant 全量 + fastapi/uvicorn + apscheduler(+gradio)
+- `Dockerfile.modelspace` — Docker 类型创空间构建（默认跑 FastAPI）
 
 ## 关键设计（契合创空间限制）
 | 创空间限制 | 对应做法 |
