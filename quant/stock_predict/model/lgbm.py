@@ -65,7 +65,7 @@ def _split(df: pd.DataFrame, seg: dict, embargo_days: int = 0) -> dict[str, pd.D
 _TARGETS = ["label", "abs_label", "bench_label"]  # 三个维度：跑赢行业 / 绝对上涨 / 跑赢大盘
 
 
-def _train_one(feat_cols, params, splits, target, use_ensemble=True):
+def _train_one(feat_cols, params, splits, target, use_ensemble=True, calibrate=False):
     """为单个 target 训练 LightGBM(+XGBoost 可选) + 概率校准，返回 (model, proba, blob, n_train)。"""
     import lightgbm as lgb  # 延迟导入
 
@@ -109,8 +109,11 @@ def _train_one(feat_cols, params, splits, target, use_ensemble=True):
 
     proba = _proba(splits["_all"][feat_cols])
 
-    # 概率校准（isotonic，valid 拟合）：让「上涨概率」是真概率；单调变换不改变排序/IC
-    if not Xva.empty:
+    # 概率校准（isotonic，valid 拟合）：默认【关】。
+    # 原因：模型偏弱时 isotonic 会把所有概率压回基准率(~0.5)，区分度全无、毫无意义。
+    # 想要"真概率"可设 model.calibrate: true；默认用原始 GBDM 概率（0.3~0.7 有区分度）。
+    calib = False
+    if calibrate and not Xva.empty:
         try:
             from sklearn.isotonic import IsotonicRegression
 
@@ -119,9 +122,6 @@ def _train_one(feat_cols, params, splits, target, use_ensemble=True):
             calib = True
         except Exception as exc:  # noqa: BLE001
             log.debug("[model] 校准失败（%s）：%s", target, exc)
-            calib = False
-    else:
-        calib = False
 
     blob = {"model": model, "used_ensemble": xgbm is not None, "calibrated": calib}
     if xgbm is not None:
@@ -148,6 +148,7 @@ def train_and_predict() -> dict:
     splits["_all"] = mat
     params = dict(cfg.model.lightgbm)
     use_ensemble = bool(cfg.model.get("ensemble", True))
+    calibrate = bool(cfg.model.get("calibrate", False))  # 默认关：弱模型校准会压平概率区分度
 
     out_dir = Path(cfg.paths.output_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -159,7 +160,7 @@ def train_and_predict() -> dict:
     models_blob = {"feat_cols": feat_cols, "params": params, "split": seg, "models": {}}
     metrics = {"model_path": str(model_path), "n_features": len(feat_cols), "n_train": {}}
     for target in _TARGETS:
-        model, proba, blob, n_train = _train_one(feat_cols, params, splits, target, use_ensemble)
+        model, proba, blob, n_train = _train_one(feat_cols, params, splits, target, use_ensemble, calibrate)
         pred[target] = mat[target].reset_index(drop=True) if target in mat else np.nan
         pred[f"prob_{target}"] = proba
         models_blob["models"][target] = blob
