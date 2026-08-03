@@ -65,7 +65,14 @@ cn:
   - {code: "688347.SH", name: "华虹半导体", industry: "半导体"}
   # —— ETF / 指数代理 ——
   - {code: "510300.SH", name: "沪深300ETF", industry: "指数"}
+  - {code: "510050.SH", name: "上证50ETF", industry: "指数"}
+  - {code: "510500.SH", name: "中证500ETF", industry: "指数"}
+  - {code: "512100.SH", name: "中证1000ETF", industry: "指数"}
+  - {code: "159915.SZ", name: "创业板ETF", industry: "指数"}
   - {code: "588000.SH", name: "科创50ETF", industry: "指数"}
+  - {code: "510880.SH", name: "红利ETF", industry: "指数"}
+  - {code: "512000.SH", name: "券商ETF", industry: "指数"}
+  - {code: "512480.SH", name: "半导体ETF", industry: "指数"}
 
 hk:
   # —— 恒生科技核心 ——
@@ -143,6 +150,23 @@ us:
   - {code: "KGC",   name: "金罗斯",    industry: "黄金"}
   - {code: "GDX",   name: "金矿ETF",   industry: "指数"}          # 金矿ETF
   - {code: "GLD",   name: "黄金ETF",   industry: "指数"}          # 黄金ETF
+  # —— 经典蓝筹（消费/医药/工业/传媒/软件，分散行业）——
+  - {code: "KO",    name: "可口可乐",  industry: "消费"}
+  - {code: "PG",    name: "宝洁",      industry: "消费"}
+  - {code: "WMT",   name: "沃尔玛",    industry: "零售"}
+  - {code: "NKE",   name: "耐克",      industry: "消费"}
+  - {code: "MCD",   name: "麦当劳",    industry: "消费"}
+  - {code: "DIS",   name: "迪士尼",    industry: "传媒"}
+  - {code: "NFLX",  name: "奈飞",      industry: "传媒"}
+  - {code: "JNJ",   name: "强生",      industry: "医药"}
+  - {code: "LLY",   name: "礼来",      industry: "医药"}
+  - {code: "UNH",   name: "联合健康",  industry: "医药"}
+  - {code: "PFE",   name: "辉瑞",      industry: "医药"}
+  - {code: "CAT",   name: "卡特彼勒",  industry: "工业"}
+  - {code: "BA",    name: "波音",      industry: "工业"}
+  - {code: "CSCO",  name: "思科",      industry: "科技"}
+  - {code: "ORCL",  name: "甲骨文",    industry: "科技"}
+  - {code: "WFC",   name: "富国银行",  industry: "银行"}
   # —— 半导体 / DRAM ETF ——
   - {code: "SOXX",  name: "半导体ETF(SOXX)", industry: "指数"}    # 半导体ETF
   - {code: "SMH",   name: "半导体ETF(SMH)",  industry: "指数"}    # 半导体ETF

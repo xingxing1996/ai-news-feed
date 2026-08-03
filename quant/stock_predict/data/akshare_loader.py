@@ -46,6 +46,15 @@ def _to_ak_symbol(code: str) -> str:
     return code.split(".")[0]
 
 
+_ETF_PREFIXES = {"510", "511", "512", "513", "515", "516", "518", "588", "159", "150"}
+
+
+def _is_etf(code: str) -> bool:
+    """识别 A股 ETF 代码（510xxx/512xxx/159xxx/588xxx 等）。"""
+    s = code.split(".")[0]
+    return len(s) == 6 and s[:3] in _ETF_PREFIXES
+
+
 def _to_date(s) -> str:
     return pd.to_datetime(s).strftime("%Y-%m-%d")
 
@@ -66,16 +75,26 @@ def fetch_daily(code: str, start: str, end: str, market: str = "cn") -> pd.DataF
             out["market_cap"] = pd.NA
             return out[["date", "code", "open", "high", "low", "close", "volume", "market_cap"]]
 
-        # A股
+        # A股 / A股ETF（ETF 用 fund_etf_hist_em）
         sym = _to_ak_symbol(code)
-        df = _call_ak(
-            ak.stock_zh_a_hist,
-            symbol=sym,
-            period="daily",
-            start_date=pd.to_datetime(start).strftime("%Y%m%d"),
-            end_date=pd.to_datetime(end).strftime("%Y%m%d"),
-            adjust="qfq",
-        )
+        if _is_etf(code):
+            df = _call_ak(
+                ak.fund_etf_hist_em,
+                symbol=sym,
+                period="daily",
+                start_date=pd.to_datetime(start).strftime("%Y%m%d"),
+                end_date=pd.to_datetime(end).strftime("%Y%m%d"),
+                adjust="qfq",
+            )
+        else:
+            df = _call_ak(
+                ak.stock_zh_a_hist,
+                symbol=sym,
+                period="daily",
+                start_date=pd.to_datetime(start).strftime("%Y%m%d"),
+                end_date=pd.to_datetime(end).strftime("%Y%m%d"),
+                adjust="qfq",
+            )
         if df is None or df.empty:
             return _empty_daily()
         colmap = {
