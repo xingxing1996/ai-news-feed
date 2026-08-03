@@ -1,9 +1,10 @@
 name: Update AI Feed
 
-# 每 2 小时跑一次：RSS → Ark LLM 评分/摘要 → feed.json（与量化推荐互不相关）
+# 每天 早8点 + 晚11点（北京）跑：RSS → Ark LLM 评分/摘要 → feed.json
+# 08:00 / 23:00 CST = 00:00 / 15:00 UTC
 on:
   schedule:
-    - cron: '7 */2 * * *'   # 每 2 小时（UTC）
+    - cron: '0 0,15 * * *'
   workflow_dispatch:
 
 jobs:

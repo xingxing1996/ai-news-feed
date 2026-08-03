@@ -20,6 +20,7 @@ from __future__ import annotations
 import json
 import logging
 import os
+import random
 import re
 import time
 
@@ -51,19 +52,14 @@ def _load_pool() -> list[str]:
 
 
 MODEL_POOL = _load_pool()
-DEFAULT_MODEL = MODEL_POOL[0]
-
-# 轮询计数器（串行调用，无需锁）
-_rr_counter = 0
+DEFAULT_MODEL = MODEL_POOL[0] if MODEL_POOL else "glm-5-2-260617"
 
 
 def _pool_order() -> list[str]:
-    """本调用要轮询的模型顺序：从下一个轮询位开始，整池兜底。"""
-    global _rr_counter
-    n = len(MODEL_POOL)
-    start = _rr_counter % n
-    _rr_counter += 1
-    return [MODEL_POOL[(start + i) % n] for i in range(n)]
+    """完全随机打乱模型顺序（不每次都从第一个开始）。"""
+    order = list(MODEL_POOL)
+    random.shuffle(order)
+    return order
 
 _SYSTEM = (
     "你是金融事件抽取助手。从新闻中抽取结构化事件，严格输出 JSON：{\"events\":[...]}，"
@@ -123,39 +119,31 @@ def extract_events(text: str, related_codes: list[str] | None = None) -> list[di
     return _rule_extract(text, related_codes or [])
 
 
-def _create_retry(client, kwargs, retries: int = 1):
-    """串行发 chat 请求，跨模型池分摊并发：
+def _create_retry(client, kwargs, max_tries: int = 3):
+    """串行发 chat 请求：随机挑模型，429/超时切下一个，最多尝试 max_tries 次。
 
-    - 每次调用从下一个模型开始（轮询），均匀分摊 RPM；
-    - 单模型 429 立即切下一个模型（failover，不等）；
-    - 整池都限流才等待 20s 再轮一轮；
-    - 全程串行，无多线程。
+    - 模型顺序每次随机打乱（不每次都默认第一个）；
+    - 单模型 429/超时 → 立即切下一个（failover，不等待）；
+    - 其它错误直接抛；超过 max_tries（默认3）仍失败 → 抛给上层退化规则。
     """
     base = dict(kwargs)
-    base.pop("response_format", None)  # 不同模型对 JSON mode 支持不一，统一靠 _safe_json 解析
-    order = _pool_order()
-
-    def _call(model):
-        k = dict(base)
-        k["model"] = model
-        return client.chat.completions.create(**k)
-
-    for cycle in range(retries + 1):
-        for model in order:
-            try:
-                return _call(model)
-            except Exception as exc:  # noqa: BLE001
-                s = str(exc)
-                sl = s.lower()
-                if ("429" in s or "ratelimit" in sl or "toomany" in sl
-                        or "timed out" in sl or "timeout" in sl or "apitimeout" in sl):
-                    log.warning("[news] %s 限流/超时，切换到下一个模型", model)
-                    continue  # failover 到池里下一个模型，不直接抛
-                raise
-        if cycle < retries:
-            log.warning("[news] 整个模型池都被限流，等 20s 后再轮一轮")
-            time.sleep(20)
-    raise RuntimeError("LLM 模型池全部限流，请稍后重试或在方舟控制台提升端点 RPM")
+    base.pop("response_format", None)
+    order = _pool_order()[:max_tries]
+    last_exc = None
+    for i, model in enumerate(order):
+        try:
+            k = dict(base)
+            k["model"] = model
+            return client.chat.completions.create(**k)
+        except Exception as exc:  # noqa: BLE001
+            last_exc = exc
+            sl = str(exc).lower()
+            if ("429" in sl or "ratelimit" in sl or "toomany" in sl
+                    or "timed out" in sl or "timeout" in sl or "apitimeout" in sl):
+                log.warning("[news] %s 限流/超时，换下一个模型（%d/%d）", model, i + 1, len(order))
+                continue
+            raise  # 非限流/超时错误直接抛
+    raise last_exc if last_exc else RuntimeError("LLM 模型池全部失败")
 
 
 def extract_events_batch(pairs: list[tuple[str, list[str]]], batch_size: int = 3) -> dict[str, list[dict]]:

@@ -35,7 +35,9 @@ def _pivot_close(daily: pd.DataFrame) -> pd.DataFrame:
 
 
 def _pivot_prob(pred: pd.DataFrame) -> pd.DataFrame:
-    return pred.pivot(index="date", columns="code", values="prob").sort_index()
+    # 兼容三概率格式：优先用「跑赢行业」prob_label，回退旧版 prob
+    col = "prob_label" if "prob_label" in pred.columns else "prob"
+    return pred.pivot(index="date", columns="code", values=col).sort_index()
 
 
 def run_backtest() -> dict:
