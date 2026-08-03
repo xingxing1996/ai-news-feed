@@ -45,9 +45,68 @@ def fetch_daily(code: str, start: str, end: str) -> pd.DataFrame:
         return _empty_daily()
 
 
-def fetch_valuation(code: str, start: str, end: str) -> pd.DataFrame:
-    """yfinance 不直接提供历史 PE/PB 序列；这里返回空，由上层用财务快照近似或跳过估值因子。"""
-    return _empty_valuation()
+def fetch_valuation(code: str, start: str, end: str, market: str = "us") -> pd.DataFrame:
+    """美股历史 PE/PB：用 yfinance 季度财报(净利润/净资产)+股价+股本自算。
+
+    PE = close / EPS_TTM；PB = close / 每股净资产。
+    点在时间近似：财报滞后 45 天才可知（shift +45d 后 forward-fill）。
+    任何一步失败→返回空（美股估值因子缺省，模型照跑）。
+    """
+    import numpy as np
+
+    try:
+        yf = _yf()
+        tk = yf.Ticker(code)
+        px = yf.download(code, start=start, end=end, progress=False, auto_adjust=True)
+        if px is None or px.empty or "close" not in px:
+            return _empty_valuation()
+        if isinstance(px.columns, pd.MultiIndex):
+            px.columns = [c[0] if isinstance(c, tuple) else c for c in px.columns]
+        close = pd.to_numeric(px["close"], errors="coerce")
+        close.index = pd.to_datetime(close.index)
+
+        info = tk.info or {}
+        shares = info.get("sharesOutstanding") or info.get("floatShares") or info.get("impliedShares")
+        inc = tk.quarterly_income_stmt
+        bal = tk.quarterly_balance_sheet
+        if not shares or inc is None or inc.empty:
+            return _empty_valuation()
+
+        # TTM 净利润 = 最近4季滚动和 → EPS_TTM
+        ni_row = next((inc.loc[n] for n in
+                       ("Net Income", "Net Income Common Stockholders", "Net Income From Continuing Ops")
+                       if n in inc.index), None)
+        if ni_row is None:
+            return _empty_valuation()
+        ni = ni_row.dropna().sort_index()
+        ttm = ni.rolling(4, min_periods=4).sum()
+        eps = ttm / float(shares)                 # period_end -> EPS_TTM
+        eps.index = eps.index + pd.Timedelta(days=45)   # 发布滞后
+        eps_daily = eps.reindex(close.index, method="ffill")
+
+        # 每股净资产 → PB
+        pb_ps = None
+        if bal is not None and not bal.empty:
+            for n in ("Stockholders Equity", "Total Equity Gross", "Common Stock Equity"):
+                if n in bal.index:
+                    eq = bal.loc[n].dropna().sort_index() / float(shares)
+                    eq.index = eq.index + pd.Timedelta(days=45)
+                    pb_ps = eq.reindex(close.index, method="ffill")
+                    break
+
+        out = pd.DataFrame({"close": close})
+        out["pe"] = out["close"] / eps_daily
+        out["pb"] = out["close"] / pb_ps if pb_ps is not None else np.nan
+        out = out.replace([np.inf, -np.inf], np.nan)
+        out = out.reset_index()
+        out = out.rename(columns={out.columns[0]: "date"})
+        out["date"] = pd.to_datetime(out["date"]).dt.strftime("%Y-%m-%d")
+        out["code"] = code
+        out = out[(out["date"] >= start) & (out["date"] <= end)]
+        return out[["date", "code", "pe", "pb"]]
+    except Exception as exc:  # noqa: BLE001
+        log.warning("[yfinance] %s PE/PB 自算失败: %s", code, exc)
+        return _empty_valuation()
 
 
 def fetch_financial(code: str, market: str = "us") -> pd.DataFrame:
