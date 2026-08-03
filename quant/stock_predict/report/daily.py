@@ -52,6 +52,32 @@ def _news_reason_risk(events: list[dict]) -> tuple[list[str], list[str]]:
     return reasons, risks
 
 
+def _rating(prob: float, prob_up: float, events: list[dict], completeness: float) -> tuple[str, str | None]:
+    """综合评级（买入建议）+ 突发事件。
+
+    综合：跑赢行业概率 + 上涨概率 + 新闻方向 + 数据质量 → 强推荐/关注/中性观望/回避。
+    突发：任一 impact≥0.7 的事件。
+    """
+    pos = any(e.get("direction") == "positive" and float(e.get("impact", 0)) >= 0.6 for e in events)
+    neg = any(e.get("direction") == "negative" and float(e.get("impact", 0)) >= 0.6 for e in events)
+    hi = sorted([e for e in events if float(e.get("impact", 0)) >= 0.7], key=lambda e: -float(e.get("impact", 0)))
+    breaking = None
+    if hi:
+        e = hi[0]
+        breaking = f"{e.get('event') or '重大事件'}（影响 {float(e.get('impact', 0)):.1f}）"
+
+    score = prob * 0.5 + prob_up * 0.3 + (0.08 if pos else 0) - (0.08 if neg else 0) - (0.08 if completeness < 0.6 else 0)
+    if score >= 0.6:
+        rating = "强推荐"
+    elif score >= 0.53:
+        rating = "关注"
+    elif score >= 0.45:
+        rating = "中性观望"
+    else:
+        rating = "回避"
+    return rating, breaking
+
+
 def generate_daily_report(as_of: str | None = None, pred_df=None, feats_df=None,
                           state_dir: str | None = None) -> str:
     cfg = get_settings()
@@ -131,9 +157,15 @@ def generate_daily_report(as_of: str | None = None, pred_df=None, feats_df=None,
         confidence = "低" if completeness < 0.6 else ("中" if completeness < 0.85 else "高")
 
         # 叠加新闻事件（设计文档：新闻应给「HBM需求增加」这类上下文理由）
-        nreason, nrisk = _news_reason_risk(news_events.get(code, []))
+        evs = news_events.get(code, [])
+        nreason, nrisk = _news_reason_risk(evs)
         reasons = nreason + reasons
         risks = nrisk + risks
+
+        # 综合评级（买入建议）+ 突发事件高亮
+        rating, breaking = _rating(prob, prob_up, evs, completeness)
+        if breaking:
+            reasons.insert(0, f"⚠️ 突发：{breaking}")
 
         meta = {k: row[k] for k in ("name", "industry", "market") if k in row.index}
         cards.append(
@@ -146,6 +178,8 @@ def generate_daily_report(as_of: str | None = None, pred_df=None, feats_df=None,
                 "prob_up": prob_up,
                 "prob_bench": prob_bench,
                 "score": round(prob * 100),
+                "suggestion": rating,
+                "breaking_event": breaking,
                 "confidence": confidence,
                 "data_completeness": completeness,
                 "reasons": reasons,

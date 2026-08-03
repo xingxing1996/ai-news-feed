@@ -102,54 +102,54 @@ hk:
 
 us:
   # —— 美国七巨头 (Magnificent 7) ——
-  - {code: "AAPL",  name: "Apple",      industry: "科技"}
-  - {code: "MSFT",  name: "Microsoft",  industry: "科技"}
-  - {code: "NVDA",  name: "NVIDIA",     industry: "半导体"}
-  - {code: "GOOGL", name: "Alphabet",   industry: "科技"}
-  - {code: "AMZN",  name: "Amazon",     industry: "互联网"}
-  - {code: "META",  name: "Meta",       industry: "互联网"}
-  - {code: "TSLA",  name: "Tesla",      industry: "汽车"}
+  - {code: "AAPL",  name: "苹果",      industry: "科技"}
+  - {code: "MSFT",  name: "微软",      industry: "科技"}
+  - {code: "NVDA",  name: "英伟达",    industry: "半导体"}
+  - {code: "GOOGL", name: "谷歌",      industry: "科技"}
+  - {code: "AMZN",  name: "亚马逊",    industry: "互联网"}
+  - {code: "META",  name: "Meta",      industry: "互联网"}
+  - {code: "TSLA",  name: "特斯拉",    industry: "汽车"}
   # —— 存储 / 半导体设备 ——
-  - {code: "MU",    name: "Micron",     industry: "半导体"}        # 存储(DRAM/NAND)
-  - {code: "WDC",   name: "Western Digital", industry: "半导体"}   # 存储
-  - {code: "AVGO",  name: "Broadcom",   industry: "半导体"}
-  - {code: "AMD",   name: "AMD",        industry: "半导体"}
-  - {code: "TSM",   name: "TSMC",       industry: "半导体"}        # 台积电 ADR
-  - {code: "ASML",  name: "ASML",       industry: "半导体"}        # 半导体设备
-  - {code: "AMAT",  name: "Applied Materials", industry: "半导体"} # 半导体设备
-  - {code: "LRCX",  name: "Lam Research", industry: "半导体"}      # 半导体设备
-  - {code: "ARM",   name: "Arm Holdings", industry: "半导体"}
-  - {code: "QCOM",  name: "Qualcomm",   industry: "半导体"}
-  - {code: "INTC",  name: "Intel",      industry: "半导体"}
+  - {code: "MU",    name: "美光",      industry: "半导体"}        # 存储(DRAM/NAND)
+  - {code: "WDC",   name: "西部数据",  industry: "半导体"}        # 存储
+  - {code: "AVGO",  name: "博通",      industry: "半导体"}
+  - {code: "AMD",   name: "AMD",       industry: "半导体"}
+  - {code: "TSM",   name: "台积电",    industry: "半导体"}        # 台积电 ADR
+  - {code: "ASML",  name: "阿斯麦",    industry: "半导体"}        # 半导体设备
+  - {code: "AMAT",  name: "应用材料",  industry: "半导体"}        # 半导体设备
+  - {code: "LRCX",  name: "拉姆研究",  industry: "半导体"}        # 半导体设备
+  - {code: "ARM",   name: "ARM",       industry: "半导体"}
+  - {code: "QCOM",  name: "高通",      industry: "半导体"}
+  - {code: "INTC",  name: "英特尔",    industry: "半导体"}
   # —— 金融 ——
-  - {code: "JPM",   name: "JPMorgan",   industry: "银行"}
-  - {code: "BAC",   name: "Bank of America", industry: "银行"}
-  - {code: "V",     name: "Visa",       industry: "金融"}
-  - {code: "GS",    name: "Goldman Sachs", industry: "金融"}
+  - {code: "JPM",   name: "摩根大通",  industry: "银行"}
+  - {code: "BAC",   name: "美国银行",  industry: "银行"}
+  - {code: "V",     name: "Visa",      industry: "金融"}
+  - {code: "GS",    name: "高盛",      industry: "金融"}
   # —— 通信 ——
-  - {code: "NOK",   name: "Nokia",      industry: "通信"}
+  - {code: "NOK",   name: "诺基亚",    industry: "通信"}
   # —— 原油 / 能源 ——
-  - {code: "XOM",   name: "ExxonMobil", industry: "石油石化"}
-  - {code: "CVX",   name: "Chevron",    industry: "石油石化"}
-  - {code: "COP",   name: "ConocoPhillips", industry: "石油石化"}
-  - {code: "OXY",   name: "Occidental", industry: "石油石化"}
-  - {code: "SLB",   name: "SLB",        industry: "油田服务"}
-  - {code: "XLE",   name: "Energy ETF", industry: "指数"}          # 能源ETF
-  - {code: "USO",   name: "Crude Oil ETF", industry: "指数"}       # 原油ETF
+  - {code: "XOM",   name: "埃克森美孚", industry: "石油石化"}
+  - {code: "CVX",   name: "雪佛龙",    industry: "石油石化"}
+  - {code: "COP",   name: "康菲石油",  industry: "石油石化"}
+  - {code: "OXY",   name: "西方石油",  industry: "石油石化"}
+  - {code: "SLB",   name: "斯伦贝谢",  industry: "油田服务"}
+  - {code: "XLE",   name: "能源ETF",   industry: "指数"}          # 能源ETF
+  - {code: "USO",   name: "原油ETF",   industry: "指数"}          # 原油ETF
   # —— 黄金 ——
-  - {code: "NEM",   name: "Newmont",    industry: "黄金"}
-  - {code: "GOLD",  name: "Barrick",    industry: "黄金"}
-  - {code: "AEM",   name: "Agnico Eagle", industry: "黄金"}
-  - {code: "KGC",   name: "Kinross",    industry: "黄金"}
-  - {code: "GDX",   name: "Gold Miners ETF", industry: "指数"}     # 金矿ETF
-  - {code: "GLD",   name: "Gold ETF",   industry: "指数"}          # 黄金ETF
+  - {code: "NEM",   name: "纽蒙特",    industry: "黄金"}
+  - {code: "GOLD",  name: "巴里克黄金", industry: "黄金"}
+  - {code: "AEM",   name: "伊格尔矿业", industry: "黄金"}
+  - {code: "KGC",   name: "金罗斯",    industry: "黄金"}
+  - {code: "GDX",   name: "金矿ETF",   industry: "指数"}          # 金矿ETF
+  - {code: "GLD",   name: "黄金ETF",   industry: "指数"}          # 黄金ETF
   # —— 半导体 / DRAM ETF ——
-  - {code: "SOXX",  name: "SOXX",       industry: "指数"}          # 半导体ETF
-  - {code: "SMH",   name: "SMH",        industry: "指数"}          # 半导体ETF
-  - {code: "SOXL",  name: "SOXL",       industry: "指数"}          # 半导体杠杆ETF
+  - {code: "SOXX",  name: "半导体ETF(SOXX)", industry: "指数"}    # 半导体ETF
+  - {code: "SMH",   name: "半导体ETF(SMH)",  industry: "指数"}    # 半导体ETF
+  - {code: "SOXL",  name: "半导体杠杆ETF",   industry: "指数"}    # 半导体杠杆ETF
   # —— ETF / 指数 ——
-  - {code: "QQQ",   name: "Invesco QQQ", industry: "指数"}         # 纳斯达克100
-  - {code: "SPY",   name: "SPDR S&P 500", industry: "指数"}        # 标普500
+  - {code: "QQQ",   name: "纳斯达克100ETF", industry: "指数"}     # 纳斯达克100
+  - {code: "SPY",   name: "标普500ETF",     industry: "指数"}     # 标普500
 
 kr:
   # —— 存储 / 半导体（韩国；yfinance 路径，国内可能需代理）——

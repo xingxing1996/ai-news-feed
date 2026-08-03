@@ -26,12 +26,12 @@
 ---
 
 {% for c in cards %}
-### {{ loop.index }}. {{ c.name }}（{{ c.code }}） · {{ c.industry }} / {{ c.market|upper }}
+### {{ loop.index }}. {{ c.name }}（{{ c.code }}） · {{ c.industry }} / {{ c.market|upper }} · **【{{ c.suggestion }}】**
 
 - **未来上涨概率**：`{{ "%.0f"|format(c.prob_up * 100) }}%`
 - **跑赢大盘概率**：`{{ "%.0f"|format(c.prob_bench * 100) }}%`
 - **跑赢行业概率**：`{{ "%.0f"|format(c.prob * 100) }}%`
-- **评分**：`{{ c.score }}/100`
+- **评分**：`{{ c.score }}/100` ｜ **建议**：`{{ c.suggestion }}`
 - **可信度**：`{{ c.confidence }}`（数据完整度 `{{ "%.0f"|format(c.data_completeness * 100) }}%`）
 
 **原因**
