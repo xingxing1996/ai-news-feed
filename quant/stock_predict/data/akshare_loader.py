@@ -132,6 +132,29 @@ def _baidu_val(ak, func_name: str, sym: str, indicator: str):
         return None
 
 
+def fetch_northbound(code: str, start: str, end: str, market: str = "cn") -> pd.DataFrame:
+    """北向资金（沪深港通）个股持股数量历史。仅 A股（stock_hsgt_individual_em）。"""
+    if market != "cn":
+        return _empty_nb()
+    try:
+        ak = _ak()
+        sym = _to_ak_symbol(code)
+        df = _call_ak(ak.stock_hsgt_individual_em, symbol=sym)
+        if df is None or df.empty or "持股日期" not in df.columns:
+            return _empty_nb()
+        df = df.rename(columns={"持股日期": "date", "持股数量": "north_shares"})
+        df["date"] = pd.to_datetime(df["date"]).dt.strftime("%Y-%m-%d")
+        df = df[(df["date"] >= start) & (df["date"] <= end)]
+        return df[["date", "north_shares"]].assign(code=code)[["date", "code", "north_shares"]]
+    except Exception as exc:  # noqa: BLE001
+        log.debug("[akshare] %s 北向资金失败: %s", code, exc)
+        return _empty_nb()
+
+
+def _empty_nb() -> pd.DataFrame:
+    return pd.DataFrame(columns=["date", "code", "north_shares"])
+
+
 def fetch_financial(code: str, market: str = "cn") -> pd.DataFrame:
     """下载财务摘要。仅 A股 用 stock_financial_abstract；港股财务接口结构不同，暂返回空（不报错）。"""
     if market != "cn":

@@ -28,6 +28,7 @@ feature:
   valuation: true
   quality: true
   industry: false
+  northbound: true                     # 北向资金因子（A股 另类 alpha）
   news: false
 
 model:
@@ -46,6 +47,7 @@ backtest:
   slippage_bps: 5.0
   impact_coef: 10.0
   weighting: inv_vol
+  ranking: bench                        # 排序信号：label|abs|bench|blend（实测 bench 最优）
   max_weight: 0.10
   max_industry: 0.40
   n_drop: 5

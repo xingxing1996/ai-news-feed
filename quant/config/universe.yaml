@@ -34,6 +34,7 @@ cn:
   - {code: "002594.SZ", name: "比亚迪",   industry: "汽车"}
   # —— 存储 / 半导体（含科创50权重）——
   - {code: "000725.SZ", name: "京东方A",  industry: "电子"}
+  - {code: "000100.SZ", name: "TCL科技", industry: "电子"}
   - {code: "002475.SZ", name: "立讯精密", industry: "电子"}
   - {code: "603986.SH", name: "兆易创新", industry: "半导体"}      # 存储(MCU/NOR Flash)
   - {code: "300223.SZ", name: "北京君正", industry: "半导体"}      # 存储(DRAM/SRAM)

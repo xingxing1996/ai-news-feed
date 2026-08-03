@@ -13,7 +13,7 @@ from ..config import get_settings
 from ..data.models import Financial, get_engine
 from ..data.universe import resolve_universe
 from ..data.warehouse import read_parquet, write_parquet
-from . import alpha, industry, labels, quality, valuation
+from . import alpha, alt, industry, labels, quality, valuation
 from .neutralize import add_size_style, neutralize
 from .processing import process_features
 
@@ -63,6 +63,14 @@ def build_feature_matrix() -> tuple[pd.DataFrame, dict]:
         ind_df = industry.compute_industry_factors(daily, universe, ext)
         if not ind_df.empty:
             blocks.append(ind_df)
+
+    # 北向资金因子（A股 另类 alpha）
+    if cfg.feature.get("northbound", False):
+        nb_df = read_parquet("northbound")
+        if not nb_df.empty:
+            nb_factors = alt.compute_northbound_factors(nb_df)
+            if not nb_factors.empty:
+                blocks.append(nb_factors)
 
     if not blocks:
         raise RuntimeError("未生成任何因子，请检查数据与 feature 配置。")

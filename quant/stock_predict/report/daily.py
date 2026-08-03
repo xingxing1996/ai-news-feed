@@ -61,7 +61,11 @@ def generate_daily_report(as_of: str | None = None, pred_df=None, feats_df=None,
         raise RuntimeError("predictions/features 为空，请先 train。")
 
     feats = feats.set_index(["date", "code"]).sort_index()
+    pred = pred.copy()
     pred["date"] = pred["date"].astype(str)
+    # 三概率兼容：主概率 prob = 跑赢行业(prob_label)；旧版已有 prob 则保留
+    if "prob" not in pred.columns and "prob_label" in pred.columns:
+        pred["prob"] = pred["prob_label"]
 
     # 选择报告日：优先最近的 unlabeled（即「今天」无未来收益），否则最近一日
     cand_dates = sorted(pred["date"].unique())

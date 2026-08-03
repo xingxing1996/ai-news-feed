@@ -49,7 +49,7 @@ def fetch_all(universe_df: pd.DataFrame, start: str, end: str, synthetic: bool,
 
     start_by_code: {code: 起始日}，增量采集时每只股票只拉「已有最后日期之后」。
     """
-    daily_parts, val_parts, fin_parts = [], [], []
+    daily_parts, val_parts, fin_parts, nb_parts = [], [], [], []
     rows = list(universe_df.itertuples(index=False))
     for r in tqdm(rows, desc="ingest", disable=len(rows) <= 3):
         L = _get_loader(r.market, synthetic)
@@ -62,6 +62,10 @@ def fetch_all(universe_df: pd.DataFrame, start: str, end: str, synthetic: bool,
             v = L.fetch_valuation(r.code, s, end, r.market) if is_ak else L.fetch_valuation(r.code, s, end)
             if not v.empty:
                 val_parts.append(v)
+        if hasattr(L, "fetch_northbound") and (not synthetic) and r.market == "cn":
+            nb = L.fetch_northbound(r.code, s, end, r.market)
+            if not nb.empty:
+                nb_parts.append(nb)
         f = L.fetch_financial(r.code, r.market) if is_ak else L.fetch_financial(r.code)
         if not f.empty:
             fin_parts.append(f)
@@ -69,7 +73,8 @@ def fetch_all(universe_df: pd.DataFrame, start: str, end: str, synthetic: bool,
     daily = pd.concat(daily_parts, ignore_index=True) if daily_parts else pd.DataFrame()
     valuation = pd.concat(val_parts, ignore_index=True) if val_parts else pd.DataFrame()
     financial = pd.concat(fin_parts, ignore_index=True) if fin_parts else pd.DataFrame()
-    return {"daily": daily, "valuation": valuation, "financial": financial}
+    northbound = pd.concat(nb_parts, ignore_index=True) if nb_parts else pd.DataFrame()
+    return {"daily": daily, "valuation": valuation, "financial": financial, "northbound": northbound}
 
 
 def fetch_and_store(universe_df: pd.DataFrame | None = None, settings: AttrDict | None = None) -> dict[str, Any]:
@@ -122,6 +127,11 @@ def fetch_and_store(universe_df: pd.DataFrame | None = None, settings: AttrDict 
     if not valuation.empty:
         write_parquet(valuation, "valuation")
     stats["valuation_rows"] = len(valuation)
+
+    # northbound → Parquet（北向资金持股，A股另类 alpha）
+    if not data.get("northbound", pd.DataFrame()).empty:
+        write_parquet(data["northbound"], "northbound")
+    stats["northbound_rows"] = len(data.get("northbound", pd.DataFrame()))
 
     # financial → SQLite
     if not data["financial"].empty:
