@@ -33,6 +33,8 @@
 - **跑赢行业概率**：`{{ "%.0f"|format(c.prob * 100) }}%`
 - **评分**：`{{ c.score }}/100` ｜ **建议**：`{{ c.suggestion }}`
 - **可信度**：`{{ c.confidence }}`（数据完整度 `{{ "%.0f"|format(c.data_completeness * 100) }}%`）
+{% if c.valuation %}- **估值**：{{ c.valuation }}
+{% endif %}
 
 **原因**
 {% for r in c.reasons %}- + {{ r }}

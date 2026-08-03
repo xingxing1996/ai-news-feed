@@ -120,6 +120,23 @@ def generate_daily_report(as_of: str | None = None, pred_df=None, feats_df=None,
 
     model, feat_cols = _load_model(state_dir=state_dir)
 
+    # SHAP 预计算（若启用 + 模型在）：对当日截面一次性算，逐股取行做精准归因
+    use_shap = (cfg.report.get("explain_method") == "shap") and (model is not None) and not section.empty
+    shap_values = None
+    if use_shap:
+        try:
+            import shap
+            explainer = shap.TreeExplainer(model)
+            X = section[feat_cols] if feat_cols else pd.DataFrame(index=section.index)
+            sv = explainer.shap_values(X)
+            sv = sv[1] if isinstance(sv, list) else sv
+            if sv.ndim == 3:
+                sv = sv[:, :, 1]
+            shap_values = sv
+        except Exception as exc:  # noqa: BLE001
+            log.warning("[report] SHAP 失败，回退规则归因：%s", exc)
+            use_shap = False
+
     # 新闻事件（若已跑 news 流程）→ 作为「理由/风险」的定性补充
     news_events: dict[str, list[dict]] = {}
     try:
@@ -145,7 +162,18 @@ def generate_daily_report(as_of: str | None = None, pred_df=None, feats_df=None,
         if (as_of, code) not in feats.index:
             continue
         row = feats.loc[(as_of, code)]
-        reasons, risks = explain.explain_row(row, feat_cols, section, model=model)
+        # 归因：优先 SHAP（模型真实依赖），否则截面分位规则
+        if use_shap and shap_values is not None and code in section.index:
+            ridx = section.index.get_loc(code)
+            reasons, risks = explain.explain_shap_row(shap_values[ridx], feat_cols)
+        else:
+            reasons, risks = explain.explain_row(row, feat_cols, section, model=model)
+        # 技术信号（RSI 超买超卖 / 均线多空头 / 动量）
+        treason, trisk = explain.technical_reasons(row)
+        reasons += treason
+        risks += trisk
+        # 估值提示
+        val_hint = explain.valuation_hint(row)
 
         # —— 数据质量：特征完整度 + 关键价量特征是否缺失（缺数据→标低可信）——
         fcols = [c for c in feat_cols if c in row.index]
@@ -180,6 +208,7 @@ def generate_daily_report(as_of: str | None = None, pred_df=None, feats_df=None,
                 "score": round(prob * 100),
                 "suggestion": rating,
                 "breaking_event": breaking,
+                "valuation": val_hint,
                 "confidence": confidence,
                 "data_completeness": completeness,
                 "reasons": reasons,
