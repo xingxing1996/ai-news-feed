@@ -1,25 +1,59 @@
 {
-  "update_time": "2026-08-03 10:37:53",
+  "update_time": "2026-07-31 17:52:48",
   "horizon_days": 20,
-  "note": "概率含义：prob=跑赢行业概率, prob_up=未来上涨概率, prob_bench=跑赢大盘概率；非买卖建议",
-  "n": 13,
+  "note": "量化模型(LightGBM+XGBoost)预测：未来 horizon 日跑赢行业的概率；非买卖建议",
+  "n": 10,
   "recommendations": [
+    {
+      "code": "005930.KS",
+      "name": "三星电子",
+      "industry": "半导体",
+      "market": "kr",
+      "prob": 0.9197034061944853,
+      "score": 92,
+      "confidence": "高",
+      "data_completeness": 1.0,
+      "reasons": [
+        "综合因子打分靠前"
+      ],
+      "risks": [
+        "价格波动放大（截面 91% 分位）",
+        "价格波动放大（截面 88% 分位）"
+      ]
+    },
     {
       "code": "SOXL",
       "name": "SOXL",
       "industry": "指数",
       "market": "us",
-      "prob": 0.9158170358698674,
-      "prob_up": 0.8069638829672197,
-      "prob_bench": 0.554214168752124,
-      "score": 92,
+      "prob": 0.9147524523055535,
+      "score": 91,
       "confidence": "高",
       "data_completeness": 0.93,
       "reasons": [
         "综合因子打分靠前"
       ],
       "risks": [
-        "价格波动放大（截面 99% 分位）",
+        "价格波动放大（截面 100% 分位）",
+        "价格波动放大（截面 97% 分位）"
+      ]
+    },
+    {
+      "code": "000660.KS",
+      "name": "SK海力士",
+      "industry": "半导体",
+      "market": "kr",
+      "prob": 0.9131072835405885,
+      "score": 91,
+      "confidence": "高",
+      "data_completeness": 1.0,
+      "reasons": [
+        "ROE 较高（盈利能力强）（截面 94% 分位）",
+        "净利率较高（截面 100% 分位）",
+        "毛利率较高（截面 76% 分位）"
+      ],
+      "risks": [
+        "价格波动放大（截面 98% 分位）",
         "价格波动放大（截面 97% 分位）"
       ]
     },
@@ -28,17 +62,14 @@
       "name": "Applied Materials",
       "industry": "半导体",
       "market": "us",
-      "prob": 0.8760388667469954,
-      "prob_up": 0.6921053851144685,
-      "prob_bench": 0.2494902215219205,
-      "score": 88,
+      "prob": 0.8567930794778713,
+      "score": 86,
       "confidence": "高",
       "data_completeness": 1.0,
       "reasons": [
         "综合因子打分靠前"
       ],
       "risks": [
-        "新闻·AI对冲基金短时间内大幅亏损（影响 0.8）",
         "价格波动放大（截面 79% 分位）",
         "价格波动放大（截面 79% 分位）"
       ]
@@ -48,18 +79,36 @@
       "name": "SMH",
       "industry": "指数",
       "market": "us",
-      "prob": 0.843559798560262,
-      "prob_up": 0.5870717088392499,
-      "prob_bench": 0.6194233324064633,
-      "score": 84,
+      "prob": 0.8187765505522515,
+      "score": 82,
       "confidence": "高",
       "data_completeness": 0.93,
       "reasons": [
         "综合因子打分靠前"
       ],
       "risks": [
-        "量能波动加大（截面 77% 分位）",
-        "与市场相关性上升（截面 100% 分位）"
+        "与市场相关性上升（截面 99% 分位）",
+        "量能波动加大（截面 77% 分位）"
+      ]
+    },
+    {
+      "code": "AAPL",
+      "name": "Apple",
+      "industry": "科技",
+      "market": "us",
+      "prob": 0.8165598208079092,
+      "score": 82,
+      "confidence": "高",
+      "data_completeness": 1.0,
+      "reasons": [
+        "新闻·财报后股价大涨12%（影响 0.8）",
+        "价格波动收敛（截面 19% 分位）",
+        "ROE 较高（盈利能力强）（截面 100% 分位）",
+        "价格波动收敛（截面 21% 分位）"
+      ],
+      "risks": [
+        "新闻·财报后股价下跌7%（影响 0.7）",
+        "需关注个股与行业层面的突发风险"
       ]
     },
     {
@@ -67,9 +116,7 @@
       "name": "Goldman Sachs",
       "industry": "金融",
       "market": "us",
-      "prob": 0.789778169122872,
-      "prob_up": 0.46776037321963726,
-      "prob_bench": 0.6970255198195694,
+      "prob": 0.7862284699158106,
       "score": 79,
       "confidence": "高",
       "data_completeness": 1.0,
@@ -81,42 +128,38 @@
       ]
     },
     {
-      "code": "LRCX",
-      "name": "Lam Research",
-      "industry": "半导体",
+      "code": "GOLD",
+      "name": "Barrick",
+      "industry": "黄金",
       "market": "us",
-      "prob": 0.6955772855068434,
-      "prob_up": 0.6398067476133099,
-      "prob_bench": 0.35470540983100074,
-      "score": 70,
+      "prob": 0.7593264848999768,
+      "score": 76,
       "confidence": "高",
       "data_completeness": 1.0,
       "reasons": [
-        "量能平稳（截面 16% 分位）",
-        "ROE 较高（盈利能力强）（截面 85% 分位）"
+        "综合因子打分靠前"
       ],
       "risks": [
-        "价格波动放大（截面 81% 分位）",
-        "价格波动放大（截面 81% 分位）"
+        "ROE 偏低（截面 24% 分位）",
+        "净利率偏低（截面 6% 分位）"
       ]
     },
     {
-      "code": "GLD",
-      "name": "Gold ETF",
-      "industry": "指数",
+      "code": "GOOGL",
+      "name": "Alphabet",
+      "industry": "科技",
       "market": "us",
-      "prob": 0.6887802391324498,
-      "prob_up": 0.7239858497852751,
-      "prob_bench": 0.5144166898384157,
-      "score": 69,
+      "prob": 0.7491310728354059,
+      "score": 75,
       "confidence": "高",
-      "data_completeness": 0.93,
+      "data_completeness": 1.0,
       "reasons": [
-        "价格波动收敛（截面 19% 分位）",
-        "价格波动收敛（截面 12% 分位）"
+        "新闻·洽谈150亿美元数据中心项目融资（影响 0.4）",
+        "ROE 较高（盈利能力强）（截面 76% 分位）",
+        "净利率较高（截面 91% 分位）"
       ],
       "risks": [
-        "量能波动加大（截面 79% 分位）"
+        "需关注个股与行业层面的突发风险"
       ]
     },
     {
@@ -124,133 +167,16 @@
       "name": "ASML",
       "industry": "半导体",
       "market": "us",
-      "prob": 0.6410309883523342,
-      "prob_up": 0.40604628170667656,
-      "prob_bench": 0.2270947261099268,
-      "score": 64,
+      "prob": 0.7127288174866764,
+      "score": 71,
       "confidence": "高",
       "data_completeness": 1.0,
       "reasons": [
-        "量能平稳（截面 23% 分位）",
-        "ROE 较高（盈利能力强）（截面 79% 分位）"
+        "ROE 较高（盈利能力强）（截面 79% 分位）",
+        "量能平稳（截面 23% 分位）"
       ],
       "risks": [
         "与市场相关性上升（截面 81% 分位）"
-      ]
-    },
-    {
-      "code": "SOXX",
-      "name": "SOXX",
-      "industry": "指数",
-      "market": "us",
-      "prob": 0.639795161738808,
-      "prob_up": 0.5655837735965644,
-      "prob_bench": 0.568190595359471,
-      "score": 64,
-      "confidence": "高",
-      "data_completeness": 0.93,
-      "reasons": [
-        "综合因子打分靠前"
-      ],
-      "risks": [
-        "与市场相关性上升（截面 95% 分位）",
-        "对市场敏感度高（Beta 偏大）（截面 81% 分位）"
-      ]
-    },
-    {
-      "code": "GOLD",
-      "name": "Barrick",
-      "industry": "黄金",
-      "market": "us",
-      "prob": 0.6368291778663454,
-      "prob_up": 0.6768390644792536,
-      "prob_bench": 0.929484505823833,
-      "score": 64,
-      "confidence": "高",
-      "data_completeness": 1.0,
-      "reasons": [
-        "综合因子打分靠前"
-      ],
-      "risks": [
-        "净利率偏低（截面 6% 分位）",
-        "量能波动加大（截面 91% 分位）"
-      ]
-    },
-    {
-      "code": "COP",
-      "name": "ConocoPhillips",
-      "industry": "石油石化",
-      "market": "us",
-      "prob": 0.5992832205641548,
-      "prob_up": 0.6211380418327308,
-      "prob_bench": 0.6776732474433836,
-      "score": 60,
-      "confidence": "高",
-      "data_completeness": 1.0,
-      "reasons": [
-        "价格波动收敛（截面 23% 分位）",
-        "—（截面 8% 分位）",
-        "Beta 适中（截面 7% 分位）"
-      ],
-      "risks": [
-        "ROE 偏低（截面 24% 分位）"
-      ]
-    },
-    {
-      "code": "META",
-      "name": "Meta",
-      "industry": "互联网",
-      "market": "us",
-      "prob": 0.5968115673371026,
-      "prob_up": 0.4282448172521395,
-      "prob_bench": 0.48244740012976184,
-      "score": 60,
-      "confidence": "高",
-      "data_completeness": 1.0,
-      "reasons": [
-        "毛利率较高（截面 91% 分位）"
-      ],
-      "risks": [
-        "需关注个股与行业层面的突发风险"
-      ]
-    },
-    {
-      "code": "SPY",
-      "name": "SPDR S&P 500",
-      "industry": "指数",
-      "market": "us",
-      "prob": 0.5937374486359563,
-      "prob_up": 0.46318781474959064,
-      "prob_bench": 0.2859123489974357,
-      "score": 59,
-      "confidence": "高",
-      "data_completeness": 0.93,
-      "reasons": [
-        "价格波动收敛（截面 2% 分位）",
-        "价格波动收敛（截面 2% 分位）",
-        "量能平稳（截面 7% 分位）"
-      ],
-      "risks": [
-        "与市场相关性上升（截面 84% 分位）"
-      ]
-    },
-    {
-      "code": "AEM",
-      "name": "Agnico Eagle",
-      "industry": "黄金",
-      "market": "us",
-      "prob": 0.5915284085642785,
-      "prob_up": 0.6790596904254333,
-      "prob_bench": 0.8289847684369882,
-      "score": 59,
-      "confidence": "高",
-      "data_completeness": 1.0,
-      "reasons": [
-        "净利率较高（截面 79% 分位）",
-        "毛利率较高（截面 85% 分位）"
-      ],
-      "risks": [
-        "量能波动加大（截面 81% 分位）"
       ]
     }
   ]
