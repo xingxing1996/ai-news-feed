@@ -1,18 +1,18 @@
 {
-  "ann_return": 0.3792617199529653,
-  "ann_vol": 0.21142764168124478,
-  "sharpe": 1.6269583737483646,
-  "max_drawdown": -0.2579681577785283,
-  "bench_ann_return": 0.49835095290687836,
-  "excess_ann": -0.09171139927853911,
-  "information_ratio": -0.8230862485886393,
-  "win_rate": 0.5703592814371258,
+  "ann_return": 0.4299176577926753,
+  "ann_vol": 0.2038365940853695,
+  "sharpe": 1.8573519937184915,
+  "max_drawdown": -0.22144139696331244,
+  "bench_ann_return": 0.49835096122825107,
+  "excess_ann": -0.058474352192312895,
+  "information_ratio": -0.5746082784024276,
+  "win_rate": 0.5973053892215568,
   "n_days": 668,
   "top_n": 15,
   "hold_days": 20,
   "n_rebalance": 34,
-  "avg_turnover": 0.5454465170198796,
+  "avg_turnover": 0.3515210981044951,
   "start": "2024-01-02",
   "end": "2026-07-31",
-  "ranking": "blend"
+  "ranking": "bench"
 }
