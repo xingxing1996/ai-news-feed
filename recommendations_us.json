@@ -1,5 +1,5 @@
 {
-  "update_time": "2026-08-03 13:05:33",
+  "update_time": "2026-08-03 13:15:16",
   "horizon_days": 20,
   "note": "概率含义：prob=跑赢行业概率, prob_up=未来上涨概率, prob_bench=跑赢大盘概率；非买卖建议",
   "n": 43,
@@ -9,38 +9,18 @@
       "name": "Applied Materials",
       "industry": "半导体",
       "market": "us",
-      "prob": 0.5394736842105263,
-      "prob_up": 0.5931429784523935,
-      "prob_bench": 0.49227496641289725,
-      "score": 54,
+      "prob": 0.5126582278481012,
+      "prob_up": 0.5932256059664387,
+      "prob_bench": 0.4916281119189257,
+      "score": 51,
       "confidence": "高",
       "data_completeness": 1.0,
       "reasons": [
         "综合因子打分靠前"
       ],
       "risks": [
-        "新闻·AI主题对冲基金数天内大幅亏损（影响 0.9）",
         "价格波动放大（截面 79% 分位）",
         "与市场相关性上升（截面 86% 分位）"
-      ]
-    },
-    {
-      "code": "SMH",
-      "name": "SMH",
-      "industry": "指数",
-      "market": "us",
-      "prob": 0.49047619047619045,
-      "prob_up": 0.5931429784523935,
-      "prob_bench": 0.49227496641289725,
-      "score": 49,
-      "confidence": "高",
-      "data_completeness": 0.93,
-      "reasons": [
-        "综合因子打分靠前"
-      ],
-      "risks": [
-        "与市场相关性上升（截面 100% 分位）",
-        "量能波动加大（截面 77% 分位）"
       ]
     },
     {
@@ -48,10 +28,10 @@
       "name": "SOXL",
       "industry": "指数",
       "market": "us",
-      "prob": 0.49047619047619045,
-      "prob_up": 0.5931429784523935,
-      "prob_bench": 0.49227496641289725,
-      "score": 49,
+      "prob": 0.5044136191677175,
+      "prob_up": 0.5932256059664387,
+      "prob_bench": 0.4916281119189257,
+      "score": 50,
       "confidence": "高",
       "data_completeness": 0.93,
       "reasons": [
@@ -63,33 +43,14 @@
       ]
     },
     {
-      "code": "GLD",
-      "name": "Gold ETF",
-      "industry": "指数",
-      "market": "us",
-      "prob": 0.49047619047619045,
-      "prob_up": 0.5931429784523935,
-      "prob_bench": 0.49227496641289725,
-      "score": 49,
-      "confidence": "高",
-      "data_completeness": 0.93,
-      "reasons": [
-        "价格波动收敛（截面 19% 分位）",
-        "价格波动收敛（截面 12% 分位）"
-      ],
-      "risks": [
-        "量能波动加大（截面 79% 分位）"
-      ]
-    },
-    {
       "code": "LRCX",
       "name": "Lam Research",
       "industry": "半导体",
       "market": "us",
-      "prob": 0.4849699398797595,
-      "prob_up": 0.5931429784523935,
-      "prob_bench": 0.49227496641289725,
-      "score": 48,
+      "prob": 0.48931383577052867,
+      "prob_up": 0.5932256059664387,
+      "prob_bench": 0.4916281119189257,
+      "score": 49,
       "confidence": "高",
       "data_completeness": 1.0,
       "reasons": [
@@ -102,41 +63,23 @@
       ]
     },
     {
-      "code": "SPY",
-      "name": "SPDR S&P 500",
-      "industry": "指数",
+      "code": "COP",
+      "name": "ConocoPhillips",
+      "industry": "石油石化",
       "market": "us",
-      "prob": 0.4849699398797595,
-      "prob_up": 0.5931429784523935,
-      "prob_bench": 0.49227496641289725,
-      "score": 48,
-      "confidence": "高",
-      "data_completeness": 0.93,
-      "reasons": [
-        "价格波动收敛（截面 2% 分位）",
-        "量能平稳（截面 7% 分位）",
-        "价格波动收敛（截面 2% 分位）"
-      ],
-      "risks": [
-        "与市场相关性上升（截面 84% 分位）"
-      ]
-    },
-    {
-      "code": "QCOM",
-      "name": "Qualcomm",
-      "industry": "半导体",
-      "market": "us",
-      "prob": 0.4849699398797595,
-      "prob_up": 0.5931429784523935,
-      "prob_bench": 0.49227496641289725,
-      "score": 48,
+      "prob": 0.48931383577052867,
+      "prob_up": 0.5932256059664387,
+      "prob_bench": 0.4916281119189257,
+      "score": 49,
       "confidence": "高",
       "data_completeness": 1.0,
       "reasons": [
-        "综合因子打分靠前"
+        "—（截面 8% 分位）",
+        "价格波动收敛（截面 23% 分位）",
+        "Beta 适中（截面 7% 分位）"
       ],
       "risks": [
-        "量能波动加大（截面 86% 分位）"
+        "ROE 偏低（截面 24% 分位）"
       ]
     },
     {
@@ -144,10 +87,10 @@
       "name": "Meta",
       "industry": "互联网",
       "market": "us",
-      "prob": 0.4849699398797595,
-      "prob_up": 0.5931429784523935,
-      "prob_bench": 0.49227496641289725,
-      "score": 48,
+      "prob": 0.48931383577052867,
+      "prob_up": 0.5932256059664387,
+      "prob_bench": 0.4916281119189257,
+      "score": 49,
       "confidence": "高",
       "data_completeness": 1.0,
       "reasons": [
@@ -162,10 +105,10 @@
       "name": "JPMorgan",
       "industry": "银行",
       "market": "us",
-      "prob": 0.4849699398797595,
-      "prob_up": 0.5931429784523935,
-      "prob_bench": 0.49227496641289725,
-      "score": 48,
+      "prob": 0.48931383577052867,
+      "prob_up": 0.5932256059664387,
+      "prob_bench": 0.4916281119189257,
+      "score": 49,
       "confidence": "高",
       "data_completeness": 1.0,
       "reasons": [
@@ -177,14 +120,33 @@
       ]
     },
     {
+      "code": "SMH",
+      "name": "SMH",
+      "industry": "指数",
+      "market": "us",
+      "prob": 0.48931383577052867,
+      "prob_up": 0.5932256059664387,
+      "prob_bench": 0.4916281119189257,
+      "score": 49,
+      "confidence": "高",
+      "data_completeness": 0.93,
+      "reasons": [
+        "综合因子打分靠前"
+      ],
+      "risks": [
+        "与市场相关性上升（截面 100% 分位）",
+        "量能波动加大（截面 77% 分位）"
+      ]
+    },
+    {
       "code": "GS",
       "name": "Goldman Sachs",
       "industry": "金融",
       "market": "us",
-      "prob": 0.4849699398797595,
-      "prob_up": 0.5931429784523935,
-      "prob_bench": 0.49227496641289725,
-      "score": 48,
+      "prob": 0.48931383577052867,
+      "prob_up": 0.5932256059664387,
+      "prob_bench": 0.4916281119189257,
+      "score": 49,
       "confidence": "高",
       "data_completeness": 1.0,
       "reasons": [
@@ -195,33 +157,14 @@
       ]
     },
     {
-      "code": "SOXX",
-      "name": "SOXX",
-      "industry": "指数",
-      "market": "us",
-      "prob": 0.4849699398797595,
-      "prob_up": 0.5931429784523935,
-      "prob_bench": 0.49227496641289725,
-      "score": 48,
-      "confidence": "高",
-      "data_completeness": 0.93,
-      "reasons": [
-        "综合因子打分靠前"
-      ],
-      "risks": [
-        "与市场相关性上升（截面 95% 分位）",
-        "对市场敏感度高（Beta 偏大）（截面 81% 分位）"
-      ]
-    },
-    {
       "code": "GOLD",
       "name": "Barrick",
       "industry": "黄金",
       "market": "us",
-      "prob": 0.4849699398797595,
-      "prob_up": 0.5931429784523935,
-      "prob_bench": 0.5126903553299493,
-      "score": 48,
+      "prob": 0.48931383577052867,
+      "prob_up": 0.5932256059664387,
+      "prob_bench": 0.5142857142857142,
+      "score": 49,
       "confidence": "高",
       "data_completeness": 1.0,
       "reasons": [
@@ -233,14 +176,52 @@
       ]
     },
     {
+      "code": "GLD",
+      "name": "Gold ETF",
+      "industry": "指数",
+      "market": "us",
+      "prob": 0.48931383577052867,
+      "prob_up": 0.5932256059664387,
+      "prob_bench": 0.4916281119189257,
+      "score": 49,
+      "confidence": "高",
+      "data_completeness": 0.93,
+      "reasons": [
+        "价格波动收敛（截面 19% 分位）",
+        "价格波动收敛（截面 12% 分位）"
+      ],
+      "risks": [
+        "量能波动加大（截面 79% 分位）"
+      ]
+    },
+    {
+      "code": "SOXX",
+      "name": "SOXX",
+      "industry": "指数",
+      "market": "us",
+      "prob": 0.48931383577052867,
+      "prob_up": 0.5932256059664387,
+      "prob_bench": 0.4916281119189257,
+      "score": 49,
+      "confidence": "高",
+      "data_completeness": 0.93,
+      "reasons": [
+        "综合因子打分靠前"
+      ],
+      "risks": [
+        "与市场相关性上升（截面 95% 分位）",
+        "对市场敏感度高（Beta 偏大）（截面 81% 分位）"
+      ]
+    },
+    {
       "code": "CVX",
       "name": "Chevron",
       "industry": "石油石化",
       "market": "us",
-      "prob": 0.4849699398797595,
-      "prob_up": 0.5931429784523935,
-      "prob_bench": 0.49227496641289725,
-      "score": 48,
+      "prob": 0.48931383577052867,
+      "prob_up": 0.5932256059664387,
+      "prob_bench": 0.4916281119189257,
+      "score": 49,
       "confidence": "高",
       "data_completeness": 0.99,
       "reasons": [
@@ -254,53 +235,14 @@
       ]
     },
     {
-      "code": "COP",
-      "name": "ConocoPhillips",
-      "industry": "石油石化",
-      "market": "us",
-      "prob": 0.4849699398797595,
-      "prob_up": 0.5931429784523935,
-      "prob_bench": 0.49227496641289725,
-      "score": 48,
-      "confidence": "高",
-      "data_completeness": 1.0,
-      "reasons": [
-        "—（截面 8% 分位）",
-        "价格波动收敛（截面 23% 分位）",
-        "Beta 适中（截面 7% 分位）"
-      ],
-      "risks": [
-        "ROE 偏低（截面 24% 分位）"
-      ]
-    },
-    {
-      "code": "AVGO",
-      "name": "Broadcom",
-      "industry": "半导体",
-      "market": "us",
-      "prob": 0.4849699398797595,
-      "prob_up": 0.5931429784523935,
-      "prob_bench": 0.49227496641289725,
-      "score": 48,
-      "confidence": "高",
-      "data_completeness": 1.0,
-      "reasons": [
-        "量能平稳（截面 14% 分位）",
-        "毛利率较高（截面 88% 分位）"
-      ],
-      "risks": [
-        "需关注个股与行业层面的突发风险"
-      ]
-    },
-    {
       "code": "ASML",
       "name": "ASML",
       "industry": "半导体",
       "market": "us",
-      "prob": 0.4849699398797595,
-      "prob_up": 0.5931429784523935,
-      "prob_bench": 0.49227496641289725,
-      "score": 48,
+      "prob": 0.48931383577052867,
+      "prob_up": 0.5932256059664387,
+      "prob_bench": 0.4916281119189257,
+      "score": 49,
       "confidence": "高",
       "data_completeness": 1.0,
       "reasons": [
@@ -316,9 +258,9 @@
       "name": "Newmont",
       "industry": "黄金",
       "market": "us",
-      "prob": 0.4848277435546429,
-      "prob_up": 0.5931429784523935,
-      "prob_bench": 0.49227496641289725,
+      "prob": 0.4818052449684899,
+      "prob_up": 0.5932256059664387,
+      "prob_bench": 0.4916281119189257,
       "score": 48,
       "confidence": "高",
       "data_completeness": 1.0,
@@ -330,13 +272,33 @@
       ]
     },
     {
+      "code": "SPY",
+      "name": "SPDR S&P 500",
+      "industry": "指数",
+      "market": "us",
+      "prob": 0.4818052449684899,
+      "prob_up": 0.5932256059664387,
+      "prob_bench": 0.4916281119189257,
+      "score": 48,
+      "confidence": "高",
+      "data_completeness": 0.93,
+      "reasons": [
+        "价格波动收敛（截面 2% 分位）",
+        "量能平稳（截面 7% 分位）",
+        "价格波动收敛（截面 2% 分位）"
+      ],
+      "risks": [
+        "与市场相关性上升（截面 84% 分位）"
+      ]
+    },
+    {
       "code": "TSLA",
       "name": "Tesla",
       "industry": "汽车",
       "market": "us",
-      "prob": 0.4848277435546429,
-      "prob_up": 0.5931429784523935,
-      "prob_bench": 0.49227496641289725,
+      "prob": 0.4818052449684899,
+      "prob_up": 0.5932256059664387,
+      "prob_bench": 0.4916281119189257,
       "score": 48,
       "confidence": "高",
       "data_completeness": 1.0,
@@ -353,9 +315,9 @@
       "name": "TSMC",
       "industry": "半导体",
       "market": "us",
-      "prob": 0.4848277435546429,
-      "prob_up": 0.5931429784523935,
-      "prob_bench": 0.49227496641289725,
+      "prob": 0.4818052449684899,
+      "prob_up": 0.5932256059664387,
+      "prob_bench": 0.4916281119189257,
       "score": 48,
       "confidence": "高",
       "data_completeness": 1.0,
@@ -371,9 +333,9 @@
       "name": "Crude Oil ETF",
       "industry": "指数",
       "market": "us",
-      "prob": 0.4848277435546429,
-      "prob_up": 0.5931429784523935,
-      "prob_bench": 0.49227496641289725,
+      "prob": 0.4818052449684899,
+      "prob_up": 0.5932256059664387,
+      "prob_bench": 0.4916281119189257,
       "score": 48,
       "confidence": "高",
       "data_completeness": 0.93,
@@ -390,15 +352,15 @@
       "name": "Visa",
       "industry": "金融",
       "market": "us",
-      "prob": 0.4848277435546429,
-      "prob_up": 0.5931429784523935,
-      "prob_bench": 0.49227496641289725,
+      "prob": 0.4818052449684899,
+      "prob_up": 0.5932256059664387,
+      "prob_bench": 0.4916281119189257,
       "score": 48,
       "confidence": "高",
       "data_completeness": 1.0,
       "reasons": [
-        "净利率较高（截面 85% 分位）",
         "价格波动收敛（截面 14% 分位）",
+        "净利率较高（截面 85% 分位）",
         "—（截面 8% 分位）"
       ],
       "risks": [
@@ -406,33 +368,13 @@
       ]
     },
     {
-      "code": "QQQ",
-      "name": "Invesco QQQ",
-      "industry": "指数",
-      "market": "us",
-      "prob": 0.4848277435546429,
-      "prob_up": 0.5931429784523935,
-      "prob_bench": 0.49227496641289725,
-      "score": 48,
-      "confidence": "高",
-      "data_completeness": 0.93,
-      "reasons": [
-        "价格波动收敛（截面 5% 分位）",
-        "量能平稳（截面 21% 分位）",
-        "价格波动收敛（截面 16% 分位）"
-      ],
-      "risks": [
-        "与市场相关性上升（截面 93% 分位）"
-      ]
-    },
-    {
       "code": "WDC",
       "name": "Western Digital",
       "industry": "半导体",
       "market": "us",
-      "prob": 0.4848277435546429,
-      "prob_up": 0.5931429784523935,
-      "prob_bench": 0.49227496641289725,
+      "prob": 0.4818052449684899,
+      "prob_up": 0.5932256059664387,
+      "prob_bench": 0.4916281119189257,
       "score": 48,
       "confidence": "高",
       "data_completeness": 1.0,
@@ -447,13 +389,51 @@
       ]
     },
     {
+      "code": "QQQ",
+      "name": "Invesco QQQ",
+      "industry": "指数",
+      "market": "us",
+      "prob": 0.4818052449684899,
+      "prob_up": 0.5932256059664387,
+      "prob_bench": 0.4916281119189257,
+      "score": 48,
+      "confidence": "高",
+      "data_completeness": 0.93,
+      "reasons": [
+        "价格波动收敛（截面 5% 分位）",
+        "量能平稳（截面 21% 分位）",
+        "价格波动收敛（截面 16% 分位）"
+      ],
+      "risks": [
+        "与市场相关性上升（截面 93% 分位）"
+      ]
+    },
+    {
+      "code": "QCOM",
+      "name": "Qualcomm",
+      "industry": "半导体",
+      "market": "us",
+      "prob": 0.4818052449684899,
+      "prob_up": 0.5932256059664387,
+      "prob_bench": 0.4916281119189257,
+      "score": 48,
+      "confidence": "高",
+      "data_completeness": 1.0,
+      "reasons": [
+        "综合因子打分靠前"
+      ],
+      "risks": [
+        "量能波动加大（截面 86% 分位）"
+      ]
+    },
+    {
       "code": "XLE",
       "name": "Energy ETF",
       "industry": "指数",
       "market": "us",
-      "prob": 0.4848277435546429,
-      "prob_up": 0.5931429784523935,
-      "prob_bench": 0.49227496641289725,
+      "prob": 0.4818052449684899,
+      "prob_up": 0.5932256059664387,
+      "prob_bench": 0.4916281119189257,
       "score": 48,
       "confidence": "高",
       "data_completeness": 0.93,
@@ -471,9 +451,9 @@
       "name": "NVIDIA",
       "industry": "半导体",
       "market": "us",
-      "prob": 0.4848277435546429,
-      "prob_up": 0.5931429784523935,
-      "prob_bench": 0.49227496641289725,
+      "prob": 0.4818052449684899,
+      "prob_up": 0.5932256059664387,
+      "prob_bench": 0.4916281119189257,
       "score": 48,
       "confidence": "高",
       "data_completeness": 1.0,
@@ -491,9 +471,9 @@
       "name": "SK海力士",
       "industry": "半导体",
       "market": "kr",
-      "prob": 0.4848277435546429,
-      "prob_up": 0.5931429784523935,
-      "prob_bench": 0.49227496641289725,
+      "prob": 0.4818052449684899,
+      "prob_up": 0.5932256059664387,
+      "prob_bench": 0.4916281119189257,
       "score": 48,
       "confidence": "高",
       "data_completeness": 1.0,
@@ -508,40 +488,46 @@
       ]
     },
     {
-      "code": "GOOGL",
-      "name": "Alphabet",
-      "industry": "科技",
+      "code": "MU",
+      "name": "Micron",
+      "industry": "半导体",
       "market": "us",
-      "prob": 0.4848277435546429,
-      "prob_up": 0.5931429784523935,
-      "prob_bench": 0.49227496641289725,
+      "prob": 0.4818052449684899,
+      "prob_up": 0.5932256059664387,
+      "prob_bench": 0.4916281119189257,
       "score": 48,
       "confidence": "高",
       "data_completeness": 1.0,
       "reasons": [
-        "净利率较高（截面 91% 分位）",
-        "ROE 较高（盈利能力强）（截面 76% 分位）"
+        "新闻·资金轮动至金融股（影响 0.3）",
+        "净利率较高（截面 94% 分位）",
+        "量能平稳（截面 12% 分位）",
+        "ROE 较高（盈利能力强）（截面 88% 分位）"
       ],
       "risks": [
-        "需关注个股与行业层面的突发风险"
+        "价格波动放大（截面 95% 分位）",
+        "与市场相关性上升（截面 79% 分位）"
       ]
     },
     {
-      "code": "GDX",
-      "name": "Gold Miners ETF",
-      "industry": "指数",
+      "code": "BAC",
+      "name": "Bank of America",
+      "industry": "银行",
       "market": "us",
-      "prob": 0.4848277435546429,
-      "prob_up": 0.5931429784523935,
-      "prob_bench": 0.49227496641289725,
+      "prob": 0.4818052449684899,
+      "prob_up": 0.5932256059664387,
+      "prob_bench": 0.4916281119189257,
       "score": 48,
       "confidence": "高",
-      "data_completeness": 0.93,
+      "data_completeness": 1.0,
       "reasons": [
-        "综合因子打分靠前"
+        "价格波动收敛（截面 7% 分位）",
+        "—（截面 21% 分位）",
+        "量能平稳（截面 9% 分位）"
       ],
       "risks": [
-        "量能波动加大（截面 93% 分位）"
+        "ROE 偏低（截面 21% 分位）",
+        "毛利率偏低（截面 4% 分位）"
       ]
     },
     {
@@ -549,9 +535,9 @@
       "name": "Apple",
       "industry": "科技",
       "market": "us",
-      "prob": 0.4848277435546429,
-      "prob_up": 0.5931429784523935,
-      "prob_bench": 0.49227496641289725,
+      "prob": 0.4818052449684899,
+      "prob_up": 0.5932256059664387,
+      "prob_bench": 0.4916281119189257,
       "score": 48,
       "confidence": "高",
       "data_completeness": 1.0,
@@ -570,9 +556,9 @@
       "name": "Agnico Eagle",
       "industry": "黄金",
       "market": "us",
-      "prob": 0.4848277435546429,
-      "prob_up": 0.5931429784523935,
-      "prob_bench": 0.49227496641289725,
+      "prob": 0.4818052449684899,
+      "prob_up": 0.5932256059664387,
+      "prob_bench": 0.4916281119189257,
       "score": 48,
       "confidence": "高",
       "data_completeness": 1.0,
@@ -589,9 +575,9 @@
       "name": "AMD",
       "industry": "半导体",
       "market": "us",
-      "prob": 0.4848277435546429,
-      "prob_up": 0.5931429784523935,
-      "prob_bench": 0.49227496641289725,
+      "prob": 0.4818052449684899,
+      "prob_up": 0.5932256059664387,
+      "prob_bench": 0.4916281119189257,
       "score": 48,
       "confidence": "高",
       "data_completeness": 1.0,
@@ -599,7 +585,7 @@
         "量能平稳（截面 5% 分位）"
       ],
       "risks": [
-        "新闻·AMD披露董监高离职相关事项（影响 0.3）",
+        "新闻·高管或董事离职提交8-K报告（影响 0.3）",
         "价格波动放大（截面 84% 分位）",
         "与市场相关性上升（截面 91% 分位）"
       ]
@@ -609,14 +595,14 @@
       "name": "Amazon",
       "industry": "互联网",
       "market": "us",
-      "prob": 0.4848277435546429,
-      "prob_up": 0.5931429784523935,
-      "prob_bench": 0.49227496641289725,
+      "prob": 0.4818052449684899,
+      "prob_up": 0.5932256059664387,
+      "prob_bench": 0.4916281119189257,
       "score": 48,
       "confidence": "高",
       "data_completeness": 1.0,
       "reasons": [
-        "新闻·因Anthropic投资浮盈录得大幅盈利增长（影响 0.5）",
+        "新闻·Anthropic投资浮盈带动盈利大幅增长（影响 0.4）",
         "综合因子打分靠前"
       ],
       "risks": [
@@ -628,83 +614,75 @@
       "name": "Arm Holdings",
       "industry": "半导体",
       "market": "us",
-      "prob": 0.4848277435546429,
-      "prob_up": 0.5931429784523935,
-      "prob_bench": 0.49227496641289725,
+      "prob": 0.4818052449684899,
+      "prob_up": 0.5932256059664387,
+      "prob_bench": 0.4916281119189257,
       "score": 48,
       "confidence": "高",
       "data_completeness": 1.0,
       "reasons": [
-        "新闻·GLP-1处方药直购利好零售商（影响 0.6）",
+        "新闻·考虑与百时美施贵宝合并（影响 0.8）",
         "毛利率较高（截面 97% 分位）"
       ],
       "risks": [
-        "新闻·公寓抵押贷款新政策即将生效（影响 0.3）",
         "价格波动放大（截面 91% 分位）",
         "量能波动加大（截面 88% 分位）"
       ]
     },
     {
-      "code": "BAC",
-      "name": "Bank of America",
-      "industry": "银行",
-      "market": "us",
-      "prob": 0.4848277435546429,
-      "prob_up": 0.5931429784523935,
-      "prob_bench": 0.49227496641289725,
-      "score": 48,
-      "confidence": "高",
-      "data_completeness": 1.0,
-      "reasons": [
-        "价格波动收敛（截面 7% 分位）",
-        "—（截面 21% 分位）",
-        "量能平稳（截面 9% 分位）"
-      ],
-      "risks": [
-        "ROE 偏低（截面 21% 分位）",
-        "毛利率偏低（截面 4% 分位）"
-      ]
-    },
-    {
-      "code": "XOM",
-      "name": "ExxonMobil",
-      "industry": "石油石化",
-      "market": "us",
-      "prob": 0.4848277435546429,
-      "prob_up": 0.5931429784523935,
-      "prob_bench": 0.49227496641289725,
-      "score": 48,
-      "confidence": "高",
-      "data_completeness": 1.0,
-      "reasons": [
-        "价格波动收敛（截面 21% 分位）",
-        "—（截面 8% 分位）",
-        "价格波动收敛（截面 21% 分位）"
-      ],
-      "risks": [
-        "净利率偏低（截面 21% 分位）",
-        "量能波动加大（截面 84% 分位）"
-      ]
-    },
-    {
-      "code": "MU",
-      "name": "Micron",
+      "code": "AVGO",
+      "name": "Broadcom",
       "industry": "半导体",
       "market": "us",
-      "prob": 0.4848277435546429,
-      "prob_up": 0.5931429784523935,
-      "prob_bench": 0.49227496641289725,
+      "prob": 0.4818052449684899,
+      "prob_up": 0.5932256059664387,
+      "prob_bench": 0.4916281119189257,
       "score": 48,
       "confidence": "高",
       "data_completeness": 1.0,
       "reasons": [
-        "净利率较高（截面 94% 分位）",
-        "量能平稳（截面 12% 分位）",
-        "ROE 较高（盈利能力强）（截面 88% 分位）"
+        "量能平稳（截面 14% 分位）",
+        "毛利率较高（截面 88% 分位）"
       ],
       "risks": [
-        "价格波动放大（截面 95% 分位）",
-        "与市场相关性上升（截面 79% 分位）"
+        "需关注个股与行业层面的突发风险"
+      ]
+    },
+    {
+      "code": "GDX",
+      "name": "Gold Miners ETF",
+      "industry": "指数",
+      "market": "us",
+      "prob": 0.4818052449684899,
+      "prob_up": 0.5932256059664387,
+      "prob_bench": 0.4916281119189257,
+      "score": 48,
+      "confidence": "高",
+      "data_completeness": 0.93,
+      "reasons": [
+        "综合因子打分靠前"
+      ],
+      "risks": [
+        "量能波动加大（截面 93% 分位）"
+      ]
+    },
+    {
+      "code": "GOOGL",
+      "name": "Alphabet",
+      "industry": "科技",
+      "market": "us",
+      "prob": 0.4818052449684899,
+      "prob_up": 0.5932256059664387,
+      "prob_bench": 0.4916281119189257,
+      "score": 48,
+      "confidence": "高",
+      "data_completeness": 1.0,
+      "reasons": [
+        "净利率较高（截面 91% 分位）",
+        "ROE 较高（盈利能力强）（截面 76% 分位）"
+      ],
+      "risks": [
+        "需关注个股与行业层面的突发风险"
       ]
     },
     {
@@ -712,9 +690,9 @@
       "name": "Intel",
       "industry": "半导体",
       "market": "us",
-      "prob": 0.4848277435546429,
-      "prob_up": 0.5931429784523935,
-      "prob_bench": 0.49227496641289725,
+      "prob": 0.4818052449684899,
+      "prob_up": 0.5932256059664387,
+      "prob_bench": 0.4916281119189257,
       "score": 48,
       "confidence": "高",
       "data_completeness": 1.0,
@@ -722,8 +700,8 @@
         "综合因子打分靠前"
       ],
       "risks": [
-        "净利率偏低（截面 3% 分位）",
-        "价格波动放大（截面 88% 分位）"
+        "价格波动放大（截面 88% 分位）",
+        "净利率偏低（截面 3% 分位）"
       ]
     },
     {
@@ -731,9 +709,9 @@
       "name": "Kinross",
       "industry": "黄金",
       "market": "us",
-      "prob": 0.4848277435546429,
-      "prob_up": 0.5931429784523935,
-      "prob_bench": 0.49227496641289725,
+      "prob": 0.4818052449684899,
+      "prob_up": 0.5932256059664387,
+      "prob_bench": 0.4916281119189257,
       "score": 48,
       "confidence": "高",
       "data_completeness": 1.0,
@@ -749,9 +727,9 @@
       "name": "三星电子",
       "industry": "半导体",
       "market": "kr",
-      "prob": 0.4848277435546429,
-      "prob_up": 0.5931429784523935,
-      "prob_bench": 0.49227496641289725,
+      "prob": 0.4818052449684899,
+      "prob_up": 0.5932256059664387,
+      "prob_bench": 0.4916281119189257,
       "score": 48,
       "confidence": "高",
       "data_completeness": 1.0,
@@ -768,9 +746,9 @@
       "name": "Microsoft",
       "industry": "科技",
       "market": "us",
-      "prob": 0.4848277435546429,
-      "prob_up": 0.5931429784523935,
-      "prob_bench": 0.49227496641289725,
+      "prob": 0.4818052449684899,
+      "prob_up": 0.5932256059664387,
+      "prob_bench": 0.4916281119189257,
       "score": 48,
       "confidence": "高",
       "data_completeness": 1.0,
@@ -784,22 +762,43 @@
       ]
     },
     {
+      "code": "XOM",
+      "name": "ExxonMobil",
+      "industry": "石油石化",
+      "market": "us",
+      "prob": 0.4818052449684899,
+      "prob_up": 0.5932256059664387,
+      "prob_bench": 0.4916281119189257,
+      "score": 48,
+      "confidence": "高",
+      "data_completeness": 1.0,
+      "reasons": [
+        "价格波动收敛（截面 21% 分位）",
+        "—（截面 8% 分位）",
+        "价格波动收敛（截面 21% 分位）"
+      ],
+      "risks": [
+        "净利率偏低（截面 21% 分位）",
+        "量能波动加大（截面 84% 分位）"
+      ]
+    },
+    {
       "code": "NOK",
       "name": "Nokia",
       "industry": "通信",
       "market": "us",
-      "prob": 0.3469387755102041,
-      "prob_up": 0.5931429784523935,
-      "prob_bench": 0.5126903553299493,
-      "score": 35,
+      "prob": 0.3333333333333333,
+      "prob_up": 0.5932256059664387,
+      "prob_bench": 0.5142857142857142,
+      "score": 33,
       "confidence": "高",
       "data_completeness": 1.0,
       "reasons": [
         "综合因子打分靠前"
       ],
       "risks": [
-        "净利率偏低（截面 9% 分位）",
-        "价格波动放大（截面 77% 分位）"
+        "价格波动放大（截面 77% 分位）",
+        "净利率偏低（截面 9% 分位）"
       ]
     },
     {
@@ -807,10 +806,10 @@
       "name": "SLB",
       "industry": "油田服务",
       "market": "us",
-      "prob": 0.23076923076923078,
-      "prob_up": 0.5931429784523935,
-      "prob_bench": 0.49227496641289725,
-      "score": 23,
+      "prob": 0.2222222222222222,
+      "prob_up": 0.5932256059664387,
+      "prob_bench": 0.4916281119189257,
+      "score": 22,
       "confidence": "高",
       "data_completeness": 1.0,
       "reasons": [
@@ -826,10 +825,10 @@
       "name": "Occidental",
       "industry": "石油石化",
       "market": "us",
-      "prob": 0.0,
-      "prob_up": 0.5931429784523935,
-      "prob_bench": 0.49227496641289725,
-      "score": 0,
+      "prob": 0.0547945205479452,
+      "prob_up": 0.5932256059664387,
+      "prob_bench": 0.4916281119189257,
+      "score": 5,
       "confidence": "高",
       "data_completeness": 1.0,
       "reasons": [
