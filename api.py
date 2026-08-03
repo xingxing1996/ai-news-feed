@@ -45,16 +45,32 @@ app = FastAPI(title="stock-predict API", description="A股+港股 量化推荐 +
 
 
 # ---------- 调度 ----------
-def _run_cli(cmd: str):
-    OUT.mkdir(parents=True, exist_ok=True)
+def _append_log(msg: str):
     try:
-        r = subprocess.run(
+        OUT.mkdir(parents=True, exist_ok=True)
+        with open(OUT / "scheduler.log", "a", encoding="utf-8") as f:
+            f.write(msg + "\n")
+    except Exception:  # noqa: BLE001
+        pass
+
+
+def _run_cli(cmd: str):
+    """跑量化命令；输出直接流到控制台（ModelSpace 可见）+ 标记写入 scheduler.log。"""
+    from datetime import datetime
+    msg = f"[scheduler] === 开始 {cmd} ({datetime.now().strftime('%H:%M:%S')}) ==="
+    print(msg, flush=True)
+    _append_log(msg)
+    try:
+        # 不 capture：stdout/stderr 直接进容器控制台，出错能看到
+        subprocess.run(
             [sys.executable, "-m", "stock_predict.cli", cmd],
-            cwd=str(QUANT), env=dict(os.environ), capture_output=True, text=True, timeout=3600,
+            cwd=str(QUANT), env=dict(os.environ), timeout=3600,
         )
-        (OUT / "scheduler.log").write_text((r.stdout or "") + (r.stderr or ""), encoding="utf-8")
+        msg = f"[scheduler] === {cmd} 完成 ==="
     except Exception as exc:  # noqa: BLE001
-        (OUT / "scheduler.log").write_text(f"运行失败: {exc}", encoding="utf-8")
+        msg = f"[scheduler] === {cmd} 失败: {exc} ==="
+    print(msg, flush=True)
+    _append_log(msg)
 
 
 @app.on_event("startup")
@@ -138,6 +154,20 @@ def log_tail():
         if p.exists():
             return p.read_text(encoding="utf-8")[-6000:]
     return "_暂无日志（训练可能还没开始/在跑）_"
+
+
+@app.get("/run")
+def manual_run():
+    """手动触发完整训练（后台）。"""
+    threading.Thread(target=_run_cli, args=("run",), daemon=True).start()
+    return {"status": "started", "msg": "训练已后台触发，看控制台日志或 /log"}
+
+
+@app.get("/refresh")
+def manual_refresh():
+    """手动触发日报刷新（后台）。"""
+    threading.Thread(target=_run_cli, args=("refresh",), daemon=True).start()
+    return {"status": "started", "msg": "刷新已后台触发，看 /log"}
 
 
 # ---------- 浏览器看板（根路径）----------
