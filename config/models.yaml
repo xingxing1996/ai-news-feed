@@ -1,11 +1,9 @@
 models:
 - glm-5-2
 - doubao-seed-2-1-pro
-- doubao-seed-1-8
 - doubao-seed-2-0-lite
 resolved:
   glm-5-2: glm-5-2-260617
   doubao-seed-2-1-pro: doubao-seed-2-1-pro-260628
-  doubao-seed-1-8: doubao-seed-1-8-251228
   doubao-seed-2-0-lite: doubao-seed-2-0-lite-260428
 base_url: https://ark.cn-beijing.volces.com/api/v3

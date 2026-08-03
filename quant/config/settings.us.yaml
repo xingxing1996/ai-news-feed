@@ -45,7 +45,7 @@ backtest:
   slippage_bps: 5.0
   impact_coef: 10.0
   weighting: inv_vol
-  ranking: bench                        # 排序信号：label|abs|bench|blend
+  ranking: label                        # 美股仅 label(跑赢行业) IC 为正(0.09)；abs/bench 为负
   max_weight: 0.12
   max_industry: 0.40
   n_drop: 5
@@ -53,7 +53,7 @@ backtest:
 
 report:
   top_k: 0                              # 0=全部股票都列出
-  min_probability: 0.55
+  min_probability: 0.0                  # 0=不过滤（校准后概率集中在~0.5，阈值会滤空）
   out_path: data/output/recommendations_us.md
   explain_method: shap
 

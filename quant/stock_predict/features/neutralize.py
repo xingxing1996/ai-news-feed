@@ -42,6 +42,7 @@ def add_size_style(features: pd.DataFrame, market_cap_col: str = "market_cap") -
     """构造 log 市值风格列（用于中性化）。需要 features 里有 market_cap。"""
     if market_cap_col in features.columns:
         style = pd.DataFrame(index=features.index)
-        style["log_mcap"] = np.log(features[market_cap_col].clip(lower=1))
+        mc = pd.to_numeric(features[market_cap_col], errors="coerce")  # None/对象 → NaN
+        style["log_mcap"] = np.log(mc.clip(lower=1.0))
         return style
     return pd.DataFrame(index=features.index)

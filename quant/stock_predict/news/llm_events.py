@@ -139,10 +139,12 @@ def _create_retry(client, kwargs, max_tries: int = 3):
             last_exc = exc
             sl = str(exc).lower()
             if ("429" in sl or "ratelimit" in sl or "toomany" in sl
-                    or "timed out" in sl or "timeout" in sl or "apitimeout" in sl):
-                log.warning("[news] %s 限流/超时，换下一个模型（%d/%d）", model, i + 1, len(order))
+                    or "timed out" in sl or "timeout" in sl or "apitimeout" in sl
+                    or "404" in sl or "notfound" in sl or "does not exist" in sl
+                    or "no access" in sl):
+                log.warning("[news] %s 不可用(限流/超时/404)，换下一个模型（%d/%d）", model, i + 1, len(order))
                 continue
-            raise  # 非限流/超时错误直接抛
+            raise  # 其它错误直接抛
     raise last_exc if last_exc else RuntimeError("LLM 模型池全部失败")
 
 

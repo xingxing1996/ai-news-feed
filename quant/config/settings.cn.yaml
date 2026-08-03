@@ -47,7 +47,7 @@ backtest:
   slippage_bps: 5.0
   impact_coef: 10.0
   weighting: inv_vol
-  ranking: bench                        # 排序信号：label|abs|bench|blend（实测 bench 最优）
+  ranking: abs                          # A股(+北向资金)实测 abs(上涨) 最优(Sharpe1.85)；blend 最差
   max_weight: 0.10
   max_industry: 0.40
   n_drop: 5
@@ -55,7 +55,7 @@ backtest:
 
 report:
   top_k: 0                              # 0=全部股票都列出
-  min_probability: 0.55
+  min_probability: 0.0                  # 0=不过滤（校准后概率集中~0.5）
   out_path: data/output/recommendations_cn.md
   explain_method: shap
 
