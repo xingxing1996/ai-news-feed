@@ -40,11 +40,19 @@ def _segment_mask(dates: pd.Series, seg: dict, key: str) -> pd.Series:
     return m
 
 
-def _split(df: pd.DataFrame, seg: dict) -> dict[str, pd.DataFrame]:
+def _split(df: pd.DataFrame, seg: dict, embargo_days: int = 0) -> dict[str, pd.DataFrame]:
+    """按日期段切分。embargo_days：段间隔离（日历日），消除重叠加标签的未来穿越。
+
+    label horizon=20 会让 train 末尾样本的 label 用到 valid 期的收益 → 泄漏。
+    加 embargo：train/valid 的有效截止日各前移 embargo，留出隔离带。
+    """
     dates = pd.Series(pd.to_datetime(df.index.get_level_values("date")), index=df.index)
+    emb = pd.Timedelta(days=embargo_days) if embargo_days else pd.Timedelta(0)
     out = {}
-    out["train"] = df[dates <= pd.Timestamp(seg["train_end"])]
-    out["valid"] = df[_segment_mask(dates, seg, "valid")]
+    out["train"] = df[dates <= (pd.Timestamp(seg["train_end"]) - emb)]
+    v_mask = (_segment_mask(dates, seg, "valid")
+              & (dates <= (pd.Timestamp(seg["valid_end"]) - emb)))
+    out["valid"] = df[v_mask]
     if seg.get("test_end"):
         out["test"] = df[_segment_mask(dates, seg, "test")]
     elif seg.get("test_start"):
@@ -57,15 +65,13 @@ def _split(df: pd.DataFrame, seg: dict) -> dict[str, pd.DataFrame]:
 _TARGETS = ["label", "abs_label", "bench_label"]  # 三个维度：跑赢行业 / 绝对上涨 / 跑赢大盘
 
 
-def _train_one(feat_cols, params, splits, target):
-    """为单个 target 训练 LightGBM(+XGBoost 可选)，返回 (model, proba, metrics)。"""
+def _train_one(feat_cols, params, splits, target, use_ensemble=True):
+    """为单个 target 训练 LightGBM(+XGBoost 可选) + 概率校准，返回 (model, proba, blob, n_train)。"""
     import lightgbm as lgb  # 延迟导入
 
     def _xy(df: pd.DataFrame):
         df = df.dropna(subset=[target])
-        X = df[feat_cols]
-        y = df[target].astype(int)
-        return X, y
+        return df[feat_cols], df[target].astype(int)
 
     Xtr, ytr = _xy(splits["train"])
     Xva, yva = _xy(splits["valid"])
@@ -75,17 +81,11 @@ def _train_one(feat_cols, params, splits, target):
     model = lgb.LGBMClassifier(**{k: v for k, v in params.items() if k != "objective"}, objective="binary")
     fit_kwargs = {}
     if not Xva.empty:
-        fit_kwargs = {
-            "eval_set": [(Xva, yva)],
-            "callbacks": [lgb.early_stopping(50, verbose=False)],
-        }
+        fit_kwargs = {"eval_set": [(Xva, yva)], "callbacks": [lgb.early_stopping(50, verbose=False)]}
     model.fit(Xtr, ytr, **fit_kwargs)
-    proba_lgb = model.predict_proba(splits["_all"][feat_cols])[:, 1]
 
-    proba = proba_lgb
-    models_blob = {"model": model}
-    used_ensemble = False
-    if bool(params.get("ensemble", True)):
+    xgbm = None
+    if use_ensemble:
         try:
             import xgboost as xgb
 
@@ -95,19 +95,38 @@ def _train_one(feat_cols, params, splits, target):
                 n_jobs=-1, eval_metric="logloss", verbosity=0,
             )
             xgbm.fit(Xtr, ytr)
-            proba_xgb = xgbm.predict_proba(splits["_all"][feat_cols])[:, 1]
-            r1 = pd.Series(proba_lgb).rank(pct=True)
-            r2 = pd.Series(proba_xgb).rank(pct=True)
-            proba = ((r1 + r2) / 2).values
-            models_blob["model_xgb"] = xgbm
-            used_ensemble = True
         except Exception as exc:  # noqa: BLE001
-            log.info("[model] XGBoost 不可用，仅用 LightGBM（%s）：%s", target, exc)
-            proba = proba_lgb
-    models_blob["used_ensemble"] = used_ensemble
+            log.info("[model] XGBoost 不可用（%s）：%s", target, exc)
+            xgbm = None
 
-    n_train = len(Xtr)
-    return model, proba, models_blob, n_train
+    def _proba(X):
+        p = model.predict_proba(X)[:, 1]
+        if xgbm is not None:
+            r1 = pd.Series(p).rank(pct=True)
+            r2 = pd.Series(xgbm.predict_proba(X)[:, 1]).rank(pct=True)
+            p = ((r1 + r2) / 2).values
+        return p
+
+    proba = _proba(splits["_all"][feat_cols])
+
+    # 概率校准（isotonic，valid 拟合）：让「上涨概率」是真概率；单调变换不改变排序/IC
+    if not Xva.empty:
+        try:
+            from sklearn.isotonic import IsotonicRegression
+
+            iso = IsotonicRegression(out_of_bounds="clip").fit(_proba(Xva), yva.values)
+            proba = iso.transform(proba)
+            calib = True
+        except Exception as exc:  # noqa: BLE001
+            log.debug("[model] 校准失败（%s）：%s", target, exc)
+            calib = False
+    else:
+        calib = False
+
+    blob = {"model": model, "used_ensemble": xgbm is not None, "calibrated": calib}
+    if xgbm is not None:
+        blob["model_xgb"] = xgbm
+    return model, proba, blob, len(Xtr)
 
 
 def train_and_predict() -> dict:
@@ -121,10 +140,14 @@ def train_and_predict() -> dict:
     log.info("[model] 特征数=%d", len(feat_cols))
 
     seg = dict(cfg.model.split)
-    splits = _split(mat, seg)
+    # embargo：按 label horizon 隔离段间重叠（防标签穿越泄漏）
+    horizon = int(cfg.feature.get("label_horizon", 20))
+    embargo_days = int(seg.get("embargo_days") or max(1, round(horizon * 1.4)))
+    splits = _split(mat, seg, embargo_days=embargo_days)
     splits["_seg"] = seg
     splits["_all"] = mat
     params = dict(cfg.model.lightgbm)
+    use_ensemble = bool(cfg.model.get("ensemble", True))
 
     out_dir = Path(cfg.paths.output_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -136,7 +159,7 @@ def train_and_predict() -> dict:
     models_blob = {"feat_cols": feat_cols, "params": params, "split": seg, "models": {}}
     metrics = {"model_path": str(model_path), "n_features": len(feat_cols), "n_train": {}}
     for target in _TARGETS:
-        model, proba, blob, n_train = _train_one(feat_cols, params, splits, target)
+        model, proba, blob, n_train = _train_one(feat_cols, params, splits, target, use_ensemble)
         pred[target] = mat[target].reset_index(drop=True) if target in mat else np.nan
         pred[f"prob_{target}"] = proba
         models_blob["models"][target] = blob
@@ -147,7 +170,6 @@ def train_and_predict() -> dict:
         pickle.dump(models_blob, fh)
 
     # 主标签（跑赢行业）用于 split 标记
-    seg_df0 = mat["label"].astype("Int64").reset_index()
     dates = pd.to_datetime(pred["date"])
     pred["split"] = "unlabeled"
     pred.loc[dates <= pd.Timestamp(seg["train_end"]), "split"] = "train"

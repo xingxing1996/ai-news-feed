@@ -105,11 +105,11 @@ def train():
 
 
 @app.command()
-def backtest():
-    """Top-N 持有20天回测。"""
+def backtest(ranking: str = typer.Option(None, help="排序信号: label|abs|bench|blend（默认 blend）")):
+    """Top-N 持有回测。默认用综合分(blend)排序选股。"""
     from .backtest.strategy import run_backtest
 
-    report = run_backtest()
+    report = run_backtest(ranking=ranking)
     # 落盘一份纯文本摘要供日报引用
     from pathlib import Path
 
@@ -117,8 +117,30 @@ def backtest():
 
     out = Path(get_settings().paths.output_dir) / "backtest_metrics.txt"
     out.write_text(json.dumps(report, ensure_ascii=False, indent=2, default=str), encoding="utf-8")
-    console.print("[green]backtest 完成[/green]")
+    console.print(f"[green]backtest 完成（ranking={report.get('ranking')}）[/green]")
     console.print_json(data=report)
+
+
+@app.command()
+def compare():
+    """四排序对比：跑赢行业/上涨/跑赢大盘/综合分，看哪个 ranking 回测最好。"""
+    from .backtest.strategy import run_backtest_compare
+
+    res = run_backtest_compare()
+    tbl = Table(title="四排序回测对比")
+    for col in ("ranking", "ann_return", "sharpe", "max_drawdown", "excess_ann", "avg_turnover"):
+        tbl.add_column(col)
+    for mode, m in res.items():
+        if "error" in m:
+            tbl.add_row(mode, "—", "—", "—", "—", f"err: {m['error'][:20]}")
+        else:
+            tbl.add_row(mode, f"{m.get('ann_return', 0):.2%}", f"{m.get('sharpe', 0):.2f}",
+                        f"{m.get('max_drawdown', 0):.2%}", f"{m.get('excess_ann', 0):.2%}",
+                        f"{m.get('avg_turnover', 0):.2f}")
+    console.print(tbl)
+    console.print_json(data=res)
+
+
 
 
 @app.command()
