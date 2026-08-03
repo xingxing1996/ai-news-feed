@@ -130,6 +130,16 @@ def files():
     return {"files": [f.name for f in OUT.iterdir() if f.is_file()]}
 
 
+@app.get("/log", response_class=PlainTextResponse)
+def log_tail():
+    """读取训练/调度日志尾部（排错用，看首次训练为什么没出结果）。"""
+    for name in ("scheduler.log", "startup.log"):
+        p = OUT / name
+        if p.exists():
+            return p.read_text(encoding="utf-8")[-6000:]
+    return "_暂无日志（训练可能还没开始/在跑）_"
+
+
 # ---------- 浏览器看板（根路径）----------
 @app.get("/", response_class=HTMLResponse)
 def dashboard():
