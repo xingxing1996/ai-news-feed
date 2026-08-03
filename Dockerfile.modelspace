@@ -1,0 +1,31 @@
+# ModelScope 创空间（Docker 类型）构建文件。
+# 创空间会在运行时挂载 /mnt/workspace（持久化），app 把数据/模型/日报都写那。
+# 创空间配置：Docker 类型 → Dockerfile 路径填 Dockerfile.modelspace → 端口 7860。
+FROM python:3.10-slim
+
+ENV TZ=Asia/Shanghai \
+    PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/app:/app/quant \
+    STOCK_PREDICT_CONFIG=/app/config/settings.modelspace.yaml \
+    PIP_INDEX_URL=https://pypi.tuna.tsinghua.edu.cn/simple
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        build-essential tzdata ca-certificates && \
+    rm -rf /var/lib/apt/lists/* && \
+    ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+# 依赖（quant 全量 + gradio + apscheduler）
+COPY requirements-modelspace.txt /tmp/
+RUN pip install --no-cache-dir -r /tmp/requirements-modelspace.txt
+
+# 代码 + 配置
+COPY quant /app/quant
+COPY common /app/common
+COPY config /app/config
+COPY app.py /app/app.py
+
+# /mnt/workspace 由创空间运行时挂载（持久化）；本地测试可 -v 或改 OUT_DIR
+EXPOSE 7860
+CMD ["python", "app.py"]
