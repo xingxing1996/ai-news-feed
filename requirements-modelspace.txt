@@ -30,3 +30,5 @@ python-dateutil>=2.9
 # --- 创空间看板 + 进程内调度 ---
 gradio>=4.0
 apscheduler>=3.10
+fastapi>=0.110
+uvicorn>=0.29

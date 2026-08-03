@@ -27,5 +27,6 @@ COPY config /app/config
 COPY app.py /app/app.py
 
 # /mnt/workspace 由创空间运行时挂载（持久化）；本地测试可 -v 或改 OUT_DIR
+# 入口：FastAPI(api.py) + APScheduler 进程内调度，一个 uvicorn 进程搞定
 EXPOSE 7860
-CMD ["python", "app.py"]
+CMD ["uvicorn", "api:app", "--host", "0.0.0.0", "--port", "7860"]
