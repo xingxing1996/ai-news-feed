@@ -29,11 +29,17 @@ os.environ.setdefault("STOCK_PREDICT_CONFIG", str(ROOT / "config" / "settings.mo
 OUT = Path(os.environ.get("OUT_DIR", "/mnt/workspace/data/output"))
 QUANT = ROOT / "quant"
 
-from apscheduler.schedulers.background import BackgroundScheduler  # noqa: E402
-from apscheduler.triggers.cron import CronTrigger  # noqa: E402
-from apscheduler.triggers.interval import IntervalTrigger  # noqa: E402
 from fastapi import FastAPI  # noqa: E402
 from fastapi.responses import HTMLResponse, JSONResponse, PlainTextResponse  # noqa: E402
+
+# apscheduler 容错：没装也能跑（仅失去进程内调度，外部 cron 仍可调度）
+try:
+    from apscheduler.schedulers.background import BackgroundScheduler  # noqa: E402
+    from apscheduler.triggers.cron import CronTrigger  # noqa: E402
+    from apscheduler.triggers.interval import IntervalTrigger  # noqa: E402
+    _HAS_APS = True
+except Exception:  # noqa: BLE001
+    _HAS_APS = False
 
 app = FastAPI(title="stock-predict API", description="A股+港股 量化推荐 + 定时调度")
 
@@ -53,6 +59,10 @@ def _run_cli(cmd: str):
 
 @app.on_event("startup")
 def _start_scheduler():
+    # 仅当装了 apscheduler 且未禁用时启动进程内调度（否则依赖外部 cron）
+    if not _HAS_APS or os.getenv("USE_APSCHEDULER", "1") != "1":
+        app.state.scheduler = None
+        return
     sched = BackgroundScheduler(daemon=True)
     sched.add_job(lambda: _run_cli("run"),
                   CronTrigger(hour=17, minute=0, day_of_week="mon-fri", timezone="Asia/Shanghai"),

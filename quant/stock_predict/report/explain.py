@@ -147,3 +147,73 @@ def explain_with_shap(model, X_section: pd.DataFrame, row_idx, top_k: int = 3) -
     reasons = [cols[i] for i in order if vec[i] > 0][:top_k]
     risks = [cols[i] for i in order[::-1] if vec[i] < 0][:top_k]
     return reasons, risks
+
+
+def explain_shap_row(shap_vec, feat_cols: list[str], k: int = 3) -> tuple[list[str], list[str]]:
+    """把单只股票的 SHAP 向量映射成人话理由/风险（精确归因）。"""
+    s = pd.Series(shap_vec, index=list(feat_cols))
+    pos = s[s > 0].sort_values(ascending=False)
+    neg = s[s < 0].sort_values()
+    reasons, risks = [], []
+    for f, v in pos.head(k * 2).items():
+        info = _lookup(f)
+        if not info:
+            continue
+        reasons.append(f"{info[0]}（SHAP {v:+.2f}）")
+        if len(reasons) >= k:
+            break
+    for f, v in neg.head(k * 2).items():
+        info = _lookup(f)
+        if not info:
+            continue
+        risks.append(f"{info[1]}（SHAP {v:+.2f}）")
+        if len(risks) >= k:
+            break
+    return reasons, risks
+
+
+def technical_reasons(row: pd.Series) -> tuple[list[str], list[str]]:
+    """从已有技术特征（RSI/MA/ROC）派生技术面理由（金叉近似/超买超卖/动量）。"""
+    reasons: list[str] = []
+    risks: list[str] = []
+
+    def g(k):
+        v = row.get(k)
+        return float(v) if v is not None and not pd.isna(v) else None
+
+    rsi = next((g(c) for c in ("RSI6", "RSI12", "RSI24") if g(c) is not None), None)
+    if rsi is not None:
+        if rsi >= 75:
+            risks.append(f"RSI 超买（{rsi:.0f}），短期或回调")
+        elif rsi <= 25:
+            reasons.append(f"RSI 超卖（{rsi:.0f}），或现反弹")
+
+    ma5, ma20, roc20 = g("MA5"), g("MA20"), g("ROC20")
+    if ma5 is not None and ma20 is not None:
+        if ma5 > 0 and ma20 > 0 and ma5 > ma20:
+            reasons.append("短中期均线多头排列（趋多）")
+        elif ma5 < ma20:
+            risks.append("短中期均线空头排列（趋空）")
+    if roc20 is not None:
+        if roc20 > 0.10:
+            reasons.append(f"近一月强势（+{roc20:.0%}）")
+        elif roc20 < -0.10:
+            risks.append(f"近一月下跌（{roc20:.0%}）")
+    return reasons, risks
+
+
+def valuation_hint(row: pd.Series) -> str:
+    """估值显式提示：PE/PB 历史分位 → 偏低/偏高。"""
+    pe = row.get("pe_percentile")
+    pb = row.get("pb_percentile")
+    pe = float(pe) if pe is not None and not pd.isna(pe) else None
+    pb = float(pb) if pb is not None and not pd.isna(pb) else None
+    if pe is None and pb is None:
+        return ""
+    parts = []
+    if pe is not None:
+        parts.append(f"PE 处历史 {pe:.0%} 分位（{'偏低' if pe < 0.3 else '偏高' if pe > 0.7 else '中性'}）")
+    if pb is not None:
+        parts.append(f"PB {pb:.0%} 分位（{'偏低' if pb < 0.3 else '偏高' if pb > 0.7 else '中性'}）")
+    return "；".join(parts)
+

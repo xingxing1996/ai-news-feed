@@ -1,20 +1,17 @@
-# docker compose up -d   → 构建 + 常驻（cron 调度 + API）
-# 查结果：curl localhost:8000/recommendations
+# 本地部署（A股+港股）：复用根 Dockerfile，覆盖配置为 settings.cn、映射端口、挂卷。
+# ModelScope 创空间：不用 compose，直接用根 Dockerfile（默认 settings.modelspace + 7860）。
 services:
   quant:
     build: .
-    image: quant-cn:latest
-    container_name: quant-cn
+    image: stock-predict:latest
+    container_name: stock-predict
     restart: unless-stopped
     ports:
-      - "8000:8000"
+      - "8000:7860"                      # 本地 8000 → 容器 7860
     environment:
       TZ: Asia/Shanghai
-      ARK_API_KEY: ${ARK_API_KEY}        # 新闻 LLM 用；可空（退化规则）
-      CRON_TRAIN: "0 9 * * 1-5"          # 工作日 北京17:00(UTC09:00) 训练
-      CRON_REFRESH: "0 */2 * * *"        # 每 2h 刷新日报
-      API_PORT: "8000"
+      ARK_API_KEY: ${ARK_API_KEY}        # 新闻 LLM；可空
+      STOCK_PREDICT_CONFIG: /app/quant/config/settings.cn.yaml   # 本地用 cn 配置(相对路径)
+      USE_APSCHEDULER: "1"               # api.py 进程内调度（工作日17点训练+每2h刷新）
     volumes:
-      - quant-data:/app/quant/data       # 行情/模型/日报持久化
-volumes:
-  quant-data:
+      - ./quant-data:/app/quant/data     # 本地持久化（settings.cn 的相对数据路径）
