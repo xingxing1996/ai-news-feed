@@ -26,15 +26,19 @@ jobs:
         ARK_API_KEY: ${{ secrets.ARK_API_KEY }}
       run: MODELS_CONFIG=config/models.yaml python resolve_models.py || true
 
-    - name: 刷新日报（复用模型 + 最新新闻，不重训）
+    - name: 刷新日报（复用模型 + 最新新闻；缺 state 则回退完整训练）
       env:
         ARK_API_KEY: ${{ secrets.ARK_API_KEY }}
       working-directory: quant
       run: |
+        # GHA 跨 job 无共享磁盘：模型只在 train.yml 提交的 quant/state/ 里。
+        # 若 state 缺失（train 还没成功/push 失败），回退跑一次完整 run（顺带重建 state）。
         PYTHONPATH=$GITHUB_WORKSPACE:$GITHUB_WORKSPACE/quant \
-        STOCK_PREDICT_CONFIG=config/settings.us.yaml python -m stock_predict.cli refresh
+        STOCK_PREDICT_CONFIG=config/settings.us.yaml python -m stock_predict.cli refresh \
+        || PYTHONPATH=$GITHUB_WORKSPACE:$GITHUB_WORKSPACE/quant \
+           STOCK_PREDICT_CONFIG=config/settings.us.yaml python -m stock_predict.cli run
 
-    - name: 提交 recommendations.json + 日报 + 日志
+    - name: 提交 recommendations.json + 日报 + state + 日志
       if: always()
       run: |
         git config --local user.email "action@github.com"
@@ -42,6 +46,6 @@ jobs:
         git fetch origin main && git reset origin/main
         cp quant/data/output/recommendations_us.json recommendations_us.json 2>/dev/null || true
         cp quant/data/output/recommendations_us.md recommendations_us.md 2>/dev/null || true
-        git add recommendations_us.json recommendations_us.md logs/ || true
+        git add recommendations_us.json recommendations_us.md quant/state/ logs/ || true
         git commit -m "Refresh quant report (US+KR, every 2h)" || exit 0
         git push
