@@ -13,18 +13,20 @@ from datetime import datetime
 
 import pandas as pd
 
-# ---- monkey-patch requests 加真实浏览器 UA（降低东财拒连/限流概率）----
-# AKShare 内部用 requests，默认 UA 是 python-requests/x.x → 容易被识别为爬虫拒连
+# ---- monkey-patch requests 加真实浏览器 UA 与 Header（降低东财/百度拒连/限流概率）----
+import random
 import requests as _req
 
 _orig_request = _req.Session.request
-_BROWSER_UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+_BROWSER_UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
 
 
 def _patched_request(self, method, url, **kwargs):
     headers = kwargs.setdefault("headers", {})
     if not headers.get("User-Agent"):
         headers["User-Agent"] = _BROWSER_UA
+    if not headers.get("Accept-Language"):
+        headers["Accept-Language"] = "zh-CN,zh;q=0.9,en;q=0.8"
     return _orig_request(self, method, url, **kwargs)
 
 
@@ -43,16 +45,20 @@ def _ak():
     return _AK
 
 
-def _call_ak(func, retries: int = 3, **kwargs):
-    """调用 AKShare，连接被拒/断开/超时自动重试（3次，递增退避）。"""
+def _call_ak(func, retries: int = 4, **kwargs):
+    """调用 AKShare，连接被拒/断开/超时自动重试（带随机指数退避，最高 4 次）。"""
     for i in range(retries + 1):
         try:
             return func(**kwargs)
         except Exception as e:  # noqa: BLE001
             s = str(e)
-            if i < retries and ("Connection" in s or "RemoteDisconnected" in s or "timeout" in s.lower()
-                                or "reset" in s.lower() or "aborted" in s.lower()):
-                wait = 2.0 * (i + 1)  # 2s, 4s, 6s
+            is_net_err = any(kw in s or kw in s.lower() for kw in (
+                "connection", "remotedisconnected", "timeout", "reset", "aborted", "closed", "refused"
+            ))
+            if i < retries and is_net_err:
+                # 随机指数退避（Jitter）：1.5^i + [0.5, 1.5] 秒
+                wait = (1.5 ** i) + random.uniform(0.5, 1.5)
+                log.debug("[akshare] 接口 %s 发生连接中断 (%s)，休眠 %.1fs 后第 %d 次重试...", func.__name__, s, wait, i + 1)
                 time.sleep(wait)
                 continue
             raise
@@ -199,7 +205,7 @@ def fetch_financial(code: str, market: str = "cn") -> pd.DataFrame:
     try:
         ak = _ak()
         sym = _to_ak_symbol(code)
-        df = ak.stock_financial_abstract(symbol=sym)
+        df = _call_ak(ak.stock_financial_abstract, symbol=sym)
         if df is None or df.empty:
             return _empty_fin()
         return _normalize_financial_ak(df, code)
