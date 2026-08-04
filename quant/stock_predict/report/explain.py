@@ -202,18 +202,41 @@ def technical_reasons(row: pd.Series) -> tuple[list[str], list[str]]:
     return reasons, risks
 
 
-def valuation_hint(row: pd.Series) -> str:
-    """估值显式提示：PE/PB 历史分位 → 偏低/偏高。"""
+def valuation_hint(row: pd.Series, raw_pe: float | None = None, raw_pb: float | None = None) -> str:
+    """估值显式提示：PE/PB 实际值 + 历史分位 → 偏低/偏高。
+
+    优先展示实际数值（raw_pe/raw_pb）；若无原始值则只展示分位。
+    """
     pe = row.get("pe_percentile")
     pb = row.get("pb_percentile")
     pe = float(pe) if pe is not None and not pd.isna(pe) else None
     pb = float(pb) if pb is not None and not pd.isna(pb) else None
-    if pe is None and pb is None:
+
+    # 尝试从 row 里读原始 pe/pb（兼容旧调用路径）
+    if raw_pe is None:
+        _pe_raw = row.get("pe")
+        raw_pe = float(_pe_raw) if _pe_raw is not None and not pd.isna(_pe_raw) else None
+    if raw_pb is None:
+        _pb_raw = row.get("pb")
+        raw_pb = float(_pb_raw) if _pb_raw is not None and not pd.isna(_pb_raw) else None
+
+    if pe is None and pb is None and raw_pe is None and raw_pb is None:
         return ""
     parts = []
-    if pe is not None:
-        parts.append(f"PE 处历史 {pe:.0%} 分位（{'偏低' if pe < 0.3 else '偏高' if pe > 0.7 else '中性'}）")
-    if pb is not None:
-        parts.append(f"PB {pb:.0%} 分位（{'偏低' if pb < 0.3 else '偏高' if pb > 0.7 else '中性'}）")
+    if pe is not None or raw_pe is not None:
+        label = "偏低" if pe is not None and pe < 0.3 else ("偏高" if pe is not None and pe > 0.7 else "中性")
+        pct_str = f"历史 {pe:.0%} 分位" if pe is not None else ""
+        val_str = f"PE {raw_pe:.1f}x" if raw_pe is not None and raw_pe > 0 else "静态PE"
+        if pct_str:
+            parts.append(f"{val_str}（{pct_str}，{label}）")
+        else:
+            parts.append(val_str)
+    if pb is not None or raw_pb is not None:
+        label = "偏低" if pb is not None and pb < 0.3 else ("偏高" if pb is not None and pb > 0.7 else "中性")
+        pct_str = f"历史 {pb:.0%} 分位" if pb is not None else ""
+        val_str = f"PB {raw_pb:.2f}x" if raw_pb is not None and raw_pb > 0 else "PB"
+        if pct_str:
+            parts.append(f"{val_str}（{pct_str}，{label}）")
+        else:
+            parts.append(val_str)
     return "；".join(parts)
-

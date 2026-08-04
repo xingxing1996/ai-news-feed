@@ -18,7 +18,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # 依赖（quant 全量 + gradio + apscheduler）
 COPY requirements-modelspace.txt /tmp/
-RUN pip install --no-cache-dir -r /tmp/requirements-modelspace.txt
+RUN pip install --no-cache-dir \
+      --index-url https://pypi.tuna.tsinghua.edu.cn/simple \
+      --extra-index-url https://pypi.org/simple \
+      -r /tmp/requirements-modelspace.txt
 
 # 代码 + 配置
 COPY quant /app/quant

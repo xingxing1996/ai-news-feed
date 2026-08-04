@@ -22,7 +22,8 @@ log = logging.getLogger(__name__)
 
 _META_COLS = {"future_return", "industry_excess", "industry_excess_neu", "label",
               "abs_label", "bench_label", "bench_excess", "bench_future",
-              "industry", "market", "name", "market_cap"}
+              "industry", "market", "name", "market_cap",
+              "pe", "pb"}  # pe/pb 原值只供日报展示，不进模型特征
 
 
 def _feature_cols(df: pd.DataFrame) -> list[str]:
