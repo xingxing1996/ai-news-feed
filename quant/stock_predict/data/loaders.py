@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 import logging
+import time
 from datetime import datetime, timedelta
 from typing import Any
 
@@ -51,6 +52,7 @@ def fetch_all(universe_df: pd.DataFrame, start: str, end: str, synthetic: bool,
     """
     daily_parts, val_parts, fin_parts, nb_parts = [], [], [], []
     rows = list(universe_df.itertuples(index=False))
+    fetch_delay = float(cfg.data.get("fetch_delay", 0.3)) if hasattr(cfg, "data") else 0.3
     for r in tqdm(rows, desc="ingest", disable=len(rows) <= 3):
         L = _get_loader(r.market, synthetic)
         is_ak = (not synthetic) and r.market in ("cn", "hk")
@@ -69,6 +71,8 @@ def fetch_all(universe_df: pd.DataFrame, start: str, end: str, synthetic: bool,
         f = L.fetch_financial(r.code, r.market) if is_ak else L.fetch_financial(r.code)
         if not f.empty:
             fin_parts.append(f)
+        if fetch_delay and not synthetic:
+            time.sleep(fetch_delay)
 
     daily = pd.concat(daily_parts, ignore_index=True) if daily_parts else pd.DataFrame()
     valuation = pd.concat(val_parts, ignore_index=True) if val_parts else pd.DataFrame()

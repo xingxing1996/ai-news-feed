@@ -13,6 +13,23 @@ from datetime import datetime
 
 import pandas as pd
 
+# ---- monkey-patch requests 加真实浏览器 UA（降低东财拒连/限流概率）----
+# AKShare 内部用 requests，默认 UA 是 python-requests/x.x → 容易被识别为爬虫拒连
+import requests as _req
+
+_orig_request = _req.Session.request
+_BROWSER_UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+
+
+def _patched_request(self, method, url, **kwargs):
+    headers = kwargs.setdefault("headers", {})
+    if not headers.get("User-Agent"):
+        headers["User-Agent"] = _BROWSER_UA
+    return _orig_request(self, method, url, **kwargs)
+
+
+_req.Session.request = _patched_request
+
 log = logging.getLogger(__name__)
 
 _AK = None  # 延迟导入
@@ -26,16 +43,17 @@ def _ak():
     return _AK
 
 
-def _call_ak(func, retries: int = 2, **kwargs):
-    """调用 AKShare，连接被拒/断开/超时自动重试（国内偶发抖动）。"""
+def _call_ak(func, retries: int = 3, **kwargs):
+    """调用 AKShare，连接被拒/断开/超时自动重试（3次，递增退避）。"""
     for i in range(retries + 1):
         try:
             return func(**kwargs)
         except Exception as e:  # noqa: BLE001
             s = str(e)
             if i < retries and ("Connection" in s or "RemoteDisconnected" in s or "timeout" in s.lower()
-                                or "reset" in s.lower()):
-                time.sleep(1.5 * (i + 1))
+                                or "reset" in s.lower() or "aborted" in s.lower()):
+                wait = 2.0 * (i + 1)  # 2s, 4s, 6s
+                time.sleep(wait)
                 continue
             raise
     return func(**kwargs)
