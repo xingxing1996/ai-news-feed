@@ -38,7 +38,17 @@ def fetch_daily(code: str, start: str, end: str) -> pd.DataFrame:
         df["date"] = pd.to_datetime(df["date"]).dt.strftime("%Y-%m-%d")
         df["code"] = code
         out = df[["date", "code", "open", "high", "low", "close", "volume"]].copy()
-        out["market_cap"] = pd.NA
+        try:
+            tk = yf.Ticker(code)
+            info = tk.info or {}
+            shares = info.get("sharesOutstanding") or info.get("impliedShares") or info.get("floatShares")
+            if shares and "close" in out.columns:
+                out["market_cap"] = out["close"] * float(shares)
+            else:
+                mcap = info.get("marketCap")
+                out["market_cap"] = float(mcap) if mcap else pd.NA
+        except Exception:  # noqa: BLE001
+            out["market_cap"] = pd.NA
         return out
     except Exception as exc:  # noqa: BLE001
         log.warning("[yfinance] %s 行情下载失败: %s", code, exc)
@@ -105,7 +115,22 @@ def fetch_valuation(code: str, start: str, end: str, market: str = "us") -> pd.D
         out = out[(out["date"] >= start) & (out["date"] <= end)]
         return out[["date", "code", "pe", "pb"]]
     except Exception as exc:  # noqa: BLE001
-        log.warning("[yfinance] %s PE/PB 自算失败: %s", code, exc)
+        log.warning("[yfinance] %s PE/PB 自算失败，尝试 info 静态保底: %s", code, exc)
+        try:
+            yf = _yf()
+            info = yf.Ticker(code).info or {}
+            pe_val = _num(info, ["trailingPE", "forwardPE"])
+            pb_val = _num(info, ["priceToBook"])
+            if pe_val is not None or pb_val is not None:
+                px = yf.download(code, start=start, end=end, progress=False)
+                if px is not None and not px.empty:
+                    dates = pd.to_datetime(px.index).strftime("%Y-%m-%d")
+                    out = pd.DataFrame({"date": dates, "code": code})
+                    out["pe"] = pe_val if pe_val is not None else np.nan
+                    out["pb"] = pb_val if pb_val is not None else np.nan
+                    return out[["date", "code", "pe", "pb"]]
+        except Exception:  # noqa: BLE001
+            pass
         return _empty_valuation()
 
 

@@ -216,9 +216,12 @@ def generate_daily_report(as_of: str | None = None, pred_df=None, feats_df=None,
         # 估值提示（在卡片生成时统一计算，带 raw_pe/raw_pb）
 
         # —— 数据质量：特征完整度 + 关键价量特征是否缺失（缺数据→标低可信）——
-        fcols = [c for c in feat_cols if c in row.index]
-        n_present = sum(1 for c in fcols if pd.notna(row[c]))
-        completeness = round(n_present / max(len(feat_cols), 1), 2)
+        # 仅以在当前截面上至少存在有效值的特征列作为评估基数（排除完全未开启/不适用的大块特征）
+        valid_fcols = [c for c in feat_cols if c in section.columns and section[c].notna().any()]
+        if not valid_fcols:
+            valid_fcols = [c for c in feat_cols if c in row.index]
+        n_present = sum(1 for c in valid_fcols if pd.notna(row[c]))
+        completeness = round(n_present / max(len(valid_fcols), 1), 2)
         key_missing = [c for c in ("ROC20", "MA20", "RET1D") if c in feat_cols and pd.isna(row.get(c))]
         if completeness < 0.7 or key_missing:
             risks.append(f"⚠️ 数据缺失（特征完整度 {completeness:.0%}）")

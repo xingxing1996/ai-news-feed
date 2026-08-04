@@ -80,8 +80,14 @@ def _resolve_paths(cfg: AttrDict, root: Path) -> AttrDict:
         output_dir=_abs(output_dir),
     )
     for d in ("raw_dir", "qlib_dir", "warehouse_dir", "output_dir"):
-        Path(cfg.paths[d]).mkdir(parents=True, exist_ok=True)
-    Path(cfg.paths.sqlite_path).parent.mkdir(parents=True, exist_ok=True)
+        try:
+            Path(cfg.paths[d]).mkdir(parents=True, exist_ok=True)
+        except Exception:  # noqa: BLE001
+            pass
+    try:
+        Path(cfg.paths.sqlite_path).parent.mkdir(parents=True, exist_ok=True)
+    except Exception:  # noqa: BLE001
+        pass
     return cfg
 
 
