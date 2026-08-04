@@ -52,7 +52,11 @@ def fetch_all(universe_df: pd.DataFrame, start: str, end: str, synthetic: bool,
     """
     daily_parts, val_parts, fin_parts, nb_parts = [], [], [], []
     rows = list(universe_df.itertuples(index=False))
-    fetch_delay = float(cfg.data.get("fetch_delay", 0.3)) if hasattr(cfg, "data") else 0.3
+    try:
+        from ..config import get_settings as _gs
+        fetch_delay = float(_gs().data.get("fetch_delay", 0.3))
+    except Exception:  # noqa: BLE001
+        fetch_delay = 0.3
     for r in tqdm(rows, desc="ingest", disable=len(rows) <= 3):
         L = _get_loader(r.market, synthetic)
         is_ak = (not synthetic) and r.market in ("cn", "hk")
