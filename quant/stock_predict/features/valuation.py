@@ -28,7 +28,7 @@ def compute_valuation_factors(
 
     feats: list[pd.DataFrame] = []
 
-    # ---- pe / pb 分位（来自 valuation 日序列）----
+    # ---- pe / pb 分位（来自 valuation 日序列）+ pe/pb 原值（供日报展示）----
     if not valuation.empty:
         v = valuation.sort_values(["code", "date"]).copy()
         parts = []
@@ -41,8 +41,10 @@ def compute_valuation_factors(
             parts.append(d)
         v = pd.concat(parts, ignore_index=True)
         v = v.set_index(["date", "code"]).sort_index()
-        cols = [c for c in ["pe_percentile", "pb_percentile"] if c in v.columns]
+        # 保留原值 + 分位
+        cols = [c for c in ["pe", "pb", "pe_percentile", "pb_percentile"] if c in v.columns]
         feats.append(v[cols])
+
 
     # ---- fcf_yield（来自 financial 现金流 + daily 市值）----
     if not financial.empty and "market_cap" in daily.columns:

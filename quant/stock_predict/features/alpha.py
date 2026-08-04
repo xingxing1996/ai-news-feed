@@ -75,20 +75,20 @@ def _feats_for_code(g: pd.DataFrame, market_ret: pd.Series) -> pd.DataFrame:
     out["KMID2"] = (c - o) / rng
     out["OPEN0"] = o / c.shift(1) - 1
 
-    ret = c.pct_change()
+    ret = c.pct_change(fill_method=None)
     out["RET1D"] = ret
 
     # 动量 / 均线偏离 / 波动
     for w in _WINS:
-        out[f"ROC{w}"] = c.pct_change(w)
+        out[f"ROC{w}"] = c.pct_change(w, fill_method=None)
         ma = c.rolling(w, min_periods=w // 2).mean()
         out[f"MA{w}"] = c / ma - 1
-        out[f"STD{w}"] = c.pct_change().rolling(w, min_periods=w // 2).std()
+        out[f"STD{w}"] = c.pct_change(fill_method=None).rolling(w, min_periods=w // 2).std()
 
     # 成交量
     for w in _SHORT_WINS:
-        out[f"VSTD{w}"] = v.pct_change().rolling(w, min_periods=w // 2).std()
-        out[f"VROC{w}"] = v.pct_change(w)
+        out[f"VSTD{w}"] = v.pct_change(fill_method=None).rolling(w, min_periods=w // 2).std()
+        out[f"VROC{w}"] = v.pct_change(w, fill_method=None)
         out[f"VRANK{w}"] = _rolling_rank(v, w)
 
     # VWAP 偏离
@@ -146,7 +146,7 @@ def _feats_for_code(g: pd.DataFrame, market_ret: pd.Series) -> pd.DataFrame:
 def _pandas_alpha(daily: pd.DataFrame) -> pd.DataFrame:
     """pandas 实现的 Alpha158 风格因子。"""
     daily = daily.sort_values(["code", "date"]).reset_index(drop=True)
-    daily["ret"] = daily.groupby("code")["close"].pct_change()
+    daily["ret"] = daily.groupby("code")["close"].pct_change(fill_method=None)
     market_ret = daily.groupby("date")["ret"].mean()
 
     parts = []

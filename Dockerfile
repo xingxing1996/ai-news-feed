@@ -16,9 +16,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     rm -rf /var/lib/apt/lists/* && \
     ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-# 依赖：quant 全量 + FastAPI + APScheduler
-COPY quant/requirements.txt /tmp/req.txt
-RUN pip install --no-cache-dir -r /tmp/req.txt fastapi uvicorn apscheduler
+# 依赖：quant 全量 + FastAPI + APScheduler + Gradio（统一用 requirements-modelspace.txt）
+COPY requirements-modelspace.txt /tmp/req.txt
+RUN pip install --no-cache-dir \
+      --index-url https://pypi.tuna.tsinghua.edu.cn/simple \
+      --extra-index-url https://pypi.org/simple \
+      -r /tmp/req.txt
 
 # 代码 + 配置（settings.cn / settings.modelspace 都拷进去，按 env 选）
 COPY quant /app/quant

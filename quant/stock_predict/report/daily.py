@@ -39,6 +39,43 @@ def _load_model(state_dir: str | None = None):
     return blob["model"], blob["feat_cols"]
 
 
+def _filter_events_for_stock(events: list[dict], code: str, name: str) -> list[dict]:
+    """过滤掉与目标股票明显无关的事件。
+
+    策略：事件的 company 或 related_company 中，至少有一个能匹配 code/name。
+    ETF/指数类（code 不含字母或含 ETF）放宽限制，接受所有事件。
+    """
+    # ETF / 指数不做过滤（本来就是市场整体事件）
+    code_lower = str(code).lower()
+    name_lower = str(name).lower()
+    if any(kw in code_lower for kw in ("etf", "spy", "qqq", "soxx", "smh")):
+        return events
+
+    def _mentions(e: dict) -> bool:
+        company = str(e.get("company", "")).lower()
+        related = [str(r).lower() for r in (e.get("related_company") or [])]
+        # 检查 code / name 是否出现在 company 或 related_company 中
+        targets = [code_lower, name_lower]
+        for t in targets:
+            if not t:
+                continue
+            if t in company:
+                return True
+            if any(t in r for r in related):
+                return True
+        # 如果 company 字段与 code 首字母都不匹配，拒绝
+        return False
+
+    filtered = [e for e in events if _mentions(e)]
+    # 如果全被过滤掉（可能 LLM 没填 company），放宽：至少保留 impact 最大的
+    if not filtered and events:
+        best = max(events, key=lambda e: float(e.get("impact", 0)))
+        # 最大 impact < 0.6 的也丢掉（避免低质噪音）
+        if float(best.get("impact", 0)) >= 0.6:
+            filtered = [best]
+    return filtered
+
+
 def _news_reason_risk(events: list[dict]) -> tuple[list[str], list[str]]:
     """把新闻事件转成日报里的「理由/风险」短语（取最强的一条正向/负向）。"""
     if not events:
@@ -50,7 +87,6 @@ def _news_reason_risk(events: list[dict]) -> tuple[list[str], list[str]]:
     reasons = [f"新闻·{e.get('event') or '利好'}（影响 {float(e.get('impact', 0)):.1f}）" for e in pos[:1]]
     risks = [f"新闻·{e.get('event') or '利空'}（影响 {float(e.get('impact', 0)):.1f}）" for e in neg[:1]]
     return reasons, risks
-
 
 def _rating(prob: float, prob_up: float, events: list[dict], completeness: float) -> tuple[str, str | None]:
     """综合评级（买入建议）+ 突发事件。
@@ -162,6 +198,11 @@ def generate_daily_report(as_of: str | None = None, pred_df=None, feats_df=None,
         if (as_of, code) not in feats.index:
             continue
         row = feats.loc[(as_of, code)]
+        # ETF / 指数标记（"指数"行业 或 code 明显是 ETF ticker）
+        meta = {k: row[k] for k in ("name", "industry", "market") if k in row.index}
+        is_etf = (meta.get("industry") == "指数") or any(
+            code.upper().endswith(s) for s in ("ETF", "QQQ", "SPY", "SMH", "SOXX", "SOXL", "GLD", "GDX", "XLE", "USO")
+        )
         # 归因：优先 SHAP（模型真实依赖），否则截面分位规则
         if use_shap and shap_values is not None and code in section.index:
             ridx = section.index.get_loc(code)
@@ -172,8 +213,7 @@ def generate_daily_report(as_of: str | None = None, pred_df=None, feats_df=None,
         treason, trisk = explain.technical_reasons(row)
         reasons += treason
         risks += trisk
-        # 估值提示
-        val_hint = explain.valuation_hint(row)
+        # 估值提示（在卡片生成时统一计算，带 raw_pe/raw_pb）
 
         # —— 数据质量：特征完整度 + 关键价量特征是否缺失（缺数据→标低可信）——
         fcols = [c for c in feat_cols if c in row.index]
@@ -184,8 +224,9 @@ def generate_daily_report(as_of: str | None = None, pred_df=None, feats_df=None,
             risks.append(f"⚠️ 数据缺失（特征完整度 {completeness:.0%}）")
         confidence = "低" if completeness < 0.6 else ("中" if completeness < 0.85 else "高")
 
-        # 叠加新闻事件（设计文档：新闻应给「HBM需求增加」这类上下文理由）
-        evs = news_events.get(code, [])
+        # 叠加新闻事件（过滤无关事件，防止跨股票新闻串台）
+        evs_raw = news_events.get(code, [])
+        evs = _filter_events_for_stock(evs_raw, code, meta.get("name") or code)
         nreason, nrisk = _news_reason_risk(evs)
         reasons = nreason + reasons
         risks = nrisk + risks
@@ -195,13 +236,21 @@ def generate_daily_report(as_of: str | None = None, pred_df=None, feats_df=None,
         if breaking:
             reasons.insert(0, f"⚠️ 突发：{breaking}")
 
-        meta = {k: row[k] for k in ("name", "industry", "market") if k in row.index}
+        # ETF / 指数：「跑赢行业」无意义，加注释
+        if is_etf and not any("ETF/指数" in r for r in risks):
+            risks.append("ℹ️ ETF/指数：跑赢行业概率参考意义有限，建议看上涨概率与技术信号")
+
+        # 读取实际 PE/PB 原始值（来自 valuation 数据的最新快照）
+        raw_pe = float(row["pe"]) if "pe" in row.index and pd.notna(row.get("pe")) else None
+        raw_pb = float(row["pb"]) if "pb" in row.index and pd.notna(row.get("pb")) else None
+        val_hint = explain.valuation_hint(row, raw_pe=raw_pe, raw_pb=raw_pb)
         cards.append(
             {
                 "code": code,
                 "name": meta.get("name") or code,
                 "industry": meta.get("industry") or "—",
                 "market": meta.get("market") or "—",
+                "is_etf": is_etf,
                 "prob": prob,
                 "prob_up": prob_up,
                 "prob_bench": prob_bench,

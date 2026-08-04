@@ -108,9 +108,11 @@ def build_feature_matrix() -> tuple[pd.DataFrame, dict]:
 
     # —— 机构级预处理（无未来函数：全部按日截面操作）——
     fcfg = cfg.feature
+    # pe/pb 原值只供日报展示，不进模型（分位数 pe_percentile/pb_percentile 才进）
+    _DISPLAY_ONLY = {"pe", "pb"}
     feat_cols_now = [c for c in mat.columns if c not in ("future_return", "industry_excess", "industry_excess_neu",
                                                           "label", "abs_label", "bench_label", "bench_excess", "bench_future",
-                                                          "industry", "market", "name", "market_cap")]
+                                                          "industry", "market", "name", "market_cap") and c not in _DISPLAY_ONLY]
     # 1) 因子去极值 + 截面标准化
     pmethod = fcfg.get("process", "zscore")
     if pmethod != "none" and feat_cols_now:
@@ -135,7 +137,8 @@ def build_feature_matrix() -> tuple[pd.DataFrame, dict]:
 
     feat_cols = [c for c in mat.columns if c not in ("future_return", "industry_excess", "industry_excess_neu",
                                                        "label", "abs_label", "bench_label", "bench_excess", "bench_future",
-                                                       "industry", "market", "name", "market_cap")]
+                                                       "industry", "market", "name", "market_cap",
+                                                       "pe", "pb")]
     stats = {
         "rows": int(len(mat)),
         "feature_cols": int(len(feat_cols)),

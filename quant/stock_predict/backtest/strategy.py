@@ -74,7 +74,7 @@ def _run_core(signal: pd.DataFrame, daily: pd.DataFrame, cfg) -> dict:
     if len(dates) == 0:
         raise RuntimeError("test 段内无预测日期，请检查切分配置。")
 
-    ret = close.pct_change()
+    ret = close.pct_change(fill_method=None)
     mkt_ret = ret.mean(axis=1)
     vol = ret.rolling(60, min_periods=20).std().fillna(0.02)
     from ..data.universe import resolve_universe

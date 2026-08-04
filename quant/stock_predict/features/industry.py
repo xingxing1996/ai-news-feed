@@ -32,7 +32,7 @@ def compute_industry_factors(
     d["industry"] = d["code"].map(ind_map)
     d = d.dropna(subset=["industry"])
     d = d.sort_values(["code", "date"])
-    d["ret"] = d.groupby("code")["close"].pct_change()
+    d["ret"] = d.groupby("code")["close"].pct_change(fill_method=None)
 
     # 行业日收益
     ind_ret = d.groupby(["date", "industry"])["ret"].mean().reset_index().rename(columns={"ret": "ind_ret"})
