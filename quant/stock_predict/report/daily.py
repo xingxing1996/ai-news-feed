@@ -268,8 +268,13 @@ def refresh_report() -> str:
     不重训、不重拉历史行情（日线日内不变）。"""
     cfg = get_settings()
     state = Path(cfg.paths.output_dir).parent.parent / "state"  # quant/state
-    if not (state / "model.lgb").exists() or not (state / "features_latest.parquet").exists():
-        raise RuntimeError(f"{state} 下缺 model.lgb/features_latest.parquet，请先跑每日训练(train)。")
+    needed = ["model.lgb", "features_latest.parquet", "predictions_latest.parquet"]
+    missing = [f for f in needed if not (state / f).exists()]
+    if missing:
+        existing = [f for f in needed if (state / f).exists()]
+        log.error("[refresh] state=%s | 存在:%s | 缺:%s | output_dir=%s",
+                  state, existing, missing, cfg.paths.output_dir)
+        raise RuntimeError(f"{state} 缺 {missing}，请先 train（或检查 git add -f quant/state/）。")
     feats = pd.read_parquet(state / "features_latest.parquet")
     pred = pd.read_parquet(state / "predictions_latest.parquet")
 

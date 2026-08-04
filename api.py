@@ -25,7 +25,7 @@ from pathlib import Path
 # ---- 环境在 import quant/调度 前 ----
 ROOT = Path(__file__).resolve().parent
 os.environ["PYTHONPATH"] = f"{ROOT}:{ROOT / 'quant'}"
-os.environ.setdefault("STOCK_PREDICT_CONFIG", str(ROOT / "config" / "settings.modelspace.yaml"))
+os.environ.setdefault("STOCK_PREDICT_CONFIG", str(ROOT / "quant" / "config" / "settings.modelspace.yaml"))
 OUT = Path(os.environ.get("OUT_DIR", "/mnt/workspace/data/output"))
 QUANT = ROOT / "quant"
 

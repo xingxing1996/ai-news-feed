@@ -46,6 +46,6 @@ jobs:
         git fetch origin main && git reset origin/main
         cp quant/data/output/recommendations_us.json recommendations_us.json 2>/dev/null || true
         cp quant/data/output/recommendations_us.md recommendations_us.md 2>/dev/null || true
-        git add recommendations_us.json recommendations_us.md quant/state/ logs/ || true
+        git add -f recommendations_us.json recommendations_us.md quant/state/ logs/ 2>/dev/null || true
         git commit -m "Refresh quant report (US+KR, every 2h)" || exit 0
         git push
