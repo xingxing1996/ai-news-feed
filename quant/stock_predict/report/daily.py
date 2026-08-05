@@ -77,30 +77,36 @@ def _filter_events_for_stock(events: list[dict], code: str, name: str) -> list[d
 
 
 def _news_reason_risk(events: list[dict]) -> tuple[list[str], list[str]]:
-    """把新闻事件转成日报里的「理由/风险」短语（取最强的一条正向/负向）。"""
+    """把新闻事件转成日报里的「理由/风险」短语（取最强的一条正向/负向，附带北京时间）。"""
     if not events:
         return [], []
     pos = sorted([e for e in events if e.get("direction") == "positive"],
                  key=lambda e: -float(e.get("impact", 0)))
     neg = sorted([e for e in events if e.get("direction") == "negative"],
                  key=lambda e: -float(e.get("impact", 0)))
-    reasons = [f"新闻·{e.get('event') or '利好'}（影响 {float(e.get('impact', 0)):.1f}）" for e in pos[:1]]
-    risks = [f"新闻·{e.get('event') or '利空'}（影响 {float(e.get('impact', 0)):.1f}）" for e in neg[:1]]
+    reasons = [f"新闻·{_format_bj_time(e.get('pub_date') or e.get('created_at'))} {e.get('event') or '利好'}（影响 +{float(e.get('impact', 0)):.1f}）" for e in pos[:1]]
+    risks = [f"新闻·{_format_bj_time(e.get('pub_date') or e.get('created_at'))} {e.get('event') or '利空'}（影响 -{float(e.get('impact', 0)):.1f}）" for e in neg[:1]]
     return reasons, risks
+
 
 def _rating(prob: float, prob_up: float, events: list[dict], completeness: float) -> tuple[str, str | None]:
     """综合评级（买入建议）+ 突发事件。
 
     综合：跑赢行业概率 + 上涨概率 + 新闻方向 + 数据质量 → 强推荐/关注/中性观望/回避。
-    突发：任一 impact≥0.7 的事件。
+    一票否决：重大黑天鹅 (impact ≥ 0.7 且 negative) 直接判为回避。
     """
     pos = any(e.get("direction") == "positive" and float(e.get("impact", 0)) >= 0.6 for e in events)
     neg = any(e.get("direction") == "negative" and float(e.get("impact", 0)) >= 0.6 for e in events)
+    hi_neg = any(e.get("direction") == "negative" and float(e.get("impact", 0)) >= 0.7 for e in events)
     hi = sorted([e for e in events if float(e.get("impact", 0)) >= 0.7], key=lambda e: -float(e.get("impact", 0)))
     breaking = None
     if hi:
         e = hi[0]
-        breaking = f"{e.get('event') or '重大事件'}（影响 {float(e.get('impact', 0)):.1f}）"
+        breaking = f"{_format_bj_time(e.get('pub_date') or e.get('created_at'))} {e.get('event') or '重大事件'}（影响 {float(e.get('impact', 0)):.1f}）"
+
+    # 重大负面黑天鹅，一票否决
+    if hi_neg:
+        return "回避", breaking
 
     score = prob * 0.5 + prob_up * 0.3 + (0.08 if pos else 0) - (0.08 if neg else 0) - (0.08 if completeness < 0.6 else 0)
     if score >= 0.6:
