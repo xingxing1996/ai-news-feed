@@ -76,6 +76,25 @@ def _filter_events_for_stock(events: list[dict], code: str, name: str) -> list[d
     return filtered
 
 
+def _format_bj_time(dt_val) -> str:
+    """格式化时间为北京时间字符串 [MM-DD HH:MM]。"""
+    try:
+        from datetime import datetime, timezone, timedelta
+        bj_tz = timezone(timedelta(hours=8))
+        if dt_val:
+            d = pd.to_datetime(dt_val)
+            if d.tzinfo is None:
+                d = d.tz_localize(bj_tz)
+            else:
+                d = d.tz_convert(bj_tz)
+            return d.strftime("[%m-%d %H:%M]")
+    except Exception:  # noqa: BLE001
+        pass
+    from datetime import datetime, timezone, timedelta
+    bj_tz = timezone(timedelta(hours=8))
+    return datetime.now(bj_tz).strftime("[%m-%d 实时]")
+
+
 def _news_reason_risk(events: list[dict]) -> tuple[list[str], list[str]]:
     """把新闻事件转成日报里的「理由/风险」短语（取最强的一条正向/负向，附带北京时间）。"""
     if not events:
