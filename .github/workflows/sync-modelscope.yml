@@ -14,17 +14,11 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Install git-filter-repo & Clean Missing LFS Objects
-        run: |
-          pip install git-filter-repo
-          # 从要推送到 ModelScope 的 Commit 历史树中彻底抹除那两个丢失的 Parquet LFS 坏账指针
-          git filter-repo --path quant/state/features_latest.parquet --invert-paths --force
-          git filter-repo --path quant/state/predictions_latest.parquet --invert-paths --force
-
-      - name: Push Clean History to ModelScope Studio
+      - name: Push to ModelScope Studio
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git remote add modelscope https://oauth2:ms-d9c034d8-4f01-43c9-b3eb-12cb35d4b075@www.modelscope.cn/studios/gaoxingxing12415/test_stock_predict.git || true
-          git fetch modelscope master || true
-          git push modelscope HEAD:master || git push -f modelscope HEAD:master
+          git fetch modelscope master
+          git merge --no-edit -X ours modelscope/master || true
+          git push modelscope main:master
