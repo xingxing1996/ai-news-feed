@@ -78,6 +78,11 @@ def fetch_all(universe_df: pd.DataFrame, start: str, end: str, synthetic: bool,
         if fetch_delay and not synthetic:
             time.sleep(fetch_delay)
 
+    daily_parts = [df for df in daily_parts if not df.empty]
+    val_parts = [df for df in val_parts if not df.empty]
+    fin_parts = [df for df in fin_parts if not df.empty]
+    nb_parts = [df for df in nb_parts if not df.empty]
+
     daily = pd.concat(daily_parts, ignore_index=True) if daily_parts else pd.DataFrame()
     valuation = pd.concat(val_parts, ignore_index=True) if val_parts else pd.DataFrame()
     financial = pd.concat(fin_parts, ignore_index=True) if fin_parts else pd.DataFrame()
