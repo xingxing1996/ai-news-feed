@@ -72,6 +72,14 @@ def build_feature_matrix() -> tuple[pd.DataFrame, dict]:
             if not nb_factors.empty:
                 blocks.append(nb_factors)
 
+    # 主力资金流向与筹码分布因子 (A股)
+    flow_df = read_parquet("fund_flow")
+    cyq_df = read_parquet("cyq")
+    if not flow_df.empty or not cyq_df.empty:
+        cc_factors = alt.compute_capital_chip_factors(flow_df, cyq_df)
+        if not cc_factors.empty:
+            blocks.append(cc_factors)
+
     if not blocks:
         raise RuntimeError("未生成任何因子，请检查数据与 feature 配置。")
 

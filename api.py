@@ -110,6 +110,7 @@ def _read_json(name: str):
 
 # ---------- API ----------
 @app.get("/health")
+@app.get("/api/health")
 def health():
     sched = getattr(app.state, "scheduler", None)
     jobs = [{"id": j.id, "next": str(j.next_run_time)} for j in sched.get_jobs()] if sched else []
@@ -117,6 +118,7 @@ def health():
 
 
 @app.get("/recommendations")
+@app.get("/api/recommendations")
 def recommendations():
     data = _read_json("recommendations_cn.json") if (OUT / "recommendations_cn.json").exists() \
         else _read_json("recommendations.json")
@@ -126,6 +128,7 @@ def recommendations():
 
 
 @app.get("/report")
+@app.get("/api/report")
 def report():
     for n in ("recommendations_cn.md", "daily_report.md"):
         p = OUT / n
@@ -135,11 +138,13 @@ def report():
 
 
 @app.get("/backtest")
+@app.get("/api/backtest")
 def backtest():
     return _read_json("backtest_metrics.txt") or {"error": "暂无回测"}
 
 
 @app.get("/files")
+@app.get("/api/files")
 def files():
     if not OUT.exists():
         return {"files": []}
@@ -147,6 +152,7 @@ def files():
 
 
 @app.get("/log", response_class=PlainTextResponse)
+@app.get("/api/log", response_class=PlainTextResponse)
 def log_tail():
     """读取训练/调度日志尾部（排错用，看首次训练为什么没出结果）。"""
     for name in ("scheduler.log", "startup.log"):
@@ -157,6 +163,7 @@ def log_tail():
 
 
 @app.get("/run")
+@app.get("/api/run")
 def manual_run():
     """手动触发完整训练（后台）。"""
     threading.Thread(target=_run_cli, args=("run",), daemon=True).start()
@@ -164,6 +171,7 @@ def manual_run():
 
 
 @app.get("/refresh")
+@app.get("/api/refresh")
 def manual_refresh():
     """手动触发日报刷新（后台）。"""
     threading.Thread(target=_run_cli, args=("refresh",), daemon=True).start()

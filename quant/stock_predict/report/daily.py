@@ -243,30 +243,43 @@ def generate_daily_report(as_of: str | None = None, pred_df=None, feats_df=None,
         if is_etf and not any("ETF/指数" in r for r in risks):
             risks.append("ℹ️ ETF/指数：跑赢行业概率参考意义有限，建议看上涨概率与技术信号")
 
+        # 计算反波动率风控仓位（若无 STD20，默认基础分）
+        std20 = float(row["STD20"]) if "STD20" in row.index and pd.notna(row.get("STD20")) and float(row.get("STD20")) > 0 else 0.02
+        inv_vol = 1.0 / std20
+
         # 读取实际 PE/PB 原始值（来自 valuation 数据的最新快照）
         raw_pe = float(row["pe"]) if "pe" in row.index and pd.notna(row.get("pe")) else None
         raw_pb = float(row["pb"]) if "pb" in row.index and pd.notna(row.get("pb")) else None
         val_hint = explain.valuation_hint(row, raw_pe=raw_pe, raw_pb=raw_pb)
-        cards.append(
-            {
-                "code": code,
-                "name": meta.get("name") or code,
-                "industry": meta.get("industry") or "—",
-                "market": meta.get("market") or "—",
-                "is_etf": is_etf,
-                "prob": prob,
-                "prob_up": prob_up,
-                "prob_bench": prob_bench,
-                "score": round(prob * 100),
-                "suggestion": rating,
-                "breaking_event": breaking,
-                "valuation": val_hint,
-                "confidence": confidence,
-                "data_completeness": completeness,
-                "reasons": reasons,
-                "risks": risks,
-            }
-        )
+        card_item = {
+            "code": code,
+            "name": meta.get("name") or code,
+            "industry": meta.get("industry") or "—",
+            "market": meta.get("market") or "—",
+            "is_etf": is_etf,
+            "prob": prob,
+            "prob_up": prob_up,
+            "prob_bench": prob_bench,
+            "score": round(prob * 100),
+            "suggestion": rating,
+            "breaking_event": breaking,
+            "valuation": val_hint,
+            "confidence": confidence,
+            "data_completeness": completeness,
+            "reasons": reasons,
+            "risks": risks,
+            "_inv_vol": inv_vol,
+        }
+        # 生成 AI 机构级投研短评（基于 LLM）
+        card_item["ai_summary"] = explain.generate_ai_invest_summary(card_item)
+        cards.append(card_item)
+
+    # 归一化计算 Risk Parity 风险平坦持仓权重 (建议仓位)
+    total_inv_vol = sum(c.get("_inv_vol", 50.0) for c in cards) if cards else 1.0
+    for c in cards:
+        w = c.pop("_inv_vol", 50.0) / max(total_inv_vol, 1e-6)
+        # 上限截断（单股最大仓位不超过 20%）
+        c["recommended_weight"] = f"{min(w, 0.20):.1%}"
 
     # 回测指标（若已有）→ 原始 JSON + 一句句可读解读
     bt_path = Path(cfg.paths.output_dir) / "backtest_metrics.txt"

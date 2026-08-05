@@ -240,3 +240,42 @@ def valuation_hint(row: pd.Series, raw_pe: float | None = None, raw_pb: float | 
         else:
             parts.append(val_str)
     return "；".join(parts)
+
+
+def generate_ai_invest_summary(card: dict) -> str:
+    """调用火山方舟 LLM，根据股票的预测三概率、SHAP因子、估值生成 200 字机构级 AI 投研点评。"""
+    try:
+        from ..news.llm_events import _llm_client
+        client, base_url = _llm_client()
+        if not client:
+            return ""
+
+        prompt = f"""你是一名顶级量化基金经理。请根据以下模型预测数据，为标的【{card.get('name')}（{card.get('code')}）】撰写一段 150-250 字的机构级 AI 投资研报点评。
+
+【模型数据】
+- 行业: {card.get('industry')} ({card.get('market', '').upper()})
+- 综合评分/建议: {card.get('score')} 分 / 【{card.get('suggestion')}】
+- 模型三概率: 上涨概率={card.get('prob_up', 0):.0%}，跑赢大盘={card.get('prob_bench', 0):.0%}，跑赢行业={card.get('prob', 0):.0%}
+- 建议风控持仓权重: {card.get('recommended_weight', '—')}
+- 估值水平: {card.get('valuation') or '适中'}
+- 核心看多理由: {", ".join(card.get('reasons', [])[:3])}
+- 核心看空/风控提示: {", ".join(card.get('risks', [])[:3])}
+
+【要求】
+1. 语言专业严谨、切中要害，具备买方研报质感。
+2. 包含看多/看空核心逻辑分析、建仓姿态（如分批/回踩建仓）与止损风控建议。
+3. 直接输出 150-250 字研报段落，不要包含多余标题或 Markdown 格式。"""
+
+        from ..config import get_settings
+        model_name = get_settings().llm.get("model", "deepseek-v3-2-251201")
+        resp = client.chat.completions.create(
+            model=model_name,
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.3,
+            max_tokens=350,
+        )
+        if resp and resp.choices and resp.choices[0].message.content:
+            return resp.choices[0].message.content.strip()
+    except Exception as exc:  # noqa: BLE001
+        log.debug("[explain] LLM 投研综述生成失败: %s", exc)
+    return ""
