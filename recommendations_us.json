@@ -49,13 +49,13 @@
       "breaking_event": null,
       "valuation": "PE 334.8x（历史 16% 分位，偏低）；PB 15.37x（历史 4% 分位，偏低）",
       "confidence": "高",
-      "data_completeness": 1.0,
+      "data_completeness": 0.99,
       "reasons": [
         "财务质量综合排名靠前（SHAP +0.05）",
         "股价处于近期高位区间（SHAP +0.02）",
         "ROE 较高（盈利能力强）（SHAP +0.02）",
         "RSI 超卖（1），或现反弹",
-        "短中期均线多头排列（趋多）"
+        "近一月强势（+76%）"
       ],
       "risks": [
         "自由现金流收益率低（SHAP -0.01）",
@@ -216,7 +216,37 @@
       "risks": [
         "量能波动加大（SHAP -0.01）",
         "量能波动加大（SHAP -0.00）",
-        "与市场相关性上升（SHAP -0.00）",
+        "净利率偏低（SHAP -0.00）"
+      ],
+      "ai_summary": "",
+      "recommended_weight": "2.7%"
+    },
+    {
+      "code": "DIS",
+      "name": "迪士尼",
+      "industry": "传媒",
+      "market": "us",
+      "is_etf": false,
+      "prob": 0.6196530657997982,
+      "prob_up": 0.867590516758211,
+      "prob_bench": 0.6823590404663155,
+      "score": 62,
+      "suggestion": "关注",
+      "breaking_event": null,
+      "valuation": "PE 15.2x（历史 64% 分位，中性）；PB 1.57x（历史 16% 分位，偏低）",
+      "confidence": "高",
+      "data_completeness": 1.0,
+      "reasons": [
+        "价格波动收敛（SHAP +0.00）",
+        "自由现金流收益率高（SHAP +0.00）",
+        "ROE 较高（盈利能力强）（SHAP +0.00）",
+        "RSI 超卖（1），或现反弹",
+        "近一月强势（+54%）"
+      ],
+      "risks": [
+        "量能波动加大（SHAP -0.00）",
+        "对市场敏感度高（Beta 偏大）（SHAP -0.00）",
+        "净利率偏低（SHAP -0.00）",
         "短中期均线空头排列（趋空）"
       ],
       "ai_summary": "",
@@ -1590,9 +1620,9 @@
       "recommended_weight": "0.4%"
     },
     {
-      "code": "WDC",
-      "name": "西部数据",
-      "industry": "半导体",
+      "code": "XLE",
+      "name": "能源ETF",
+      "industry": "指数",
       "market": "us",
       "is_etf": false,
       "prob": 0.24823760357468222,
@@ -1603,7 +1633,7 @@
       "breaking_event": null,
       "valuation": "PE 29.2x（历史 54% 分位，中性）；PB 19.53x（历史 79% 分位，偏高）",
       "confidence": "高",
-      "data_completeness": 1.0,
+      "data_completeness": 0.87,
       "reasons": [
         "价格波动收敛（SHAP +0.04）",
         "财务质量综合排名靠前（SHAP +0.00）",
