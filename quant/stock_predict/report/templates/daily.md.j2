@@ -31,9 +31,13 @@
 - **未来上涨概率**：`{{ "%.0f"|format(c.prob_up * 100) }}%`
 - **跑赢大盘概率**：`{{ "%.0f"|format(c.prob_bench * 100) }}%`
 - **跑赢行业概率**：`{{ "%.0f"|format(c.prob * 100) }}%`
-- **评分**：`{{ c.score }}/100` ｜ **建议**：`{{ c.suggestion }}`
+- **评分**：`{{ c.score }}/100` ｜ **建议**：`{{ c.suggestion }}` ｜ **建议风控仓位**：`{{ c.recommended_weight }}`
 - **可信度**：`{{ c.confidence }}`（数据完整度 `{{ "%.0f"|format(c.data_completeness * 100) }}%`）
 {% if c.valuation %}- **估值**：{{ c.valuation }}
+{% endif %}
+{% if c.ai_summary %}
+> **🤖 AI 机构投研点评**：  
+> {{ c.ai_summary }}
 {% endif %}
 
 **原因**

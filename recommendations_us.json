@@ -1,1646 +1,35 @@
 {
-  "update_time": "2026-08-04 17:53:55",
+  "update_time": "2026-08-05 12:55:20",
   "horizon_days": 20,
   "note": "概率含义：prob=跑赢行业概率, prob_up=未来上涨概率, prob_bench=跑赢大盘概率；非买卖建议",
   "n": 59,
   "recommendations": [
-    {
-      "code": "SMH",
-      "name": "半导体ETF(SMH)",
-      "industry": "指数",
-      "market": "us",
-      "is_etf": true,
-      "prob": 0.8886603369615174,
-      "prob_up": 0.7040489188310597,
-      "prob_bench": 0.5719462161889496,
-      "score": 89,
-      "suggestion": "关注",
-      "breaking_event": null,
-      "valuation": "",
-      "confidence": "低",
-      "data_completeness": 0.42,
-      "reasons": [
-        "净利率较高（SHAP +0.19）",
-        "价格波动收敛（SHAP +0.12）",
-        "毛利率较高（SHAP +0.11）",
-        "RSI 超卖（0），或现反弹"
-      ],
-      "risks": [
-        "价格波动放大（SHAP -0.02）",
-        "量能波动加大（SHAP -0.01）",
-        "价格波动放大（SHAP -0.01）",
-        "⚠️ 数据缺失（特征完整度 42%）",
-        "ℹ️ ETF/指数：跑赢行业概率参考意义有限，建议看上涨概率与技术信号"
-      ]
-    },
-    {
-      "code": "CAT",
-      "name": "卡特彼勒",
-      "industry": "工业",
-      "market": "us",
-      "is_etf": false,
-      "prob": 0.7924760954612202,
-      "prob_up": 0.7787106682061227,
-      "prob_bench": 0.6625676781490657,
-      "score": 79,
-      "suggestion": "关注",
-      "breaking_event": null,
-      "valuation": "",
-      "confidence": "低",
-      "data_completeness": 0.49,
-      "reasons": [
-        "净利率较高（SHAP +0.19）",
-        "毛利率较高（SHAP +0.10）",
-        "财务质量综合排名靠前（SHAP +0.06）",
-        "RSI 超卖（0），或现反弹"
-      ],
-      "risks": [
-        "与市场相关性上升（SHAP -0.02）",
-        "价格波动放大（SHAP -0.02）",
-        "量能波动加大（SHAP -0.01）",
-        "⚠️ 数据缺失（特征完整度 49%）"
-      ]
-    },
-    {
-      "code": "CVX",
-      "name": "雪佛龙",
-      "industry": "石油石化",
-      "market": "us",
-      "is_etf": false,
-      "prob": 0.7624006546424689,
-      "prob_up": 0.7480915602685828,
-      "prob_bench": 0.799389635574886,
-      "score": 76,
-      "suggestion": "中性观望",
-      "breaking_event": null,
-      "valuation": "",
-      "confidence": "低",
-      "data_completeness": 0.48,
-      "reasons": [
-        "净利率较高（SHAP +0.18）",
-        "毛利率较高（SHAP +0.05）",
-        "股价处于近期高位区间（SHAP +0.04）",
-        "RSI 超卖（1），或现反弹"
-      ],
-      "risks": [
-        "价格波动放大（SHAP -0.05）",
-        "与市场相关性上升（SHAP -0.02）",
-        "对市场敏感度高（Beta 偏大）（SHAP -0.02）",
-        "⚠️ 数据缺失（特征完整度 48%）"
-      ]
-    },
-    {
-      "code": "KO",
-      "name": "可口可乐",
-      "industry": "消费",
-      "market": "us",
-      "is_etf": false,
-      "prob": 0.7321178356443856,
-      "prob_up": 0.7517739241556345,
-      "prob_bench": 0.3338396350144044,
-      "score": 73,
-      "suggestion": "中性观望",
-      "breaking_event": null,
-      "valuation": "",
-      "confidence": "低",
-      "data_completeness": 0.49,
-      "reasons": [
-        "净利率较高（SHAP +0.12）",
-        "Beta 适中（SHAP +0.11）",
-        "量能平稳（SHAP +0.05）",
-        "RSI 超卖（1），或现反弹"
-      ],
-      "risks": [
-        "与市场相关性上升（SHAP -0.05）",
-        "价格波动放大（SHAP -0.03）",
-        "处于阶段性回调（最大回撤较大）（SHAP -0.02）",
-        "⚠️ 数据缺失（特征完整度 49%）"
-      ]
-    },
-    {
-      "code": "NVDA",
-      "name": "英伟达",
-      "industry": "半导体",
-      "market": "us",
-      "is_etf": false,
-      "prob": 0.7257171361633916,
-      "prob_up": 0.8312081740631551,
-      "prob_bench": 0.8020967615375131,
-      "score": 73,
-      "suggestion": "关注",
-      "breaking_event": null,
-      "valuation": "",
-      "confidence": "低",
-      "data_completeness": 0.49,
-      "reasons": [
-        "财务质量综合排名靠前（SHAP +0.22）",
-        "净利率较高（SHAP +0.11）",
-        "价格波动收敛（SHAP +0.03）",
-        "RSI 超卖（0），或现反弹"
-      ],
-      "risks": [
-        "新闻·提交8-K文件，高管或董事离职（影响 0.4）",
-        "量能波动加大（SHAP -0.03）",
-        "毛利率偏低（SHAP -0.03）",
-        "量能波动加大（SHAP -0.01）",
-        "⚠️ 数据缺失（特征完整度 49%）"
-      ]
-    },
-    {
-      "code": "PG",
-      "name": "宝洁",
-      "industry": "消费",
-      "market": "us",
-      "is_etf": false,
-      "prob": 0.7235088387942921,
-      "prob_up": 0.6861919761459045,
-      "prob_bench": 0.4368000986447556,
-      "score": 72,
-      "suggestion": "中性观望",
-      "breaking_event": null,
-      "valuation": "",
-      "confidence": "低",
-      "data_completeness": 0.49,
-      "reasons": [
-        "净利率较高（SHAP +0.11）",
-        "财务质量综合排名靠前（SHAP +0.04）",
-        "量能平稳（SHAP +0.04）",
-        "RSI 超卖（0），或现反弹"
-      ],
-      "risks": [
-        "与市场相关性上升（SHAP -0.05）",
-        "价格波动放大（SHAP -0.03）",
-        "价格波动放大（SHAP -0.01）",
-        "⚠️ 数据缺失（特征完整度 49%）"
-      ]
-    },
-    {
-      "code": "SOXL",
-      "name": "半导体杠杆ETF",
-      "industry": "指数",
-      "market": "us",
-      "is_etf": true,
-      "prob": 0.7181618446569292,
-      "prob_up": 0.6060823459516417,
-      "prob_bench": 0.7422961808786108,
-      "score": 72,
-      "suggestion": "中性观望",
-      "breaking_event": null,
-      "valuation": "",
-      "confidence": "低",
-      "data_completeness": 0.42,
-      "reasons": [
-        "毛利率较高（SHAP +0.13）",
-        "净利率较高（SHAP +0.13）",
-        "价格波动收敛（SHAP +0.10）",
-        "RSI 超卖（0），或现反弹"
-      ],
-      "risks": [
-        "成交缩量（SHAP -0.06）",
-        "与市场相关性上升（SHAP -0.02）",
-        "价格波动放大（SHAP -0.02）",
-        "⚠️ 数据缺失（特征完整度 42%）",
-        "ℹ️ ETF/指数：跑赢行业概率参考意义有限，建议看上涨概率与技术信号"
-      ]
-    },
-    {
-      "code": "GDX",
-      "name": "金矿ETF",
-      "industry": "指数",
-      "market": "us",
-      "is_etf": true,
-      "prob": 0.713212792431257,
-      "prob_up": 0.5827326839220258,
-      "prob_bench": 0.45650663049692297,
-      "score": 71,
-      "suggestion": "中性观望",
-      "breaking_event": null,
-      "valuation": "",
-      "confidence": "低",
-      "data_completeness": 0.42,
-      "reasons": [
-        "净利率较高（SHAP +0.13）",
-        "毛利率较高（SHAP +0.10）",
-        "量能平稳（SHAP +0.09）",
-        "RSI 超卖（0），或现反弹"
-      ],
-      "risks": [
-        "近一季动量走弱（SHAP -0.02）",
-        "财务质量综合排名靠后（SHAP -0.01）",
-        "与市场相关性上升（SHAP -0.01）",
-        "⚠️ 数据缺失（特征完整度 42%）",
-        "ℹ️ ETF/指数：跑赢行业概率参考意义有限，建议看上涨概率与技术信号"
-      ]
-    },
     {
       "code": "000660.KS",
       "name": "SK海力士",
       "industry": "半导体",
       "market": "kr",
       "is_etf": false,
-      "prob": 0.6622706229192121,
-      "prob_up": 0.07099619993498414,
-      "prob_bench": 0.5740424172448968,
-      "score": 66,
-      "suggestion": "回避",
+      "prob": 0.9071124313417778,
+      "prob_up": 0.19190953928931734,
+      "prob_bench": 0.5998654859320705,
+      "score": 91,
+      "suggestion": "中性观望",
       "breaking_event": null,
       "valuation": "",
       "confidence": "高",
       "data_completeness": 1.0,
       "reasons": [
-        "量能平稳（SHAP +0.19）",
-        "净利率较高（SHAP +0.15）",
-        "价格波动收敛（SHAP +0.13）",
-        "RSI 超卖（0），或现反弹",
-        "近一月强势（+50%）"
-      ],
-      "risks": [
-        "价格波动放大（SHAP -0.11）",
-        "毛利率偏低（SHAP -0.03）",
-        "价格波动放大（SHAP -0.03）"
-      ]
-    },
-    {
-      "code": "AAPL",
-      "name": "苹果",
-      "industry": "科技",
-      "market": "us",
-      "is_etf": false,
-      "prob": 0.6592552320954164,
-      "prob_up": 0.5185911735363024,
-      "prob_bench": 0.6454785952090035,
-      "score": 66,
-      "suggestion": "回避",
-      "breaking_event": null,
-      "valuation": "",
-      "confidence": "低",
-      "data_completeness": 0.49,
-      "reasons": [
-        "净利率较高（SHAP +0.08）",
-        "ROE 较高（盈利能力强）（SHAP +0.04）",
-        "毛利率较高（SHAP +0.04）",
-        "RSI 超卖（0），或现反弹"
-      ],
-      "risks": [
-        "对市场敏感度高（Beta 偏大）（SHAP -0.03）",
-        "价格波动放大（SHAP -0.03）",
-        "成交缩量（SHAP -0.02）",
-        "⚠️ 数据缺失（特征完整度 49%）"
-      ]
-    },
-    {
-      "code": "QCOM",
-      "name": "高通",
-      "industry": "半导体",
-      "market": "us",
-      "is_etf": false,
-      "prob": 0.6392124113037922,
-      "prob_up": 0.7855513457162393,
-      "prob_bench": 0.7597776009147059,
-      "score": 64,
-      "suggestion": "中性观望",
-      "breaking_event": null,
-      "valuation": "",
-      "confidence": "低",
-      "data_completeness": 0.49,
-      "reasons": [
-        "净利率较高（SHAP +0.08）",
-        "量能平稳（SHAP +0.06）",
-        "毛利率较高（SHAP +0.04）",
-        "RSI 超卖（0），或现反弹"
-      ],
-      "risks": [
-        "与市场相关性上升（SHAP -0.02）",
-        "价格波动放大（SHAP -0.02）",
-        "⚠️ 数据缺失（特征完整度 49%）"
-      ]
-    },
-    {
-      "code": "UNH",
-      "name": "联合健康",
-      "industry": "医药",
-      "market": "us",
-      "is_etf": false,
-      "prob": 0.6375758051317693,
-      "prob_up": 0.8575480052461075,
-      "prob_bench": 0.635639341322064,
-      "score": 64,
-      "suggestion": "中性观望",
-      "breaking_event": null,
-      "valuation": "",
-      "confidence": "低",
-      "data_completeness": 0.49,
-      "reasons": [
-        "财务质量综合排名靠前（SHAP +0.18）",
-        "ROE 较高（盈利能力强）（SHAP +0.13）",
-        "价格波动收敛（SHAP +0.07）",
-        "RSI 超卖（0），或现反弹"
-      ],
-      "risks": [
-        "净利率偏低（SHAP -0.26）",
-        "真实波幅放大（波动加剧）（SHAP -0.02）",
-        "毛利率偏低（SHAP -0.02）",
-        "⚠️ 数据缺失（特征完整度 49%）"
-      ]
-    },
-    {
-      "code": "LLY",
-      "name": "礼来",
-      "industry": "医药",
-      "market": "us",
-      "is_etf": false,
-      "prob": 0.6270387516954568,
-      "prob_up": 0.5354448542187447,
-      "prob_bench": 0.3452370276541605,
-      "score": 63,
-      "suggestion": "回避",
-      "breaking_event": null,
-      "valuation": "",
-      "confidence": "低",
-      "data_completeness": 0.49,
-      "reasons": [
-        "财务质量综合排名靠前（SHAP +0.16）",
-        "净利率较高（SHAP +0.11）",
-        "价格波动收敛（SHAP +0.04）",
-        "RSI 超卖（0），或现反弹"
-      ],
-      "risks": [
-        "与市场相关性上升（SHAP -0.07）",
-        "对市场敏感度高（Beta 偏大）（SHAP -0.04）",
-        "股价处于近期低位区间（SHAP -0.03）",
-        "⚠️ 数据缺失（特征完整度 49%）"
-      ]
-    },
-    {
-      "code": "COP",
-      "name": "康菲石油",
-      "industry": "石油石化",
-      "market": "us",
-      "is_etf": false,
-      "prob": 0.6051463417368202,
-      "prob_up": 0.6845721844208544,
-      "prob_bench": 0.6723004405385107,
-      "score": 61,
-      "suggestion": "回避",
-      "breaking_event": null,
-      "valuation": "",
-      "confidence": "低",
-      "data_completeness": 0.49,
-      "reasons": [
-        "净利率较高（SHAP +0.14）",
-        "毛利率较高（SHAP +0.08）",
-        "价格波动收敛（SHAP +0.04）",
-        "RSI 超卖（1），或现反弹"
-      ],
-      "risks": [
-        "与市场相关性上升（SHAP -0.02）",
-        "量能波动加大（SHAP -0.02）",
-        "价格波动放大（SHAP -0.02）",
-        "⚠️ 数据缺失（特征完整度 49%）"
-      ]
-    },
-    {
-      "code": "SOXX",
-      "name": "半导体ETF(SOXX)",
-      "industry": "指数",
-      "market": "us",
-      "is_etf": true,
-      "prob": 0.5911791411180486,
-      "prob_up": 0.5442219955385668,
-      "prob_bench": 0.4540264995684292,
-      "score": 59,
-      "suggestion": "回避",
-      "breaking_event": null,
-      "valuation": "",
-      "confidence": "低",
-      "data_completeness": 0.42,
-      "reasons": [
-        "净利率较高（SHAP +0.14）",
-        "毛利率较高（SHAP +0.12）",
-        "ROE 较高（盈利能力强）（SHAP +0.04）",
-        "RSI 超卖（0），或现反弹"
-      ],
-      "risks": [
-        "成交缩量（SHAP -0.05）",
-        "股价处于近期低位区间（SHAP -0.02）",
-        "价格波动放大（SHAP -0.01）",
-        "⚠️ 数据缺失（特征完整度 42%）",
-        "ℹ️ ETF/指数：跑赢行业概率参考意义有限，建议看上涨概率与技术信号"
-      ]
-    },
-    {
-      "code": "AMAT",
-      "name": "应用材料",
-      "industry": "半导体",
-      "market": "us",
-      "is_etf": false,
-      "prob": 0.5865271441222298,
-      "prob_up": 0.548476050622695,
-      "prob_bench": 0.6500072862603549,
-      "score": 59,
-      "suggestion": "回避",
-      "breaking_event": null,
-      "valuation": "",
-      "confidence": "低",
-      "data_completeness": 0.49,
-      "reasons": [
-        "净利率较高（SHAP +0.13）",
-        "—（SHAP +0.11）",
-        "毛利率较高（SHAP +0.07）",
-        "RSI 超卖（0），或现反弹"
-      ],
-      "risks": [
-        "价格波动放大（SHAP -0.03）",
-        "处于阶段性回调（最大回撤较大）（SHAP -0.03）",
-        "价格波动放大（SHAP -0.02）",
-        "⚠️ 数据缺失（特征完整度 49%）"
-      ]
-    },
-    {
-      "code": "USO",
-      "name": "原油ETF",
-      "industry": "指数",
-      "market": "us",
-      "is_etf": true,
-      "prob": 0.5666945039177662,
-      "prob_up": 0.5430505890661256,
-      "prob_bench": 0.27916185586656056,
-      "score": 57,
-      "suggestion": "回避",
-      "breaking_event": null,
-      "valuation": "",
-      "confidence": "低",
-      "data_completeness": 0.42,
-      "reasons": [
-        "量能平稳（SHAP +0.17）",
-        "净利率较高（SHAP +0.12）",
-        "毛利率较高（SHAP +0.08）",
-        "RSI 超卖（0），或现反弹"
-      ],
-      "risks": [
-        "对市场敏感度高（Beta 偏大）（SHAP -0.06）",
-        "价格波动放大（SHAP -0.01）",
-        "价格波动放大（SHAP -0.01）",
-        "⚠️ 数据缺失（特征完整度 42%）",
-        "ℹ️ ETF/指数：跑赢行业概率参考意义有限，建议看上涨概率与技术信号"
-      ]
-    },
-    {
-      "code": "NFLX",
-      "name": "奈飞",
-      "industry": "传媒",
-      "market": "us",
-      "is_etf": false,
-      "prob": 0.5308769294577901,
-      "prob_up": 0.9087311818314295,
-      "prob_bench": 0.8066899079689269,
-      "score": 53,
-      "suggestion": "中性观望",
-      "breaking_event": null,
-      "valuation": "",
-      "confidence": "低",
-      "data_completeness": 0.49,
-      "reasons": [
-        "净利率较高（SHAP +0.09）",
-        "毛利率较高（SHAP +0.05）",
-        "财务质量综合排名靠前（SHAP +0.04）",
-        "RSI 超卖（1），或现反弹"
-      ],
-      "risks": [
-        "与市场相关性上升（SHAP -0.02）",
-        "价格波动放大（SHAP -0.02）",
-        "对市场敏感度高（Beta 偏大）（SHAP -0.01）",
-        "⚠️ 数据缺失（特征完整度 49%）"
-      ]
-    },
-    {
-      "code": "WFC",
-      "name": "富国银行",
-      "industry": "银行",
-      "market": "us",
-      "is_etf": false,
-      "prob": 0.529358024414577,
-      "prob_up": 0.7204990527861539,
-      "prob_bench": 0.5931604434530149,
-      "score": 53,
-      "suggestion": "回避",
-      "breaking_event": null,
-      "valuation": "",
-      "confidence": "低",
-      "data_completeness": 0.49,
-      "reasons": [
-        "净利率较高（SHAP +0.09）",
-        "毛利率较高（SHAP +0.09）",
-        "价格波动收敛（SHAP +0.04）",
-        "RSI 超卖（1），或现反弹"
-      ],
-      "risks": [
-        "财务质量综合排名靠后（SHAP -0.03）",
-        "价格波动放大（SHAP -0.02）",
-        "与市场相关性上升（SHAP -0.02）",
-        "⚠️ 数据缺失（特征完整度 49%）"
-      ]
-    },
-    {
-      "code": "GS",
-      "name": "高盛",
-      "industry": "金融",
-      "market": "us",
-      "is_etf": false,
-      "prob": 0.5257485231310742,
-      "prob_up": 0.6455570626282101,
-      "prob_bench": 0.7366969700366555,
-      "score": 53,
-      "suggestion": "回避",
-      "breaking_event": null,
-      "valuation": "",
-      "confidence": "低",
-      "data_completeness": 0.49,
-      "reasons": [
-        "净利率较高（SHAP +0.13）",
-        "财务质量综合排名靠前（SHAP +0.03）",
-        "ROE 较高（盈利能力强）（SHAP +0.03）",
-        "RSI 超卖（0），或现反弹"
-      ],
-      "risks": [
-        "与市场相关性上升（SHAP -0.04）",
-        "真实波幅放大（波动加剧）（SHAP -0.04）",
-        "毛利率偏低（SHAP -0.04）",
-        "⚠️ 数据缺失（特征完整度 49%）"
-      ]
-    },
-    {
-      "code": "ORCL",
-      "name": "甲骨文",
-      "industry": "科技",
-      "market": "us",
-      "is_etf": false,
-      "prob": 0.520928381665527,
-      "prob_up": 0.1147109596565369,
-      "prob_bench": 0.594766223138921,
-      "score": 52,
-      "suggestion": "回避",
-      "breaking_event": null,
-      "valuation": "",
-      "confidence": "低",
-      "data_completeness": 0.49,
-      "reasons": [
-        "净利率较高（SHAP +0.08）",
-        "财务质量综合排名靠前（SHAP +0.03）",
         "量能平稳（SHAP +0.02）",
-        "RSI 超卖（1），或现反弹"
-      ],
-      "risks": [
-        "毛利率偏低（SHAP -0.04）",
-        "与市场相关性上升（SHAP -0.04）",
-        "价格波动放大（SHAP -0.03）",
-        "⚠️ 数据缺失（特征完整度 49%）"
-      ]
-    },
-    {
-      "code": "ASML",
-      "name": "阿斯麦",
-      "industry": "半导体",
-      "market": "us",
-      "is_etf": false,
-      "prob": 0.5169209384703337,
-      "prob_up": 0.6379849566747751,
-      "prob_bench": 0.7596486901545808,
-      "score": 52,
-      "suggestion": "回避",
-      "breaking_event": null,
-      "valuation": "",
-      "confidence": "低",
-      "data_completeness": 0.49,
-      "reasons": [
-        "净利率较高（SHAP +0.11）",
-        "财务质量综合排名靠前（SHAP +0.04）",
-        "毛利率较高（SHAP +0.03）",
-        "RSI 超卖（0），或现反弹"
-      ],
-      "risks": [
-        "与市场相关性上升（SHAP -0.03）",
-        "处于阶段性回调（最大回撤较大）（SHAP -0.02）",
-        "股价处于近期低位区间（SHAP -0.02）",
-        "⚠️ 数据缺失（特征完整度 49%）"
-      ]
-    },
-    {
-      "code": "AMZN",
-      "name": "亚马逊",
-      "industry": "互联网",
-      "market": "us",
-      "is_etf": false,
-      "prob": 0.5133730901590647,
-      "prob_up": 0.747884182089251,
-      "prob_bench": 0.6481296730150545,
-      "score": 51,
-      "suggestion": "回避",
-      "breaking_event": null,
-      "valuation": "",
-      "confidence": "低",
-      "data_completeness": 0.49,
-      "reasons": [
-        "净利率较高（SHAP +0.21）",
-        "量能平稳（SHAP +0.05）",
-        "财务质量综合排名靠前（SHAP +0.03）",
-        "RSI 超卖（1），或现反弹"
-      ],
-      "risks": [
-        "价格波动放大（SHAP -0.05）",
-        "量能波动加大（SHAP -0.02）",
-        "成交缩量（SHAP -0.01）",
-        "⚠️ 数据缺失（特征完整度 49%）"
-      ]
-    },
-    {
-      "code": "GOOGL",
-      "name": "谷歌",
-      "industry": "科技",
-      "market": "us",
-      "is_etf": false,
-      "prob": 0.5028080126444641,
-      "prob_up": 0.6193377349818965,
-      "prob_bench": 0.3183142956428163,
-      "score": 50,
-      "suggestion": "回避",
-      "breaking_event": null,
-      "valuation": "",
-      "confidence": "低",
-      "data_completeness": 0.49,
-      "reasons": [
-        "净利率较高（SHAP +0.07）",
-        "量能平稳（SHAP +0.03）",
-        "财务质量综合排名靠前（SHAP +0.03）",
-        "RSI 超卖（1），或现反弹"
-      ],
-      "risks": [
-        "价格波动放大（SHAP -0.04）",
-        "价格波动放大（SHAP -0.03）",
-        "成交缩量（SHAP -0.02）",
-        "⚠️ 数据缺失（特征完整度 49%）"
-      ]
-    },
-    {
-      "code": "AMD",
-      "name": "AMD",
-      "industry": "半导体",
-      "market": "us",
-      "is_etf": false,
-      "prob": 0.49050544227600357,
-      "prob_up": 0.4388234370971539,
-      "prob_bench": 0.29504029862457826,
-      "score": 49,
-      "suggestion": "回避",
-      "breaking_event": null,
-      "valuation": "",
-      "confidence": "低",
-      "data_completeness": 0.49,
-      "reasons": [
-        "净利率较高（SHAP +0.15）",
-        "—（SHAP +0.14）",
-        "毛利率较高（SHAP +0.05）",
-        "RSI 超卖（0），或现反弹"
-      ],
-      "risks": [
-        "量能波动加大（SHAP -0.05）",
-        "价格波动放大（SHAP -0.05）",
-        "价格波动放大（SHAP -0.02）",
-        "⚠️ 数据缺失（特征完整度 49%）"
-      ]
-    },
-    {
-      "code": "AVGO",
-      "name": "博通",
-      "industry": "半导体",
-      "market": "us",
-      "is_etf": false,
-      "prob": 0.476319653846585,
-      "prob_up": 0.8764166171574617,
-      "prob_bench": 0.8660953491239674,
-      "score": 48,
-      "suggestion": "回避",
-      "breaking_event": null,
-      "valuation": "",
-      "confidence": "低",
-      "data_completeness": 0.49,
-      "reasons": [
-        "净利率较高（SHAP +0.09）",
-        "价格波动收敛（SHAP +0.05）",
-        "财务质量综合排名靠前（SHAP +0.03）",
-        "RSI 超卖（1），或现反弹"
-      ],
-      "risks": [
-        "量能波动加大（SHAP -0.04）",
-        "毛利率偏低（SHAP -0.04）",
-        "与市场相关性上升（SHAP -0.03）",
-        "⚠️ 数据缺失（特征完整度 49%）"
-      ]
-    },
-    {
-      "code": "XOM",
-      "name": "埃克森美孚",
-      "industry": "石油石化",
-      "market": "us",
-      "is_etf": false,
-      "prob": 0.4761346949298838,
-      "prob_up": 0.6572318936430182,
-      "prob_bench": 0.6291825936844937,
-      "score": 48,
-      "suggestion": "回避",
-      "breaking_event": null,
-      "valuation": "",
-      "confidence": "低",
-      "data_completeness": 0.49,
-      "reasons": [
-        "净利率较高（SHAP +0.16）",
-        "股价处于近期高位区间（SHAP +0.05）",
-        "毛利率较高（SHAP +0.04）",
-        "RSI 超卖（0），或现反弹"
-      ],
-      "risks": [
-        "量能波动加大（SHAP -0.05）",
-        "与市场相关性上升（SHAP -0.01）",
-        "对市场敏感度高（Beta 偏大）（SHAP -0.01）",
-        "⚠️ 数据缺失（特征完整度 49%）"
-      ]
-    },
-    {
-      "code": "SPY",
-      "name": "标普500ETF",
-      "industry": "指数",
-      "market": "us",
-      "is_etf": true,
-      "prob": 0.45198914907688686,
-      "prob_up": 0.8270858321469807,
-      "prob_bench": 0.1300317232566221,
-      "score": 45,
-      "suggestion": "回避",
-      "breaking_event": null,
-      "valuation": "",
-      "confidence": "低",
-      "data_completeness": 0.42,
-      "reasons": [
-        "净利率较高（SHAP +0.15）",
-        "毛利率较高（SHAP +0.10）",
-        "ROE 较高（盈利能力强）（SHAP +0.03）",
-        "RSI 超卖（1），或现反弹"
-      ],
-      "risks": [
-        "成交缩量（SHAP -0.05）",
-        "量能波动加大（SHAP -0.02）",
-        "财务质量综合排名靠后（SHAP -0.02）",
-        "⚠️ 数据缺失（特征完整度 42%）",
-        "ℹ️ ETF/指数：跑赢行业概率参考意义有限，建议看上涨概率与技术信号"
-      ]
-    },
-    {
-      "code": "V",
-      "name": "Visa",
-      "industry": "金融",
-      "market": "us",
-      "is_etf": false,
-      "prob": 0.4474380387629051,
-      "prob_up": 0.5903103946911186,
-      "prob_bench": 0.32435068210606555,
-      "score": 45,
-      "suggestion": "回避",
-      "breaking_event": null,
-      "valuation": "",
-      "confidence": "低",
-      "data_completeness": 0.49,
-      "reasons": [
-        "净利率较高（SHAP +0.05）",
-        "财务质量综合排名靠前（SHAP +0.05）",
-        "真实波幅平稳（SHAP +0.02）",
-        "RSI 超卖（1），或现反弹"
-      ],
-      "risks": [
-        "与市场相关性上升（SHAP -0.04）",
-        "量能波动加大（SHAP -0.02）",
-        "股价处于近期低位区间（SHAP -0.01）",
-        "⚠️ 数据缺失（特征完整度 49%）"
-      ]
-    },
-    {
-      "code": "KGC",
-      "name": "金罗斯",
-      "industry": "黄金",
-      "market": "us",
-      "is_etf": false,
-      "prob": 0.4331793877299376,
-      "prob_up": 0.4651996995818808,
-      "prob_bench": 0.6015816789785784,
-      "score": 43,
-      "suggestion": "回避",
-      "breaking_event": null,
-      "valuation": "",
-      "confidence": "低",
-      "data_completeness": 0.49,
-      "reasons": [
-        "净利率较高（SHAP +0.11）",
-        "真实波幅平稳（SHAP +0.09）",
-        "Beta 适中（SHAP +0.03）",
-        "RSI 超卖（0），或现反弹"
-      ],
-      "risks": [
-        "毛利率偏低（SHAP -0.11）",
-        "量能波动加大（SHAP -0.03）",
-        "与市场相关性上升（SHAP -0.03）",
-        "⚠️ 数据缺失（特征完整度 49%）"
-      ]
-    },
-    {
-      "code": "BAC",
-      "name": "美国银行",
-      "industry": "银行",
-      "market": "us",
-      "is_etf": false,
-      "prob": 0.4296315394186685,
-      "prob_up": 0.8049131814054635,
-      "prob_bench": 0.33693069084957794,
-      "score": 43,
-      "suggestion": "回避",
-      "breaking_event": null,
-      "valuation": "",
-      "confidence": "低",
-      "data_completeness": 0.49,
-      "reasons": [
-        "新闻·市场预期Palantir财报后走出熊市反弹（影响 0.4）",
-        "净利率较高（SHAP +0.12）",
-        "毛利率较高（SHAP +0.07）",
-        "ROE 较高（盈利能力强）（SHAP +0.03）",
-        "RSI 超卖（1），或现反弹"
-      ],
-      "risks": [
-        "新闻·SpaceX上市后大跌将发布首份财报（影响 0.6）",
-        "价格波动放大（SHAP -0.15）",
-        "价格波动放大（SHAP -0.03）",
-        "量能波动加大（SHAP -0.02）",
-        "⚠️ 数据缺失（特征完整度 49%）"
-      ]
-    },
-    {
-      "code": "MCD",
-      "name": "麦当劳",
-      "industry": "消费",
-      "market": "us",
-      "is_etf": false,
-      "prob": 0.41811364324227374,
-      "prob_up": 0.6813942539429878,
-      "prob_bench": 0.3123563765987737,
-      "score": 42,
-      "suggestion": "回避",
-      "breaking_event": null,
-      "valuation": "",
-      "confidence": "低",
-      "data_completeness": 0.48,
-      "reasons": [
-        "净利率较高（SHAP +0.09）",
-        "ROE 较高（盈利能力强）（SHAP +0.04）",
-        "财务质量综合排名靠前（SHAP +0.03）",
-        "RSI 超卖（1），或现反弹"
-      ],
-      "risks": [
-        "量能波动加大（SHAP -0.06）",
-        "与市场相关性上升（SHAP -0.05）",
-        "成交缩量（SHAP -0.02）",
-        "⚠️ 数据缺失（特征完整度 48%）"
-      ]
-    },
-    {
-      "code": "XLE",
-      "name": "能源ETF",
-      "industry": "指数",
-      "market": "us",
-      "is_etf": true,
-      "prob": 0.4110347610667085,
-      "prob_up": 0.6879014449214765,
-      "prob_bench": 0.6904488336378616,
-      "score": 41,
-      "suggestion": "回避",
-      "breaking_event": null,
-      "valuation": "",
-      "confidence": "低",
-      "data_completeness": 0.42,
-      "reasons": [
-        "毛利率较高（SHAP +0.08）",
-        "净利率较高（SHAP +0.05）",
-        "RSI 偏强（SHAP +0.04）",
-        "RSI 超卖（1），或现反弹"
-      ],
-      "risks": [
-        "价格波动放大（SHAP -0.09）",
-        "价格波动放大（SHAP -0.08）",
-        "与市场相关性上升（SHAP -0.02）",
-        "⚠️ 数据缺失（特征完整度 42%）",
-        "ℹ️ ETF/指数：跑赢行业概率参考意义有限，建议看上涨概率与技术信号"
-      ]
-    },
-    {
-      "code": "MSFT",
-      "name": "微软",
-      "industry": "科技",
-      "market": "us",
-      "is_etf": false,
-      "prob": 0.4008732302794561,
-      "prob_up": 0.6747917810983197,
-      "prob_bench": 0.6807805266284792,
-      "score": 40,
-      "suggestion": "回避",
-      "breaking_event": null,
-      "valuation": "",
-      "confidence": "低",
-      "data_completeness": 0.49,
-      "reasons": [
-        "净利率较高（SHAP +0.06）",
-        "价格波动收敛（SHAP +0.03）",
-        "量能平稳（SHAP +0.03）",
-        "RSI 超卖（1），或现反弹"
-      ],
-      "risks": [
-        "价格波动放大（SHAP -0.05）",
-        "毛利率偏低（SHAP -0.04）",
-        "对市场敏感度高（Beta 偏大）（SHAP -0.02）",
-        "⚠️ 数据缺失（特征完整度 49%）"
-      ]
-    },
-    {
-      "code": "NKE",
-      "name": "耐克",
-      "industry": "消费",
-      "market": "us",
-      "is_etf": false,
-      "prob": 0.3993150915266397,
-      "prob_up": 0.8467755495521753,
-      "prob_bench": 0.40188770191348405,
-      "score": 40,
-      "suggestion": "回避",
-      "breaking_event": null,
-      "valuation": "",
-      "confidence": "低",
-      "data_completeness": 0.49,
-      "reasons": [
-        "财务质量综合排名靠前（SHAP +0.12）",
-        "ROE 较高（盈利能力强）（SHAP +0.08）",
-        "股价处于近期高位区间（SHAP +0.06）",
-        "RSI 超卖（1），或现反弹"
-      ],
-      "risks": [
-        "净利率偏低（SHAP -0.48）",
-        "价格波动放大（SHAP -0.08）",
-        "量能波动加大（SHAP -0.07）",
-        "⚠️ 数据缺失（特征完整度 49%）"
-      ]
-    },
-    {
-      "code": "DIS",
-      "name": "迪士尼",
-      "industry": "传媒",
-      "market": "us",
-      "is_etf": false,
-      "prob": 0.39798114540012774,
-      "prob_up": 0.702132071876156,
-      "prob_bench": 0.6465463125917789,
-      "score": 40,
-      "suggestion": "回避",
-      "breaking_event": null,
-      "valuation": "",
-      "confidence": "低",
-      "data_completeness": 0.49,
-      "reasons": [
-        "净利率较高（SHAP +0.13）",
-        "股价处于近期高位区间（SHAP +0.06）",
-        "毛利率较高（SHAP +0.02）",
-        "RSI 超卖（1），或现反弹"
-      ],
-      "risks": [
-        "与市场相关性上升（SHAP -0.10）",
-        "对市场敏感度高（Beta 偏大）（SHAP -0.04）",
-        "财务质量综合排名靠后（SHAP -0.03）",
-        "⚠️ 数据缺失（特征完整度 49%）"
-      ]
-    },
-    {
-      "code": "LRCX",
-      "name": "拉姆研究",
-      "industry": "半导体",
-      "market": "us",
-      "is_etf": false,
-      "prob": 0.39552063132643567,
-      "prob_up": 0.2649116120570794,
-      "prob_bench": 0.3993571276440718,
-      "score": 40,
-      "suggestion": "回避",
-      "breaking_event": null,
-      "valuation": "",
-      "confidence": "低",
-      "data_completeness": 0.49,
-      "reasons": [
-        "—（SHAP +0.11）",
-        "净利率较高（SHAP +0.08）",
-        "毛利率较高（SHAP +0.05）",
-        "RSI 超卖（0），或现反弹"
-      ],
-      "risks": [
-        "价格波动放大（SHAP -0.04）",
-        "处于阶段性回调（最大回撤较大）（SHAP -0.02）",
-        "量能波动加大（SHAP -0.02）",
-        "⚠️ 数据缺失（特征完整度 49%）"
-      ]
-    },
-    {
-      "code": "JPM",
-      "name": "摩根大通",
-      "industry": "银行",
-      "market": "us",
-      "is_etf": false,
-      "prob": 0.38900783553228935,
-      "prob_up": 0.7695580042372406,
-      "prob_bench": 0.37691264334316044,
-      "score": 39,
-      "suggestion": "回避",
-      "breaking_event": null,
-      "valuation": "",
-      "confidence": "低",
-      "data_completeness": 0.49,
-      "reasons": [
-        "净利率较高（SHAP +0.09）",
-        "毛利率较高（SHAP +0.05）",
-        "ROE 较高（盈利能力强）（SHAP +0.03）",
-        "RSI 超卖（0），或现反弹"
-      ],
-      "risks": [
-        "价格波动放大（SHAP -0.18）",
-        "量能波动加大（SHAP -0.04）",
-        "价格波动放大（SHAP -0.03）",
-        "⚠️ 数据缺失（特征完整度 49%）"
-      ]
-    },
-    {
-      "code": "META",
-      "name": "Meta",
-      "industry": "互联网",
-      "market": "us",
-      "is_etf": false,
-      "prob": 0.3830050779629858,
-      "prob_up": 0.6685816453496845,
-      "prob_bench": 0.3782185653913843,
-      "score": 38,
-      "suggestion": "回避",
-      "breaking_event": null,
-      "valuation": "",
-      "confidence": "低",
-      "data_completeness": 0.49,
-      "reasons": [
-        "净利率较高（SHAP +0.08）",
-        "量能平稳（SHAP +0.02）",
-        "财务质量综合排名靠前（SHAP +0.02）",
-        "RSI 超卖（0），或现反弹"
-      ],
-      "risks": [
-        "价格波动放大（SHAP -0.04）",
-        "毛利率偏低（SHAP -0.03）",
-        "价格波动放大（SHAP -0.03）",
-        "⚠️ 数据缺失（特征完整度 49%）"
-      ]
-    },
-    {
-      "code": "QQQ",
-      "name": "纳斯达克100ETF",
-      "industry": "指数",
-      "market": "us",
-      "is_etf": true,
-      "prob": 0.36855025838200184,
-      "prob_up": 0.7434451680884215,
-      "prob_bench": 0.19997421784797498,
-      "score": 37,
-      "suggestion": "回避",
-      "breaking_event": null,
-      "valuation": "",
-      "confidence": "低",
-      "data_completeness": 0.42,
-      "reasons": [
-        "毛利率较高（SHAP +0.07）",
-        "净利率较高（SHAP +0.07）",
-        "价格波动收敛（SHAP +0.04）",
-        "RSI 超卖（1），或现反弹"
-      ],
-      "risks": [
-        "价格波动放大（SHAP -0.16）",
-        "成交缩量（SHAP -0.06）",
-        "财务质量综合排名靠后（SHAP -0.02）",
-        "⚠️ 数据缺失（特征完整度 42%）",
-        "ℹ️ ETF/指数：跑赢行业概率参考意义有限，建议看上涨概率与技术信号"
-      ]
-    },
-    {
-      "code": "AEM",
-      "name": "伊格尔矿业",
-      "industry": "黄金",
-      "market": "us",
-      "is_etf": false,
-      "prob": 0.3369390980730643,
-      "prob_up": 0.4887231108968826,
-      "prob_bench": 0.5693119528298715,
-      "score": 34,
-      "suggestion": "回避",
-      "breaking_event": null,
-      "valuation": "",
-      "confidence": "低",
-      "data_completeness": 0.49,
-      "reasons": [
-        "净利率较高（SHAP +0.09）",
-        "价格波动收敛（SHAP +0.04）",
-        "真实波幅平稳（SHAP +0.03）",
-        "RSI 超卖（1），或现反弹"
-      ],
-      "risks": [
-        "毛利率偏低（SHAP -0.10）",
-        "价格波动放大（SHAP -0.03）",
-        "近一季动量走弱（SHAP -0.02）",
-        "⚠️ 数据缺失（特征完整度 49%）"
-      ]
-    },
-    {
-      "code": "CSCO",
-      "name": "思科",
-      "industry": "科技",
-      "market": "us",
-      "is_etf": false,
-      "prob": 0.3299667073949938,
-      "prob_up": 0.6455794818908406,
-      "prob_bench": 0.5083651873689874,
-      "score": 33,
-      "suggestion": "回避",
-      "breaking_event": null,
-      "valuation": "",
-      "confidence": "低",
-      "data_completeness": 0.49,
-      "reasons": [
-        "净利率较高（SHAP +0.09）",
-        "财务质量综合排名靠前（SHAP +0.03）",
-        "真实波幅平稳（SHAP +0.02）",
-        "RSI 超卖（1），或现反弹"
-      ],
-      "risks": [
-        "量能波动加大（SHAP -0.05）",
-        "价格波动放大（SHAP -0.03）",
-        "与市场相关性上升（SHAP -0.03）",
-        "⚠️ 数据缺失（特征完整度 49%）"
-      ]
-    },
-    {
-      "code": "BA",
-      "name": "波音",
-      "industry": "工业",
-      "market": "us",
-      "is_etf": false,
-      "prob": 0.32959678956159133,
-      "prob_up": 0.6348602719456558,
-      "prob_bench": 0.38207748097165084,
-      "score": 33,
-      "suggestion": "回避",
-      "breaking_event": null,
-      "valuation": "",
-      "confidence": "低",
-      "data_completeness": 0.49,
-      "reasons": [
-        "财务质量综合排名靠前（SHAP +0.14）",
-        "价格波动收敛（SHAP +0.04）",
-        "股价站上 60 日均线（SHAP +0.04）",
-        "RSI 超卖（1），或现反弹"
-      ],
-      "risks": [
-        "净利率偏低（SHAP -0.34）",
-        "价格波动放大（SHAP -0.07）",
-        "价格波动放大（SHAP -0.05）",
-        "⚠️ 数据缺失（特征完整度 49%）"
-      ]
-    },
-    {
-      "code": "WDC",
-      "name": "西部数据",
-      "industry": "半导体",
-      "market": "us",
-      "is_etf": false,
-      "prob": 0.3194352587743389,
-      "prob_up": 0.23995336793372865,
-      "prob_bench": 0.4953087692945779,
-      "score": 32,
-      "suggestion": "回避",
-      "breaking_event": null,
-      "valuation": "",
-      "confidence": "低",
-      "data_completeness": 0.49,
-      "reasons": [
-        "—（SHAP +0.10）",
-        "毛利率较高（SHAP +0.05）",
-        "净利率较高（SHAP +0.05）",
-        "RSI 超卖（1），或现反弹"
-      ],
-      "risks": [
-        "量能波动加大（SHAP -0.06）",
-        "价格波动放大（SHAP -0.05）",
-        "与市场相关性上升（SHAP -0.03）",
-        "⚠️ 数据缺失（特征完整度 49%）"
-      ]
-    },
-    {
-      "code": "NEM",
-      "name": "纽蒙特",
-      "industry": "黄金",
-      "market": "us",
-      "is_etf": false,
-      "prob": 0.3057539037541055,
-      "prob_up": 0.6562930870203679,
-      "prob_bench": 0.57729881514197,
-      "score": 31,
-      "suggestion": "回避",
-      "breaking_event": null,
-      "valuation": "",
-      "confidence": "低",
-      "data_completeness": 0.49,
-      "reasons": [
-        "净利率较高（SHAP +0.09）",
-        "价格波动收敛（SHAP +0.04）",
-        "财务质量综合排名靠前（SHAP +0.02）",
-        "RSI 超卖（1），或现反弹"
-      ],
-      "risks": [
-        "毛利率偏低（SHAP -0.13）",
-        "与市场相关性上升（SHAP -0.02）",
-        "价格波动放大（SHAP -0.02）",
-        "⚠️ 数据缺失（特征完整度 49%）"
-      ]
-    },
-    {
-      "code": "GLD",
-      "name": "黄金ETF",
-      "industry": "指数",
-      "market": "us",
-      "is_etf": true,
-      "prob": 0.28902352901613065,
-      "prob_up": 0.752693113923483,
-      "prob_bench": 0.65720386956473,
-      "score": 29,
-      "suggestion": "回避",
-      "breaking_event": null,
-      "valuation": "",
-      "confidence": "低",
-      "data_completeness": 0.42,
-      "reasons": [
-        "毛利率较高（SHAP +0.07）",
-        "净利率较高（SHAP +0.04）",
-        "ROE 较高（盈利能力强）（SHAP +0.02）",
-        "RSI 超卖（1），或现反弹"
-      ],
-      "risks": [
-        "价格波动放大（SHAP -0.09）",
-        "价格波动放大（SHAP -0.07）",
-        "财务质量综合排名靠后（SHAP -0.03）",
-        "⚠️ 数据缺失（特征完整度 42%）",
-        "ℹ️ ETF/指数：跑赢行业概率参考意义有限，建议看上涨概率与技术信号"
-      ]
-    },
-    {
-      "code": "ARM",
-      "name": "ARM",
-      "industry": "半导体",
-      "market": "us",
-      "is_etf": false,
-      "prob": 0.2650573372641774,
-      "prob_up": 0.16509545001064915,
-      "prob_bench": 0.7099395800872109,
-      "score": 27,
-      "suggestion": "回避",
-      "breaking_event": null,
-      "valuation": "",
-      "confidence": "低",
-      "data_completeness": 0.49,
-      "reasons": [
-        "新闻·CEO解释AI支出将带来长期回报（影响 0.5）",
-        "真实波幅平稳（SHAP +0.11）",
-        "净利率较高（SHAP +0.11）",
-        "财务质量综合排名靠前（SHAP +0.04）",
-        "RSI 超卖（0），或现反弹"
-      ],
-      "risks": [
-        "价格波动放大（SHAP -0.13）",
-        "对市场敏感度高（Beta 偏大）（SHAP -0.10）",
-        "与市场相关性上升（SHAP -0.03）",
-        "⚠️ 数据缺失（特征完整度 49%）"
-      ]
-    },
-    {
-      "code": "TSM",
-      "name": "台积电",
-      "industry": "半导体",
-      "market": "us",
-      "is_etf": false,
-      "prob": 0.26250714613996345,
-      "prob_up": 0.7826116199038213,
-      "prob_bench": 0.7356656839556547,
-      "score": 26,
-      "suggestion": "回避",
-      "breaking_event": null,
-      "valuation": "",
-      "confidence": "低",
-      "data_completeness": 0.49,
-      "reasons": [
-        "净利率较高（SHAP +0.15）",
-        "—（SHAP +0.07）",
-        "成交放量（SHAP +0.03）",
-        "RSI 超卖（1），或现反弹"
-      ],
-      "risks": [
-        "价格波动放大（SHAP -0.04）",
-        "价格波动放大（SHAP -0.03）",
-        "量能波动加大（SHAP -0.03）",
-        "⚠️ 数据缺失（特征完整度 49%）"
-      ]
-    },
-    {
-      "code": "JNJ",
-      "name": "强生",
-      "industry": "医药",
-      "market": "us",
-      "is_etf": false,
-      "prob": 0.25018776132453,
-      "prob_up": 0.6869542310753399,
-      "prob_bench": 0.33942763622504457,
-      "score": 25,
-      "suggestion": "回避",
-      "breaking_event": null,
-      "valuation": "",
-      "confidence": "低",
-      "data_completeness": 0.49,
-      "reasons": [
-        "净利率较高（SHAP +0.09）",
-        "Beta 适中（SHAP +0.05）",
-        "价格波动收敛（SHAP +0.04）",
-        "RSI 超卖（0），或现反弹"
-      ],
-      "risks": [
-        "与市场相关性上升（SHAP -0.07）",
-        "对市场敏感度高（Beta 偏大）（SHAP -0.06）",
-        "毛利率偏低（SHAP -0.05）",
-        "⚠️ 数据缺失（特征完整度 49%）"
-      ]
-    },
-    {
-      "code": "PFE",
-      "name": "辉瑞",
-      "industry": "医药",
-      "market": "us",
-      "is_etf": false,
-      "prob": 0.24301920209844297,
-      "prob_up": 0.66563351231378,
-      "prob_bench": 0.451784573305384,
-      "score": 24,
-      "suggestion": "回避",
-      "breaking_event": null,
-      "valuation": "",
-      "confidence": "低",
-      "data_completeness": 0.49,
-      "reasons": [
-        "净利率较高（SHAP +0.07）",
-        "财务质量综合排名靠前（SHAP +0.03）",
-        "股价处于近期高位区间（SHAP +0.02）",
-        "RSI 超卖（1），或现反弹"
-      ],
-      "risks": [
-        "价格波动放大（SHAP -0.04）",
-        "量能波动加大（SHAP -0.03）",
-        "成交缩量（SHAP -0.02）",
-        "⚠️ 数据缺失（特征完整度 49%）"
-      ]
-    },
-    {
-      "code": "OXY",
-      "name": "西方石油",
-      "industry": "石油石化",
-      "market": "us",
-      "is_etf": false,
-      "prob": 0.23804773061014023,
-      "prob_up": 0.6182896344539228,
-      "prob_bench": 0.8194156419195373,
-      "score": 24,
-      "suggestion": "回避",
-      "breaking_event": null,
-      "valuation": "",
-      "confidence": "低",
-      "data_completeness": 0.49,
-      "reasons": [
-        "财务质量综合排名靠前（SHAP +0.27）",
-        "股价站上 60 日均线（SHAP +0.04）",
-        "股价处于近期高位区间（SHAP +0.04）",
-        "RSI 超卖（1），或现反弹"
-      ],
-      "risks": [
-        "净利率偏低（SHAP -0.46）",
-        "ROE 偏低（SHAP -0.14）",
-        "毛利率偏低（SHAP -0.10）",
-        "⚠️ 数据缺失（特征完整度 49%）"
-      ]
-    },
-    {
-      "code": "MU",
-      "name": "美光",
-      "industry": "半导体",
-      "market": "us",
-      "is_etf": false,
-      "prob": 0.16001188220919416,
-      "prob_up": 0.21986570861684357,
-      "prob_bench": 0.4993554461993745,
-      "score": 16,
-      "suggestion": "回避",
-      "breaking_event": "BP利润同比增长超一倍（影响 0.7）",
-      "valuation": "",
-      "confidence": "低",
-      "data_completeness": 0.49,
-      "reasons": [
-        "⚠️ 突发：BP利润同比增长超一倍（影响 0.7）",
-        "新闻·BP利润同比增长超一倍（影响 0.7）",
-        "—（SHAP +0.11）",
-        "财务质量综合排名靠前（SHAP +0.04）",
-        "净利率较高（SHAP +0.02）",
-        "RSI 超卖（0），或现反弹"
-      ],
-      "risks": [
-        "新闻·特朗普抨击大石油牟利过多（影响 0.4）",
-        "价格波动放大（SHAP -0.09）",
-        "量能波动加大（SHAP -0.08）",
-        "毛利率偏低（SHAP -0.05）",
-        "⚠️ 数据缺失（特征完整度 49%）"
-      ]
-    },
-    {
-      "code": "SLB",
-      "name": "斯伦贝谢",
-      "industry": "油田服务",
-      "market": "us",
-      "is_etf": false,
-      "prob": 0.15806701117600241,
-      "prob_up": 0.8695311011220841,
-      "prob_bench": 0.6097170689056037,
-      "score": 16,
-      "suggestion": "回避",
-      "breaking_event": null,
-      "valuation": "",
-      "confidence": "低",
-      "data_completeness": 0.49,
-      "reasons": [
-        "量能平稳（SHAP +0.02）",
-        "股价站上 60 日均线（SHAP +0.02）",
-        "Beta 适中（SHAP +0.01）",
-        "RSI 超卖（0），或现反弹"
-      ],
-      "risks": [
-        "净利率偏低（SHAP -1.37）",
-        "财务质量综合排名靠后（SHAP -0.23）",
-        "毛利率偏低（SHAP -0.18）",
-        "⚠️ 数据缺失（特征完整度 49%）"
-      ]
-    },
-    {
-      "code": "005930.KS",
-      "name": "三星电子",
-      "industry": "半导体",
-      "market": "kr",
-      "is_etf": false,
-      "prob": 0.14092188007936418,
-      "prob_up": 0.09710343126814559,
-      "prob_bench": 0.30388189532446275,
-      "score": 14,
-      "suggestion": "回避",
-      "breaking_event": null,
-      "valuation": "",
-      "confidence": "高",
-      "data_completeness": 1.0,
-      "reasons": [
-        "净利率较高（SHAP +0.16）",
-        "量能平稳（SHAP +0.13）",
-        "财务质量综合排名靠前（SHAP +0.04）",
-        "RSI 超卖（0），或现反弹",
-        "近一月强势（+100%）"
-      ],
-      "risks": [
-        "股价跌破 60 日均线（SHAP -0.12）",
-        "价格波动放大（SHAP -0.10）",
-        "价格波动放大（SHAP -0.08）"
-      ]
-    },
-    {
-      "code": "INTC",
-      "name": "英特尔",
-      "industry": "半导体",
-      "market": "us",
-      "is_etf": false,
-      "prob": 0.08584896142765863,
-      "prob_up": 0.4307076640249302,
-      "prob_bench": 0.5855967447230661,
-      "score": 9,
-      "suggestion": "回避",
-      "breaking_event": null,
-      "valuation": "",
-      "confidence": "低",
-      "data_completeness": 0.49,
-      "reasons": [
-        "价格波动收敛（SHAP +0.12）",
-        "—（SHAP +0.04）",
-        "近一季动量较强（SHAP +0.02）",
-        "RSI 超卖（0），或现反弹"
-      ],
-      "risks": [
-        "净利率偏低（SHAP -0.36）",
-        "价格波动放大（SHAP -0.23）",
-        "ROE 偏低（SHAP -0.19）",
-        "⚠️ 数据缺失（特征完整度 49%）"
-      ]
-    },
-    {
-      "code": "GOLD",
-      "name": "巴里克黄金",
-      "industry": "黄金",
-      "market": "us",
-      "is_etf": false,
-      "prob": 0.07352397179656761,
-      "prob_up": 0.7544782477104328,
-      "prob_bench": 0.5693287672768442,
-      "score": 7,
-      "suggestion": "回避",
-      "breaking_event": null,
-      "valuation": "",
-      "confidence": "低",
-      "data_completeness": 0.49,
-      "reasons": [
-        "毛利率较高（SHAP +0.45）",
-        "量能平稳（SHAP +0.06）",
-        "近一季动量较强（SHAP +0.02）",
-        "RSI 超卖（1），或现反弹"
-      ],
-      "risks": [
-        "财务质量综合排名靠后（SHAP -0.81）",
-        "净利率偏低（SHAP -0.17）",
-        "价格波动放大（SHAP -0.04）",
-        "⚠️ 数据缺失（特征完整度 49%）"
-      ]
-    },
-    {
-      "code": "NOK",
-      "name": "诺基亚",
-      "industry": "通信",
-      "market": "us",
-      "is_etf": false,
-      "prob": 0.059035523321637945,
-      "prob_up": 0.5098588707417413,
-      "prob_bench": 0.7346456075059691,
-      "score": 6,
-      "suggestion": "回避",
-      "breaking_event": null,
-      "valuation": "",
-      "confidence": "低",
-      "data_completeness": 0.49,
-      "reasons": [
-        "—（SHAP +0.03）",
-        "真实波幅平稳（SHAP +0.03）",
-        "价格波动收敛（SHAP +0.03）",
-        "RSI 超卖（1），或现反弹"
-      ],
-      "risks": [
-        "净利率偏低（SHAP -0.85）",
-        "ROE 偏低（SHAP -0.69）",
-        "财务质量综合排名靠后（SHAP -0.22）",
-        "⚠️ 数据缺失（特征完整度 49%）"
-      ]
-    },
-    {
-      "code": "WMT",
-      "name": "沃尔玛",
-      "industry": "零售",
-      "market": "us",
-      "is_etf": false,
-      "prob": 0.04685625889764486,
-      "prob_up": 0.8534733042630228,
-      "prob_bench": 0.3414397650461276,
-      "score": 5,
-      "suggestion": "回避",
-      "breaking_event": null,
-      "valuation": "",
-      "confidence": "低",
-      "data_completeness": 0.49,
-      "reasons": [
-        "股价处于近期高位区间（SHAP +0.02）",
         "价格波动收敛（SHAP +0.01）",
-        "股价站上 60 日均线（SHAP +0.01）",
-        "RSI 超卖（1），或现反弹"
+        "ROE 较高（盈利能力强）（SHAP +0.00）",
+        "RSI 超卖（0），或现反弹",
+        "短中期均线多头排列（趋多）"
       ],
       "risks": [
-        "净利率偏低（SHAP -1.02）",
-        "毛利率偏低（SHAP -0.21）",
-        "ROE 偏低（SHAP -0.12）",
-        "⚠️ 数据缺失（特征完整度 49%）"
+        "真实波幅放大（波动加剧）（SHAP -0.01）",
+        "净利率偏低（SHAP -0.00）",
+        "毛利率偏低（SHAP -0.00）"
       ]
     },
     {
@@ -1649,25 +38,1689 @@
       "industry": "汽车",
       "market": "us",
       "is_etf": false,
-      "prob": 0.015413243058435808,
-      "prob_up": 0.9439714602786714,
-      "prob_bench": 0.8401506574448767,
-      "score": 2,
+      "prob": 0.8708020401300303,
+      "prob_up": 0.6568406008295034,
+      "prob_bench": 0.7401748682883085,
+      "score": 87,
+      "suggestion": "强推荐",
+      "breaking_event": null,
+      "valuation": "",
+      "confidence": "高",
+      "data_completeness": 1.0,
+      "reasons": [
+        "净利率较高（SHAP +0.01）",
+        "量能平稳（SHAP +0.00）",
+        "价格波动收敛（SHAP +0.00）",
+        "RSI 超卖（1），或现反弹",
+        "短中期均线多头排列（趋多）"
+      ],
+      "risks": [
+        "ROE 偏低（SHAP -0.00）",
+        "RSI 偏弱（SHAP -0.00）",
+        "毛利率偏低（SHAP -0.00）"
+      ]
+    },
+    {
+      "code": "GS",
+      "name": "高盛",
+      "industry": "金融",
+      "market": "us",
+      "is_etf": false,
+      "prob": 0.8173411052572581,
+      "prob_up": 0.8256529537047417,
+      "prob_bench": 0.4099484362739603,
+      "score": 82,
+      "suggestion": "强推荐",
+      "breaking_event": null,
+      "valuation": "",
+      "confidence": "高",
+      "data_completeness": 1.0,
+      "reasons": [
+        "量能平稳（SHAP +0.01）",
+        "净利率较高（SHAP +0.00）",
+        "价格波动收敛（SHAP +0.00）",
+        "RSI 超卖（0），或现反弹",
+        "短中期均线多头排列（趋多）",
+        "近一月强势（+56%）"
+      ],
+      "risks": [
+        "量能波动加大（SHAP -0.00）",
+        "与市场相关性上升（SHAP -0.00）",
+        "毛利率偏低（SHAP -0.00）"
+      ]
+    },
+    {
+      "code": "USO",
+      "name": "原油ETF",
+      "industry": "指数",
+      "market": "us",
+      "is_etf": true,
+      "prob": 0.7943644210290326,
+      "prob_up": 0.6617083286627059,
+      "prob_bench": 0.7464886223517543,
+      "score": 79,
+      "suggestion": "关注",
+      "breaking_event": null,
+      "valuation": "",
+      "confidence": "高",
+      "data_completeness": 0.93,
+      "reasons": [
+        "量能平稳（SHAP +0.01）",
+        "ROE 较高（盈利能力强）（SHAP +0.00）",
+        "量能平稳（SHAP +0.00）",
+        "RSI 超卖（0），或现反弹",
+        "近一月强势（+80%）"
+      ],
+      "risks": [
+        "净利率偏低（SHAP -0.00）",
+        "RSI 偏弱（SHAP -0.00）",
+        "价格波动放大（SHAP -0.00）",
+        "短中期均线空头排列（趋空）",
+        "ℹ️ ETF/指数：跑赢行业概率参考意义有限，建议看上涨概率与技术信号"
+      ]
+    },
+    {
+      "code": "NKE",
+      "name": "耐克",
+      "industry": "消费",
+      "market": "us",
+      "is_etf": false,
+      "prob": 0.7928623472704854,
+      "prob_up": 0.9444737137092254,
+      "prob_bench": 0.500308261405672,
+      "score": 79,
+      "suggestion": "强推荐",
+      "breaking_event": null,
+      "valuation": "",
+      "confidence": "高",
+      "data_completeness": 1.0,
+      "reasons": [
+        "净利率较高（SHAP +0.00）",
+        "股价处于近期高位区间（SHAP +0.00）",
+        "近期波动较小（SHAP +0.00）",
+        "RSI 超卖（0），或现反弹",
+        "近一月强势（+27%）"
+      ],
+      "risks": [
+        "价格波动放大（SHAP -0.00）",
+        "与市场相关性上升（SHAP -0.00）",
+        "RSI 偏弱（SHAP -0.00）",
+        "短中期均线空头排列（趋空）"
+      ]
+    },
+    {
+      "code": "AMAT",
+      "name": "应用材料",
+      "industry": "半导体",
+      "market": "us",
+      "is_etf": false,
+      "prob": 0.7726095729178344,
+      "prob_up": 0.3514123977132608,
+      "prob_bench": 0.3810559354332474,
+      "score": 77,
+      "suggestion": "中性观望",
+      "breaking_event": null,
+      "valuation": "",
+      "confidence": "高",
+      "data_completeness": 1.0,
+      "reasons": [
+        "价格波动收敛（SHAP +0.00）",
+        "净利率较高（SHAP +0.00）",
+        "—（SHAP +0.00）",
+        "RSI 超卖（0），或现反弹",
+        "短中期均线多头排列（趋多）",
+        "近一月强势（+41%）"
+      ],
+      "risks": [
+        "近一季动量走弱（SHAP -0.00）",
+        "近期波动较大（SHAP -0.00）",
+        "量能波动加大（SHAP -0.00）"
+      ]
+    },
+    {
+      "code": "AEM",
+      "name": "伊格尔矿业",
+      "industry": "黄金",
+      "market": "us",
+      "is_etf": false,
+      "prob": 0.7482288981055936,
+      "prob_up": 0.46690393453648693,
+      "prob_bench": 0.7111814818966484,
+      "score": 75,
+      "suggestion": "中性观望",
+      "breaking_event": null,
+      "valuation": "",
+      "confidence": "高",
+      "data_completeness": 1.0,
+      "reasons": [
+        "近期波动较小（SHAP +0.01）",
+        "—（SHAP +0.00）",
+        "净利率较高（SHAP +0.00）",
+        "RSI 超卖（1），或现反弹",
+        "近一月强势（+51%）"
+      ],
+      "risks": [
+        "毛利率偏低（SHAP -0.00）",
+        "ROE 偏低（SHAP -0.00）",
+        "价格波动放大（SHAP -0.00）",
+        "短中期均线空头排列（趋空）"
+      ]
+    },
+    {
+      "code": "GDX",
+      "name": "金矿ETF",
+      "industry": "指数",
+      "market": "us",
+      "is_etf": true,
+      "prob": 0.7383561259948437,
+      "prob_up": 0.6539345364869409,
+      "prob_bench": 0.487871314875014,
+      "score": 74,
+      "suggestion": "关注",
+      "breaking_event": null,
+      "valuation": "",
+      "confidence": "高",
+      "data_completeness": 0.93,
+      "reasons": [
+        "量能平稳（SHAP +0.01）",
+        "RSI 偏强（SHAP +0.00）",
+        "量能平稳（SHAP +0.00）",
+        "RSI 超卖（1），或现反弹",
+        "近一月强势（+64%）"
+      ],
+      "risks": [
+        "净利率偏低（SHAP -0.00）",
+        "价格波动放大（SHAP -0.00）",
+        "近期波动较大（SHAP -0.00）",
+        "短中期均线空头排列（趋空）",
+        "ℹ️ ETF/指数：跑赢行业概率参考意义有限，建议看上涨概率与技术信号"
+      ]
+    },
+    {
+      "code": "GOLD",
+      "name": "巴里克黄金",
+      "industry": "黄金",
+      "market": "us",
+      "is_etf": false,
+      "prob": 0.7307953144266337,
+      "prob_up": 0.8127339984306692,
+      "prob_bench": 0.9581381011097411,
+      "score": 73,
+      "suggestion": "强推荐",
+      "breaking_event": null,
+      "valuation": "",
+      "confidence": "高",
+      "data_completeness": 1.0,
+      "reasons": [
+        "量能平稳（SHAP +0.00）",
+        "RSI 偏强（SHAP +0.00）",
+        "成交放量（SHAP +0.00）",
+        "RSI 超卖（1），或现反弹",
+        "近一月强势（+39%）"
+      ],
+      "risks": [
+        "净利率偏低（SHAP -0.00）",
+        "价格波动放大（SHAP -0.00）",
+        "价格波动放大（SHAP -0.00）",
+        "短中期均线空头排列（趋空）"
+      ]
+    },
+    {
+      "code": "005930.KS",
+      "name": "三星电子",
+      "industry": "半导体",
+      "market": "kr",
+      "is_etf": false,
+      "prob": 0.7129778051787916,
+      "prob_up": 0.06183443560138998,
+      "prob_bench": 0.27066192130927025,
+      "score": 71,
       "suggestion": "回避",
       "breaking_event": null,
       "valuation": "",
-      "confidence": "低",
-      "data_completeness": 0.49,
+      "confidence": "高",
+      "data_completeness": 1.0,
       "reasons": [
-        "RSI 偏强（SHAP +0.02）",
-        "价格波动收敛（SHAP +0.01）",
-        "RSI 超卖（0），或现反弹"
+        "量能平稳（SHAP +0.01）",
+        "价格波动收敛（SHAP +0.00）",
+        "成交放量（SHAP +0.00）",
+        "RSI 超卖（0），或现反弹",
+        "短中期均线多头排列（趋多）"
       ],
       "risks": [
-        "财务质量综合排名靠后（SHAP -1.05）",
-        "净利率偏低（SHAP -1.01）",
-        "ROE 偏低（SHAP -0.13）",
-        "⚠️ 数据缺失（特征完整度 49%）"
+        "真实波幅放大（波动加剧）（SHAP -0.01）",
+        "净利率偏低（SHAP -0.00）",
+        "价格波动放大（SHAP -0.00）"
+      ]
+    },
+    {
+      "code": "PG",
+      "name": "宝洁",
+      "industry": "消费",
+      "market": "us",
+      "is_etf": false,
+      "prob": 0.710489294922094,
+      "prob_up": 0.816609685012891,
+      "prob_bench": 0.3882468333146508,
+      "score": 71,
+      "suggestion": "强推荐",
+      "breaking_event": null,
+      "valuation": "",
+      "confidence": "高",
+      "data_completeness": 1.0,
+      "reasons": [
+        "净利率较高（SHAP +0.00）",
+        "价格波动收敛（SHAP +0.00）",
+        "ROE 较高（盈利能力强）（SHAP +0.00）",
+        "RSI 超卖（0），或现反弹",
+        "近一月强势（+34%）"
+      ],
+      "risks": [
+        "量能波动加大（SHAP -0.00）",
+        "与市场相关性上升（SHAP -0.00）",
+        "毛利率偏低（SHAP -0.00）"
+      ]
+    },
+    {
+      "code": "CAT",
+      "name": "卡特彼勒",
+      "industry": "工业",
+      "market": "us",
+      "is_etf": false,
+      "prob": 0.7043913238426185,
+      "prob_up": 0.30044277547360165,
+      "prob_bench": 0.3433079251205022,
+      "score": 70,
+      "suggestion": "回避",
+      "breaking_event": null,
+      "valuation": "",
+      "confidence": "高",
+      "data_completeness": 1.0,
+      "reasons": [
+        "净利率较高（SHAP +0.00）",
+        "量能平稳（SHAP +0.00）",
+        "Beta 适中（SHAP +0.00）",
+        "RSI 超卖（0），或现反弹",
+        "短中期均线多头排列（趋多）",
+        "近一月强势（+17%）"
+      ],
+      "risks": [
+        "与市场相关性上升（SHAP -0.00）",
+        "量能波动加大（SHAP -0.00）",
+        "RSI 偏弱（SHAP -0.00）"
+      ]
+    },
+    {
+      "code": "COP",
+      "name": "康菲石油",
+      "industry": "石油石化",
+      "market": "us",
+      "is_etf": false,
+      "prob": 0.7027659455218025,
+      "prob_up": 0.7963036655083511,
+      "prob_bench": 0.48992545678735566,
+      "score": 70,
+      "suggestion": "关注",
+      "breaking_event": null,
+      "valuation": "",
+      "confidence": "高",
+      "data_completeness": 1.0,
+      "reasons": [
+        "量能平稳（SHAP +0.00）",
+        "净利率较高（SHAP +0.00）",
+        "Beta 适中（SHAP +0.00）",
+        "RSI 超卖（1），或现反弹",
+        "近一月强势（+90%）"
+      ],
+      "risks": [
+        "毛利率偏低（SHAP -0.00）",
+        "与市场相关性上升（SHAP -0.00）",
+        "量能波动加大（SHAP -0.00）",
+        "短中期均线空头排列（趋空）"
+      ]
+    },
+    {
+      "code": "MCD",
+      "name": "麦当劳",
+      "industry": "消费",
+      "market": "us",
+      "is_etf": false,
+      "prob": 0.6782255352538953,
+      "prob_up": 0.87121679183948,
+      "prob_bench": 0.6966007174083623,
+      "score": 68,
+      "suggestion": "强推荐",
+      "breaking_event": null,
+      "valuation": "",
+      "confidence": "高",
+      "data_completeness": 0.99,
+      "reasons": [
+        "财务质量综合排名靠前（SHAP +0.00）",
+        "净利率较高（SHAP +0.00）",
+        "价格波动收敛（SHAP +0.00）",
+        "RSI 超卖（0），或现反弹",
+        "近一月强势（+19%）"
+      ],
+      "risks": [
+        "量能波动加大（SHAP -0.00）",
+        "量能波动加大（SHAP -0.00）",
+        "ROE 偏低（SHAP -0.00）",
+        "短中期均线空头排列（趋空）"
+      ]
+    },
+    {
+      "code": "META",
+      "name": "Meta",
+      "industry": "互联网",
+      "market": "us",
+      "is_etf": false,
+      "prob": 0.6714718080932631,
+      "prob_up": 0.42754455778500167,
+      "prob_bench": 0.2256361394462504,
+      "score": 67,
+      "suggestion": "中性观望",
+      "breaking_event": null,
+      "valuation": "",
+      "confidence": "高",
+      "data_completeness": 1.0,
+      "reasons": [
+        "量能平稳（SHAP +0.01）",
+        "净利率较高（SHAP +0.00）",
+        "价格波动收敛（SHAP +0.00）",
+        "RSI 超卖（0），或现反弹",
+        "短中期均线多头排列（趋多）",
+        "近一月强势（+25%）"
+      ],
+      "risks": [
+        "ROE 偏低（SHAP -0.00）",
+        "量能波动加大（SHAP -0.00）",
+        "毛利率偏低（SHAP -0.00）"
+      ]
+    },
+    {
+      "code": "XLE",
+      "name": "能源ETF",
+      "industry": "指数",
+      "market": "us",
+      "is_etf": true,
+      "prob": 0.636526174195718,
+      "prob_up": 0.6088358928371259,
+      "prob_bench": 0.6586397264880619,
+      "score": 64,
+      "suggestion": "中性观望",
+      "breaking_event": null,
+      "valuation": "",
+      "confidence": "高",
+      "data_completeness": 0.93,
+      "reasons": [
+        "成交放量（SHAP +0.00）",
+        "毛利率较高（SHAP +0.00）",
+        "RSI 偏强（SHAP +0.00）",
+        "RSI 超卖（0），或现反弹",
+        "近一月强势（+83%）"
+      ],
+      "risks": [
+        "量能波动加大（SHAP -0.00）",
+        "价格波动放大（SHAP -0.00）",
+        "净利率偏低（SHAP -0.00）",
+        "短中期均线空头排列（趋空）",
+        "ℹ️ ETF/指数：跑赢行业概率参考意义有限，建议看上涨概率与技术信号"
+      ]
+    },
+    {
+      "code": "SMH",
+      "name": "半导体ETF(SMH)",
+      "industry": "指数",
+      "market": "us",
+      "is_etf": true,
+      "prob": 0.6302152225086874,
+      "prob_up": 0.6083763031050331,
+      "prob_bench": 0.6029705190001121,
+      "score": 63,
+      "suggestion": "中性观望",
+      "breaking_event": null,
+      "valuation": "",
+      "confidence": "高",
+      "data_completeness": 0.93,
+      "reasons": [
+        "成交放量（SHAP +0.00）",
+        "毛利率较高（SHAP +0.00）",
+        "量能平稳（SHAP +0.00）",
+        "RSI 超卖（1），或现反弹",
+        "短中期均线多头排列（趋多）",
+        "近一月强势（+44%）"
+      ],
+      "risks": [
+        "净利率偏低（SHAP -0.00）",
+        "价格波动放大（SHAP -0.00）",
+        "量能波动加大（SHAP -0.00）",
+        "ℹ️ ETF/指数：跑赢行业概率参考意义有限，建议看上涨概率与技术信号"
+      ]
+    },
+    {
+      "code": "WFC",
+      "name": "富国银行",
+      "industry": "银行",
+      "market": "us",
+      "is_etf": false,
+      "prob": 0.6076588947427418,
+      "prob_up": 0.2636391660127788,
+      "prob_bench": 0.4265357022755296,
+      "score": 61,
+      "suggestion": "回避",
+      "breaking_event": null,
+      "valuation": "",
+      "confidence": "高",
+      "data_completeness": 1.0,
+      "reasons": [
+        "净利率较高（SHAP +0.00）",
+        "量能平稳（SHAP +0.00）",
+        "Beta 适中（SHAP +0.00）",
+        "RSI 超卖（0），或现反弹",
+        "近一月强势（+58%）"
+      ],
+      "risks": [
+        "与市场相关性上升（SHAP -0.00）",
+        "ROE 偏低（SHAP -0.00）",
+        "股价处于近期低位区间（SHAP -0.00）",
+        "短中期均线空头排列（趋空）"
+      ]
+    },
+    {
+      "code": "ORCL",
+      "name": "甲骨文",
+      "industry": "科技",
+      "market": "us",
+      "is_etf": false,
+      "prob": 0.6044221499831858,
+      "prob_up": 0.13839816164107163,
+      "prob_bench": 0.6893453648694092,
+      "score": 60,
+      "suggestion": "回避",
+      "breaking_event": null,
+      "valuation": "",
+      "confidence": "高",
+      "data_completeness": 1.0,
+      "reasons": [
+        "ROE 较高（盈利能力强）（SHAP +0.00）",
+        "回撤可控（SHAP +0.00）",
+        "RSI 偏强（SHAP +0.00）",
+        "RSI 超卖（1），或现反弹",
+        "近一月强势（+73%）"
+      ],
+      "risks": [
+        "量能波动加大（SHAP -0.00）",
+        "与市场相关性上升（SHAP -0.00）",
+        "价格波动放大（SHAP -0.00）",
+        "短中期均线空头排列（趋空）"
+      ]
+    },
+    {
+      "code": "INTC",
+      "name": "英特尔",
+      "industry": "半导体",
+      "market": "us",
+      "is_etf": false,
+      "prob": 0.5977805178791615,
+      "prob_up": 0.3839619997758099,
+      "prob_bench": 0.33870362067032844,
+      "score": 60,
+      "suggestion": "回避",
+      "breaking_event": null,
+      "valuation": "",
+      "confidence": "高",
+      "data_completeness": 1.0,
+      "reasons": [
+        "价格波动收敛（SHAP +0.01）",
+        "成交放量（SHAP +0.01）",
+        "净利率较高（SHAP +0.00）",
+        "RSI 超卖（1），或现反弹",
+        "短中期均线多头排列（趋多）",
+        "近一月强势（+14%）"
+      ],
+      "risks": [
+        "毛利率偏低（SHAP -0.00）",
+        "近期波动较大（SHAP -0.00）",
+        "ROE 偏低（SHAP -0.00）"
+      ]
+    },
+    {
+      "code": "SPY",
+      "name": "标普500ETF",
+      "industry": "指数",
+      "market": "us",
+      "is_etf": true,
+      "prob": 0.5844552180248851,
+      "prob_up": 0.6183471583903151,
+      "prob_bench": 0.2835696670776819,
+      "score": 58,
+      "suggestion": "中性观望",
+      "breaking_event": null,
+      "valuation": "",
+      "confidence": "高",
+      "data_completeness": 0.93,
+      "reasons": [
+        "RSI 偏强（SHAP +0.00）",
+        "财务质量综合排名靠前（SHAP +0.00）",
+        "毛利率较高（SHAP +0.00）",
+        "RSI 超卖（1），或现反弹",
+        "近一月强势（+71%）"
+      ],
+      "risks": [
+        "净利率偏低（SHAP -0.00）",
+        "成交缩量（SHAP -0.00）",
+        "量能波动加大（SHAP -0.00）",
+        "短中期均线空头排列（趋空）",
+        "ℹ️ ETF/指数：跑赢行业概率参考意义有限，建议看上涨概率与技术信号"
+      ]
+    },
+    {
+      "code": "QCOM",
+      "name": "高通",
+      "industry": "半导体",
+      "market": "us",
+      "is_etf": false,
+      "prob": 0.5496945409707432,
+      "prob_up": 0.15815491536823226,
+      "prob_bench": 0.13535758323057953,
+      "score": 55,
+      "suggestion": "回避",
+      "breaking_event": null,
+      "valuation": "",
+      "confidence": "高",
+      "data_completeness": 1.0,
+      "reasons": [
+        "量能平稳（SHAP +0.01）",
+        "—（SHAP +0.00）",
+        "ROE 较高（盈利能力强）（SHAP +0.00）",
+        "RSI 超卖（0），或现反弹",
+        "短中期均线多头排列（趋多）",
+        "近一月强势（+10%）"
+      ],
+      "risks": [
+        "价格波动放大（SHAP -0.00）",
+        "毛利率偏低（SHAP -0.00）",
+        "RSI 偏弱（SHAP -0.00）"
+      ]
+    },
+    {
+      "code": "AVGO",
+      "name": "博通",
+      "industry": "半导体",
+      "market": "us",
+      "is_etf": false,
+      "prob": 0.5444793184620559,
+      "prob_up": 0.2811456114785338,
+      "prob_bench": 0.29430557112431344,
+      "score": 54,
+      "suggestion": "回避",
+      "breaking_event": null,
+      "valuation": "",
+      "confidence": "高",
+      "data_completeness": 1.0,
+      "reasons": [
+        "净利率较高（SHAP +0.00）",
+        "RSI 偏强（SHAP +0.00）",
+        "Beta 适中（SHAP +0.00）",
+        "RSI 超卖（1），或现反弹",
+        "近一月强势（+97%）"
+      ],
+      "risks": [
+        "价格波动放大（SHAP -0.00）",
+        "量能波动加大（SHAP -0.00）",
+        "量能波动加大（SHAP -0.00）",
+        "短中期均线空头排列（趋空）"
+      ]
+    },
+    {
+      "code": "UNH",
+      "name": "联合健康",
+      "industry": "医药",
+      "market": "us",
+      "is_etf": false,
+      "prob": 0.5086537383701378,
+      "prob_up": 0.7011013339311736,
+      "prob_bench": 0.6784861562605089,
+      "score": 51,
+      "suggestion": "中性观望",
+      "breaking_event": null,
+      "valuation": "",
+      "confidence": "高",
+      "data_completeness": 1.0,
+      "reasons": [
+        "净利率较高（SHAP +0.00）",
+        "量能平稳（SHAP +0.00）",
+        "Beta 适中（SHAP +0.00）",
+        "RSI 超卖（0），或现反弹",
+        "近一月强势（+22%）"
+      ],
+      "risks": [
+        "价格波动放大（SHAP -0.00）",
+        "ROE 偏低（SHAP -0.00）",
+        "量能波动加大（SHAP -0.00）",
+        "短中期均线空头排列（趋空）"
+      ]
+    },
+    {
+      "code": "NEM",
+      "name": "纽蒙特",
+      "industry": "黄金",
+      "market": "us",
+      "is_etf": false,
+      "prob": 0.5075327878040579,
+      "prob_up": 0.2597746889362179,
+      "prob_bench": 0.4339984306692075,
+      "score": 51,
+      "suggestion": "回避",
+      "breaking_event": null,
+      "valuation": "",
+      "confidence": "高",
+      "data_completeness": 1.0,
+      "reasons": [
+        "财务质量综合排名靠前（SHAP +0.00）",
+        "净利率较高（SHAP +0.00）",
+        "价格波动收敛（SHAP +0.00）",
+        "RSI 超卖（1），或现反弹",
+        "近一月强势（+63%）"
+      ],
+      "risks": [
+        "量能波动加大（SHAP -0.00）",
+        "毛利率偏低（SHAP -0.00）",
+        "量能波动加大（SHAP -0.00）",
+        "短中期均线空头排列（趋空）"
+      ]
+    },
+    {
+      "code": "BAC",
+      "name": "美国银行",
+      "industry": "银行",
+      "market": "us",
+      "is_etf": false,
+      "prob": 0.49679127900459585,
+      "prob_up": 0.26734951238650373,
+      "prob_bench": 0.412436946530658,
+      "score": 50,
+      "suggestion": "回避",
+      "breaking_event": null,
+      "valuation": "",
+      "confidence": "高",
+      "data_completeness": 1.0,
+      "reasons": [
+        "价格波动收敛（SHAP +0.00）",
+        "ROE 较高（盈利能力强）（SHAP +0.00）",
+        "RSI 偏强（SHAP +0.00）",
+        "RSI 超卖（1），或现反弹",
+        "近一月强势（+76%）"
+      ],
+      "risks": [
+        "股价跌破 60 日均线（SHAP -0.01）",
+        "量能波动加大（SHAP -0.00）",
+        "净利率偏低（SHAP -0.00）",
+        "短中期均线空头排列（趋空）"
+      ]
+    },
+    {
+      "code": "JPM",
+      "name": "摩根大通",
+      "industry": "银行",
+      "market": "us",
+      "is_etf": false,
+      "prob": 0.4785281919067369,
+      "prob_up": 0.3054225983634122,
+      "prob_bench": 0.4590292568097747,
+      "score": 48,
+      "suggestion": "回避",
+      "breaking_event": null,
+      "valuation": "",
+      "confidence": "高",
+      "data_completeness": 1.0,
+      "reasons": [
+        "量能平稳（SHAP +0.00）",
+        "RSI 偏强（SHAP +0.00）",
+        "毛利率较高（SHAP +0.00）",
+        "RSI 超卖（0），或现反弹",
+        "近一月强势（+78%）"
+      ],
+      "risks": [
+        "ROE 偏低（SHAP -0.00）",
+        "价格波动放大（SHAP -0.00）",
+        "量能波动加大（SHAP -0.00）",
+        "短中期均线空头排列（趋空）"
+      ]
+    },
+    {
+      "code": "KO",
+      "name": "可口可乐",
+      "industry": "消费",
+      "market": "us",
+      "is_etf": false,
+      "prob": 0.4765861450510033,
+      "prob_up": 0.5800330680416994,
+      "prob_bench": 0.5737697567537272,
+      "score": 48,
+      "suggestion": "回避",
+      "breaking_event": null,
+      "valuation": "",
+      "confidence": "高",
+      "data_completeness": 1.0,
+      "reasons": [
+        "量能平稳（SHAP +0.00）",
+        "ROE 较高（盈利能力强）（SHAP +0.00）",
+        "量能平稳（SHAP +0.00）",
+        "RSI 超卖（1），或现反弹",
+        "近一月强势（+68%）"
+      ],
+      "risks": [
+        "对市场敏感度高（Beta 偏大）（SHAP -0.00）",
+        "与市场相关性上升（SHAP -0.00）",
+        "价格波动放大（SHAP -0.00）",
+        "短中期均线空头排列（趋空）"
+      ]
+    },
+    {
+      "code": "AAPL",
+      "name": "苹果",
+      "industry": "科技",
+      "market": "us",
+      "is_etf": false,
+      "prob": 0.4614056720098644,
+      "prob_up": 0.8522895415312185,
+      "prob_bench": 0.7433779845308821,
+      "score": 46,
+      "suggestion": "中性观望",
+      "breaking_event": null,
+      "valuation": "",
+      "confidence": "高",
+      "data_completeness": 1.0,
+      "reasons": [
+        "净利率较高（SHAP +0.00）",
+        "ROE 较高（盈利能力强）（SHAP +0.00）",
+        "—（SHAP +0.00）",
+        "RSI 超卖（0），或现反弹",
+        "近一月强势（+47%）"
+      ],
+      "risks": [
+        "对市场敏感度高（Beta 偏大）（SHAP -0.00）",
+        "量能波动加大（SHAP -0.00）",
+        "与市场相关性上升（SHAP -0.00）",
+        "短中期均线空头排列（趋空）"
+      ]
+    },
+    {
+      "code": "NFLX",
+      "name": "奈飞",
+      "industry": "传媒",
+      "market": "us",
+      "is_etf": false,
+      "prob": 0.4592758659343123,
+      "prob_up": 0.5601137764824571,
+      "prob_bench": 0.8053833650935993,
+      "score": 46,
+      "suggestion": "回避",
+      "breaking_event": null,
+      "valuation": "",
+      "confidence": "高",
+      "data_completeness": 1.0,
+      "reasons": [
+        "量能平稳（SHAP +0.00）",
+        "ROE 较高（盈利能力强）（SHAP +0.00）",
+        "RSI 偏强（SHAP +0.00）",
+        "RSI 超卖（1），或现反弹",
+        "近一月强势（+31%）"
+      ],
+      "risks": [
+        "量能波动加大（SHAP -0.00）",
+        "价格波动放大（SHAP -0.00）",
+        "与市场相关性上升（SHAP -0.00）",
+        "短中期均线空头排列（趋空）"
+      ]
+    },
+    {
+      "code": "OXY",
+      "name": "西方石油",
+      "industry": "石油石化",
+      "market": "us",
+      "is_etf": false,
+      "prob": 0.45286963344916487,
+      "prob_up": 0.6448296155139558,
+      "prob_bench": 0.7567060867615738,
+      "score": 45,
+      "suggestion": "回避",
+      "breaking_event": null,
+      "valuation": "",
+      "confidence": "高",
+      "data_completeness": 1.0,
+      "reasons": [
+        "净利率较高（SHAP +0.00）",
+        "财务质量综合排名靠前（SHAP +0.00）",
+        "量能平稳（SHAP +0.00）",
+        "RSI 超卖（0），或现反弹",
+        "近一月强势（+81%）"
+      ],
+      "risks": [
+        "ROE 偏低（SHAP -0.00）",
+        "量能波动加大（SHAP -0.00）",
+        "毛利率偏低（SHAP -0.00）",
+        "短中期均线空头排列（趋空）"
+      ]
+    },
+    {
+      "code": "GLD",
+      "name": "黄金ETF",
+      "industry": "指数",
+      "market": "us",
+      "is_etf": true,
+      "prob": 0.43575271830512274,
+      "prob_up": 0.5078942943616187,
+      "prob_bench": 0.6539177222284498,
+      "score": 44,
+      "suggestion": "回避",
+      "breaking_event": null,
+      "valuation": "",
+      "confidence": "高",
+      "data_completeness": 0.93,
+      "reasons": [
+        "成交放量（SHAP +0.00）",
+        "毛利率较高（SHAP +0.00）",
+        "RSI 偏强（SHAP +0.00）",
+        "RSI 超卖（0），或现反弹",
+        "近一月强势（+46%）"
+      ],
+      "risks": [
+        "净利率偏低（SHAP -0.00）",
+        "价格波动放大（SHAP -0.00）",
+        "量能波动加大（SHAP -0.00）",
+        "短中期均线空头排列（趋空）",
+        "ℹ️ ETF/指数：跑赢行业概率参考意义有限，建议看上涨概率与技术信号"
+      ]
+    },
+    {
+      "code": "WMT",
+      "name": "沃尔玛",
+      "industry": "零售",
+      "market": "us",
+      "is_etf": false,
+      "prob": 0.4295986996973433,
+      "prob_up": 0.8399254567873558,
+      "prob_bench": 0.39934984867167356,
+      "score": 43,
+      "suggestion": "中性观望",
+      "breaking_event": null,
+      "valuation": "",
+      "confidence": "高",
+      "data_completeness": 1.0,
+      "reasons": [
+        "净利率较高（SHAP +0.00）",
+        "近一季动量较强（SHAP +0.00）",
+        "财务质量综合排名靠前（SHAP +0.00）",
+        "RSI 超卖（0），或现反弹",
+        "近一月强势（+49%）"
+      ],
+      "risks": [
+        "量能波动加大（SHAP -0.00）",
+        "量能波动加大（SHAP -0.00）",
+        "ROE 偏低（SHAP -0.00）",
+        "短中期均线空头排列（趋空）"
+      ]
+    },
+    {
+      "code": "CSCO",
+      "name": "思科",
+      "industry": "科技",
+      "market": "us",
+      "is_etf": false,
+      "prob": 0.42340544781975115,
+      "prob_up": 0.11581100773455891,
+      "prob_bench": 0.37357919515749355,
+      "score": 42,
+      "suggestion": "回避",
+      "breaking_event": null,
+      "valuation": "",
+      "confidence": "高",
+      "data_completeness": 1.0,
+      "reasons": [
+        "净利率较高（SHAP +0.00）",
+        "RSI 偏强（SHAP +0.00）",
+        "Beta 适中（SHAP +0.00）",
+        "RSI 超卖（1），或现反弹",
+        "近一月强势（+92%）"
+      ],
+      "risks": [
+        "价格波动放大（SHAP -0.00）",
+        "量能波动加大（SHAP -0.00）",
+        "量能波动加大（SHAP -0.00）",
+        "短中期均线空头排列（趋空）"
+      ]
+    },
+    {
+      "code": "NVDA",
+      "name": "英伟达",
+      "industry": "半导体",
+      "market": "us",
+      "is_etf": false,
+      "prob": 0.4231252101782311,
+      "prob_up": 0.7921589507902701,
+      "prob_bench": 0.7053189104360498,
+      "score": 42,
+      "suggestion": "回避",
+      "breaking_event": null,
+      "valuation": "",
+      "confidence": "高",
+      "data_completeness": 1.0,
+      "reasons": [
+        "净利率较高（SHAP +0.00）",
+        "ROE 较高（盈利能力强）（SHAP +0.00）",
+        "Beta 适中（SHAP +0.00）",
+        "RSI 超卖（1），或现反弹",
+        "近一月强势（+86%）"
+      ],
+      "risks": [
+        "量能波动加大（SHAP -0.00）",
+        "量能波动加大（SHAP -0.00）",
+        "价格波动放大（SHAP -0.00）",
+        "短中期均线空头排列（趋空）"
+      ]
+    },
+    {
+      "code": "XOM",
+      "name": "埃克森美孚",
+      "industry": "石油石化",
+      "market": "us",
+      "is_etf": false,
+      "prob": 0.41717856742517656,
+      "prob_up": 0.2710682658894743,
+      "prob_bench": 0.4808737809662594,
+      "score": 42,
+      "suggestion": "回避",
+      "breaking_event": null,
+      "valuation": "",
+      "confidence": "高",
+      "data_completeness": 1.0,
+      "reasons": [
+        "净利率较高（SHAP +0.00）",
+        "量能平稳（SHAP +0.00）",
+        "Beta 适中（SHAP +0.00）",
+        "RSI 超卖（0），或现反弹",
+        "近一月强势（+88%）"
+      ],
+      "risks": [
+        "价格波动放大（SHAP -0.00）",
+        "毛利率偏低（SHAP -0.00）",
+        "量能波动加大（SHAP -0.00）",
+        "短中期均线空头排列（趋空）"
+      ]
+    },
+    {
+      "code": "JNJ",
+      "name": "强生",
+      "industry": "医药",
+      "market": "us",
+      "is_etf": false,
+      "prob": 0.41586145051003254,
+      "prob_up": 0.10921421365317789,
+      "prob_bench": 0.3343347158390315,
+      "score": 42,
+      "suggestion": "回避",
+      "breaking_event": null,
+      "valuation": "",
+      "confidence": "高",
+      "data_completeness": 1.0,
+      "reasons": [
+        "净利率较高（SHAP +0.00）",
+        "财务质量综合排名靠前（SHAP +0.00）",
+        "Beta 适中（SHAP +0.00）",
+        "RSI 超卖（0），或现反弹",
+        "近一月强势（+24%）"
+      ],
+      "risks": [
+        "量能波动加大（SHAP -0.00）",
+        "ROE 偏低（SHAP -0.00）",
+        "毛利率偏低（SHAP -0.00）",
+        "短中期均线空头排列（趋空）"
+      ]
+    },
+    {
+      "code": "ASML",
+      "name": "阿斯麦",
+      "industry": "半导体",
+      "market": "us",
+      "is_etf": false,
+      "prob": 0.38485035309942833,
+      "prob_up": 0.47991256585584574,
+      "prob_bench": 0.46057056383813477,
+      "score": 38,
+      "suggestion": "回避",
+      "breaking_event": null,
+      "valuation": "",
+      "confidence": "高",
+      "data_completeness": 1.0,
+      "reasons": [
+        "量能平稳（SHAP +0.00）",
+        "ROE 较高（盈利能力强）（SHAP +0.00）",
+        "价格波动收敛（SHAP +0.00）",
+        "RSI 超卖（1），或现反弹",
+        "短中期均线多头排列（趋多）",
+        "近一月强势（+36%）"
+      ],
+      "risks": [
+        "与市场相关性上升（SHAP -0.00）",
+        "量能波动加大（SHAP -0.00）",
+        "毛利率偏低（SHAP -0.00）"
+      ]
+    },
+    {
+      "code": "MSFT",
+      "name": "微软",
+      "industry": "科技",
+      "market": "us",
+      "is_etf": false,
+      "prob": 0.3787271606322161,
+      "prob_up": 0.2218361170272391,
+      "prob_bench": 0.17059186189889025,
+      "score": 38,
+      "suggestion": "回避",
+      "breaking_event": null,
+      "valuation": "",
+      "confidence": "高",
+      "data_completeness": 1.0,
+      "reasons": [
+        "RSI 偏强（SHAP +0.00）",
+        "—（SHAP +0.00）",
+        "价格波动收敛（SHAP +0.00）",
+        "RSI 超卖（1），或现反弹",
+        "近一月强势（+100%）"
+      ],
+      "risks": [
+        "股价跌破 60 日均线（SHAP -0.01）",
+        "对市场敏感度高（Beta 偏大）（SHAP -0.00）",
+        "量能波动加大（SHAP -0.00）",
+        "短中期均线空头排列（趋空）"
+      ]
+    },
+    {
+      "code": "V",
+      "name": "Visa",
+      "industry": "金融",
+      "market": "us",
+      "is_etf": false,
+      "prob": 0.3728505772895415,
+      "prob_up": 0.5930641183723797,
+      "prob_bench": 0.6877928483353883,
+      "score": 37,
+      "suggestion": "回避",
+      "breaking_event": null,
+      "valuation": "",
+      "confidence": "高",
+      "data_completeness": 1.0,
+      "reasons": [
+        "ROE 较高（盈利能力强）（SHAP +0.00）",
+        "—（SHAP +0.00）",
+        "量能平稳（SHAP +0.00）",
+        "RSI 超卖（1），或现反弹",
+        "近一月强势（+75%）"
+      ],
+      "risks": [
+        "对市场敏感度高（Beta 偏大）（SHAP -0.00）",
+        "毛利率偏低（SHAP -0.00）",
+        "股价处于近期低位区间（SHAP -0.00）",
+        "短中期均线空头排列（趋空）"
+      ]
+    },
+    {
+      "code": "NOK",
+      "name": "诺基亚",
+      "industry": "通信",
+      "market": "us",
+      "is_etf": false,
+      "prob": 0.3716147292904383,
+      "prob_up": 0.5562857302992938,
+      "prob_bench": 0.418375182154467,
+      "score": 37,
+      "suggestion": "回避",
+      "breaking_event": null,
+      "valuation": "",
+      "confidence": "高",
+      "data_completeness": 1.0,
+      "reasons": [
+        "价格波动收敛（SHAP +0.00）",
+        "净利率较高（SHAP +0.00）",
+        "量能平稳（SHAP +0.00）",
+        "RSI 超卖（1），或现反弹",
+        "短中期均线多头排列（趋多）"
+      ],
+      "risks": [
+        "毛利率偏低（SHAP -0.00）",
+        "ROE 偏低（SHAP -0.00）",
+        "近期波动较大（SHAP -0.00）"
+      ]
+    },
+    {
+      "code": "GOOGL",
+      "name": "谷歌",
+      "industry": "科技",
+      "market": "us",
+      "is_etf": false,
+      "prob": 0.36446586705526285,
+      "prob_up": 0.33285506109180585,
+      "prob_bench": 0.4999887904943392,
+      "score": 36,
+      "suggestion": "回避",
+      "breaking_event": null,
+      "valuation": "",
+      "confidence": "高",
+      "data_completeness": 1.0,
+      "reasons": [
+        "净利率较高（SHAP +0.00）",
+        "ROE 较高（盈利能力强）（SHAP +0.00）",
+        "RSI 偏强（SHAP +0.00）",
+        "RSI 超卖（1），或现反弹",
+        "近一月强势（+66%）"
+      ],
+      "risks": [
+        "价格波动放大（SHAP -0.00）",
+        "量能波动加大（SHAP -0.00）",
+        "量能波动加大（SHAP -0.00）",
+        "短中期均线空头排列（趋空）"
+      ]
+    },
+    {
+      "code": "PFE",
+      "name": "辉瑞",
+      "industry": "医药",
+      "market": "us",
+      "is_etf": false,
+      "prob": 0.3490668086537384,
+      "prob_up": 0.24301647797332138,
+      "prob_bench": 0.3537019392444793,
+      "score": 35,
+      "suggestion": "回避",
+      "breaking_event": null,
+      "valuation": "",
+      "confidence": "高",
+      "data_completeness": 1.0,
+      "reasons": [
+        "价格波动收敛（SHAP +0.00）",
+        "RSI 偏强（SHAP +0.00）",
+        "量能平稳（SHAP +0.00）",
+        "RSI 超卖（1），或现反弹",
+        "近一月强势（+85%）"
+      ],
+      "risks": [
+        "净利率偏低（SHAP -0.02）",
+        "处于阶段性回调（最大回撤较大）（SHAP -0.00）",
+        "与市场相关性上升（SHAP -0.00）",
+        "短中期均线空头排列（趋空）"
+      ]
+    },
+    {
+      "code": "LRCX",
+      "name": "拉姆研究",
+      "industry": "半导体",
+      "market": "us",
+      "is_etf": false,
+      "prob": 0.34307252550162537,
+      "prob_up": 0.26332249747786124,
+      "prob_bench": 0.3065799798228898,
+      "score": 34,
+      "suggestion": "回避",
+      "breaking_event": null,
+      "valuation": "",
+      "confidence": "高",
+      "data_completeness": 1.0,
+      "reasons": [
+        "—（SHAP +0.00）",
+        "ROE 较高（盈利能力强）（SHAP +0.00）",
+        "价格波动收敛（SHAP +0.00）",
+        "RSI 超卖（1），或现反弹",
+        "短中期均线多头排列（趋多）",
+        "近一月强势（+32%）"
+      ],
+      "risks": [
+        "量能波动加大（SHAP -0.01）",
+        "财务质量综合排名靠后（SHAP -0.00）",
+        "近期波动较大（SHAP -0.00）"
+      ]
+    },
+    {
+      "code": "CVX",
+      "name": "雪佛龙",
+      "industry": "石油石化",
+      "market": "us",
+      "is_etf": false,
+      "prob": 0.33395079027014907,
+      "prob_up": 0.7039093150992042,
+      "prob_bench": 0.7040494339199641,
+      "score": 33,
+      "suggestion": "回避",
+      "breaking_event": null,
+      "valuation": "",
+      "confidence": "高",
+      "data_completeness": 0.99,
+      "reasons": [
+        "成交放量（SHAP +0.00）",
+        "财务质量综合排名靠前（SHAP +0.00）",
+        "价格波动收敛（SHAP +0.00）",
+        "RSI 超卖（0），或现反弹",
+        "近一月强势（+93%）"
+      ],
+      "risks": [
+        "净利率偏低（SHAP -0.01）",
+        "处于阶段性回调（最大回撤较大）（SHAP -0.00）",
+        "与市场相关性上升（SHAP -0.00）",
+        "短中期均线空头排列（趋空）"
+      ]
+    },
+    {
+      "code": "LLY",
+      "name": "礼来",
+      "industry": "医药",
+      "market": "us",
+      "is_etf": false,
+      "prob": 0.32317004820087436,
+      "prob_up": 0.4391239771326084,
+      "prob_bench": 0.90273231700482,
+      "score": 32,
+      "suggestion": "回避",
+      "breaking_event": null,
+      "valuation": "",
+      "confidence": "高",
+      "data_completeness": 1.0,
+      "reasons": [
+        "净利率较高（SHAP +0.00）",
+        "ROE 较高（盈利能力强）（SHAP +0.00）",
+        "—（SHAP +0.00）",
+        "RSI 超卖（0），或现反弹",
+        "近一月强势（+12%）"
+      ],
+      "risks": [
+        "对市场敏感度高（Beta 偏大）（SHAP -0.00）",
+        "量能波动加大（SHAP -0.00）",
+        "与市场相关性上升（SHAP -0.00）",
+        "短中期均线空头排列（趋空）"
+      ]
+    },
+    {
+      "code": "SOXL",
+      "name": "半导体杠杆ETF",
+      "industry": "指数",
+      "market": "us",
+      "is_etf": true,
+      "prob": 0.3143733886335613,
+      "prob_up": 0.5412313641968389,
+      "prob_bench": 0.2648974330232037,
+      "score": 31,
+      "suggestion": "回避",
+      "breaking_event": null,
+      "valuation": "",
+      "confidence": "高",
+      "data_completeness": 0.93,
+      "reasons": [
+        "ROE 较高（盈利能力强）（SHAP +0.00）",
+        "—（SHAP +0.00）",
+        "价格波动收敛（SHAP +0.00）",
+        "RSI 超卖（0），或现反弹",
+        "短中期均线多头排列（趋多）"
+      ],
+      "risks": [
+        "成交缩量（SHAP -0.01）",
+        "净利率偏低（SHAP -0.01）",
+        "量能波动加大（SHAP -0.00）",
+        "ℹ️ ETF/指数：跑赢行业概率参考意义有限，建议看上涨概率与技术信号"
+      ]
+    },
+    {
+      "code": "QQQ",
+      "name": "纳斯达克100ETF",
+      "industry": "指数",
+      "market": "us",
+      "is_etf": true,
+      "prob": 0.3126247057504764,
+      "prob_up": 0.486848447483466,
+      "prob_bench": 0.4874845869297164,
+      "score": 31,
+      "suggestion": "回避",
+      "breaking_event": null,
+      "valuation": "",
+      "confidence": "高",
+      "data_completeness": 0.93,
+      "reasons": [
+        "RSI 偏强（SHAP +0.00）",
+        "—（SHAP +0.00）",
+        "财务质量综合排名靠前（SHAP +0.00）",
+        "RSI 超卖（1），或现反弹",
+        "近一月强势（+59%）"
+      ],
+      "risks": [
+        "净利率偏低（SHAP -0.00）",
+        "成交缩量（SHAP -0.00）",
+        "量能波动加大（SHAP -0.00）",
+        "短中期均线空头排列（趋空）",
+        "ℹ️ ETF/指数：跑赢行业概率参考意义有限，建议看上涨概率与技术信号"
+      ]
+    },
+    {
+      "code": "SLB",
+      "name": "斯伦贝谢",
+      "industry": "油田服务",
+      "market": "us",
+      "is_etf": false,
+      "prob": 0.2755016253783208,
+      "prob_up": 0.5176661809214214,
+      "prob_bench": 0.5666657325411949,
+      "score": 28,
+      "suggestion": "回避",
+      "breaking_event": null,
+      "valuation": "",
+      "confidence": "高",
+      "data_completeness": 1.0,
+      "reasons": [
+        "量能平稳（SHAP +0.00）",
+        "价格波动收敛（SHAP +0.00）",
+        "RSI 偏强（SHAP +0.00）",
+        "RSI 超卖（0），或现反弹",
+        "近一月强势（+95%）"
+      ],
+      "risks": [
+        "ROE 偏低（SHAP -0.00）",
+        "毛利率偏低（SHAP -0.00）",
+        "量能波动加大（SHAP -0.00）",
+        "短中期均线空头排列（趋空）"
+      ]
+    },
+    {
+      "code": "AMZN",
+      "name": "亚马逊",
+      "industry": "互联网",
+      "market": "us",
+      "is_etf": false,
+      "prob": 0.27107106826588945,
+      "prob_up": 0.15401860777939694,
+      "prob_bench": 0.3218473265328999,
+      "score": 27,
+      "suggestion": "回避",
+      "breaking_event": null,
+      "valuation": "",
+      "confidence": "高",
+      "data_completeness": 1.0,
+      "reasons": [
+        "RSI 偏强（SHAP +0.00）",
+        "真实波幅平稳（SHAP +0.00）",
+        "近期波动较小（SHAP +0.00）",
+        "RSI 超卖（1），或现反弹",
+        "近一月强势（+98%）"
+      ],
+      "risks": [
+        "股价跌破 60 日均线（SHAP -0.01）",
+        "对市场敏感度高（Beta 偏大）（SHAP -0.00）",
+        "量能波动加大（SHAP -0.00）",
+        "短中期均线空头排列（趋空）"
+      ]
+    },
+    {
+      "code": "MU",
+      "name": "美光",
+      "industry": "半导体",
+      "market": "us",
+      "is_etf": false,
+      "prob": 0.2670888913798901,
+      "prob_up": 0.14243918843179015,
+      "prob_bench": 0.22290102006501514,
+      "score": 27,
+      "suggestion": "回避",
+      "breaking_event": null,
+      "valuation": "",
+      "confidence": "高",
+      "data_completeness": 1.0,
+      "reasons": [
+        "—（SHAP +0.01）",
+        "价格波动收敛（SHAP +0.00）",
+        "价格波动收敛（SHAP +0.00）",
+        "RSI 超卖（0），或现反弹",
+        "短中期均线多头排列（趋多）",
+        "近一月强势（+20%）"
+      ],
+      "risks": [
+        "新闻·霍尔木兹海峡协议或达成，油价下跌（影响 0.6）",
+        "近期波动较大（SHAP -0.01）",
+        "真实波幅放大（波动加剧）（SHAP -0.01）",
+        "净利率偏低（SHAP -0.00）"
+      ]
+    },
+    {
+      "code": "BA",
+      "name": "波音",
+      "industry": "工业",
+      "market": "us",
+      "is_etf": false,
+      "prob": 0.23666349064006276,
+      "prob_up": 0.3349064006277323,
+      "prob_bench": 0.6606462280013452,
+      "score": 24,
+      "suggestion": "回避",
+      "breaking_event": null,
+      "valuation": "",
+      "confidence": "高",
+      "data_completeness": 1.0,
+      "reasons": [
+        "RSI 偏强（SHAP +0.00）",
+        "Beta 适中（SHAP +0.00）",
+        "ROE 较高（盈利能力强）（SHAP +0.00）",
+        "RSI 超卖（1），或现反弹",
+        "近一月强势（+61%）"
+      ],
+      "risks": [
+        "净利率偏低（SHAP -0.01）",
+        "毛利率偏低（SHAP -0.01）",
+        "成交缩量（SHAP -0.00）",
+        "短中期均线空头排列（趋空）"
+      ]
+    },
+    {
+      "code": "SOXX",
+      "name": "半导体ETF(SOXX)",
+      "industry": "指数",
+      "market": "us",
+      "is_etf": true,
+      "prob": 0.22599764600381123,
+      "prob_up": 0.5590376639390202,
+      "prob_bench": 0.4672514292119717,
+      "score": 23,
+      "suggestion": "回避",
+      "breaking_event": null,
+      "valuation": "",
+      "confidence": "高",
+      "data_completeness": 0.93,
+      "reasons": [
+        "近期波动较小（SHAP +0.00）",
+        "—（SHAP +0.00）",
+        "价格波动收敛（SHAP +0.00）",
+        "RSI 超卖（1），或现反弹",
+        "短中期均线多头排列（趋多）",
+        "近一月强势（+37%）"
+      ],
+      "risks": [
+        "成交缩量（SHAP -0.01）",
+        "净利率偏低（SHAP -0.01）",
+        "量能波动加大（SHAP -0.00）",
+        "ℹ️ ETF/指数：跑赢行业概率参考意义有限，建议看上涨概率与技术信号"
+      ]
+    },
+    {
+      "code": "DIS",
+      "name": "迪士尼",
+      "industry": "传媒",
+      "market": "us",
+      "is_etf": false,
+      "prob": 0.17961831633224973,
+      "prob_up": 0.3539093150992041,
+      "prob_bench": 0.7779200762246385,
+      "score": 18,
+      "suggestion": "回避",
+      "breaking_event": null,
+      "valuation": "",
+      "confidence": "高",
+      "data_completeness": 1.0,
+      "reasons": [
+        "价格波动收敛（SHAP +0.00）",
+        "ROE 较高（盈利能力强）（SHAP +0.00）",
+        "Beta 适中（SHAP +0.00）",
+        "RSI 超卖（1），或现反弹",
+        "近一月强势（+54%）"
+      ],
+      "risks": [
+        "净利率偏低（SHAP -0.02）",
+        "处于阶段性回调（最大回撤较大）（SHAP -0.00）",
+        "量能波动加大（SHAP -0.00）",
+        "短中期均线空头排列（趋空）"
+      ]
+    },
+    {
+      "code": "WDC",
+      "name": "西部数据",
+      "industry": "半导体",
+      "market": "us",
+      "is_etf": false,
+      "prob": 0.13166405111534582,
+      "prob_up": 0.14854836901692633,
+      "prob_bench": 0.21179800470799237,
+      "score": 13,
+      "suggestion": "回避",
+      "breaking_event": null,
+      "valuation": "",
+      "confidence": "高",
+      "data_completeness": 1.0,
+      "reasons": [
+        "ROE 较高（盈利能力强）（SHAP +0.00）",
+        "价格波动收敛（SHAP +0.00）",
+        "RSI 偏强（SHAP +0.00）",
+        "RSI 超卖（1），或现反弹",
+        "近一月强势（+69%）"
+      ],
+      "risks": [
+        "真实波幅放大（波动加剧）（SHAP -0.01）",
+        "与市场相关性上升（SHAP -0.00）",
+        "近期波动较大（SHAP -0.00）",
+        "短中期均线空头排列（趋空）"
+      ]
+    },
+    {
+      "code": "KGC",
+      "name": "金罗斯",
+      "industry": "黄金",
+      "market": "us",
+      "is_etf": false,
+      "prob": 0.12655812128685126,
+      "prob_up": 0.46050330680416995,
+      "prob_bench": 0.5800022419011321,
+      "score": 13,
+      "suggestion": "回避",
+      "breaking_event": null,
+      "valuation": "",
+      "confidence": "高",
+      "data_completeness": 1.0,
+      "reasons": [
+        "净利率较高（SHAP +0.00）",
+        "股价处于近期高位区间（SHAP +0.00）",
+        "近一季动量较强（SHAP +0.00）",
+        "RSI 超卖（0），或现反弹",
+        "近一月强势（+42%）"
+      ],
+      "risks": [
+        "近期波动较大（SHAP -0.00）",
+        "与市场相关性上升（SHAP -0.00）",
+        "毛利率偏低（SHAP -0.00）",
+        "短中期均线空头排列（趋空）"
+      ]
+    },
+    {
+      "code": "ARM",
+      "name": "ARM",
+      "industry": "半导体",
+      "market": "us",
+      "is_etf": false,
+      "prob": 0.10703676717856743,
+      "prob_up": 0.8191962784441207,
+      "prob_bench": 0.23606097971079476,
+      "score": 11,
+      "suggestion": "回避",
+      "breaking_event": null,
+      "valuation": "",
+      "confidence": "高",
+      "data_completeness": 1.0,
+      "reasons": [
+        "价格波动收敛（SHAP +0.00）",
+        "量能平稳（SHAP +0.00）",
+        "成交放量（SHAP +0.00）",
+        "RSI 超卖（0），或现反弹",
+        "短中期均线多头排列（趋多）",
+        "近一月强势（+15%）"
+      ],
+      "risks": [
+        "新闻·Pinterest指引偏软致股价下跌（影响 0.4）",
+        "真实波幅放大（波动加剧）（SHAP -0.01）",
+        "与市场相关性上升（SHAP -0.00）",
+        "近期波动较大（SHAP -0.00）"
+      ]
+    },
+    {
+      "code": "AMD",
+      "name": "AMD",
+      "industry": "半导体",
+      "market": "us",
+      "is_etf": false,
+      "prob": 0.08882972760901245,
+      "prob_up": 0.28295874901916823,
+      "prob_bench": 0.24817845533011995,
+      "score": 9,
+      "suggestion": "回避",
+      "breaking_event": "AMD营收增50% 数据中心销售翻倍（影响 0.7）",
+      "valuation": "",
+      "confidence": "高",
+      "data_completeness": 1.0,
+      "reasons": [
+        "⚠️ 突发：AMD营收增50% 数据中心销售翻倍（影响 0.7）",
+        "新闻·AMD营收增50% 数据中心销售翻倍（影响 0.7）",
+        "—（SHAP +0.00）",
+        "价格波动收敛（SHAP +0.00）",
+        "净利率较高（SHAP +0.00）",
+        "RSI 超卖（0），或现反弹",
+        "短中期均线多头排列（趋多）",
+        "近一月强势（+53%）"
+      ],
+      "risks": [
+        "新闻·AMD公司股价出现下跌（影响 0.5）",
+        "与市场相关性上升（SHAP -0.00）",
+        "量能波动加大（SHAP -0.00）",
+        "近期波动较大（SHAP -0.00）"
+      ]
+    },
+    {
+      "code": "TSM",
+      "name": "台积电",
+      "industry": "半导体",
+      "market": "us",
+      "is_etf": false,
+      "prob": 0.05545062212756417,
+      "prob_up": 0.09343122968277098,
+      "prob_bench": 0.07577065351418003,
+      "score": 6,
+      "suggestion": "回避",
+      "breaking_event": null,
+      "valuation": "",
+      "confidence": "高",
+      "data_completeness": 1.0,
+      "reasons": [
+        "Beta 适中（SHAP +0.00）",
+        "净利率较高（SHAP +0.00）",
+        "股价站上 60 日均线（SHAP +0.00）",
+        "RSI 超卖（1），或现反弹",
+        "短中期均线多头排列（趋多）",
+        "近一月强势（+29%）"
+      ],
+      "risks": [
+        "价格波动放大（SHAP -0.01）",
+        "与市场相关性上升（SHAP -0.01）",
+        "ROE 偏低（SHAP -0.00）"
       ]
     }
   ]

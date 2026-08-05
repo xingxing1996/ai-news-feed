@@ -91,6 +91,25 @@ def fetch_daily(code: str, start: str, end: str, market: str = "cn") -> pd.DataF
             sym = code.split(".")[0].rjust(5, "0")  # 0700.HK → 00700
             df = _call_ak(ak.stock_hk_daily, symbol=sym, adjust="qfq")
             if df is None or df.empty:
+                # 备用保底接口：stock_hk_hist
+                try:
+                    df = _call_ak(
+                        ak.stock_hk_hist,
+                        symbol=sym,
+                        period="daily",
+                        start_date=pd.to_datetime(start).strftime("%Y%m%d"),
+                        end_date=pd.to_datetime(end).strftime("%Y%m%d"),
+                        adjust="qfq",
+                    )
+                    if df is not None and not df.empty:
+                        colmap = {
+                            "日期": "date", "开盘": "open", "最高": "high", "最低": "low",
+                            "收盘": "close", "成交量": "volume",
+                        }
+                        df = df.rename(columns=colmap)
+                except Exception:  # noqa: BLE001
+                    pass
+            if df is None or df.empty:
                 return _empty_daily()
             df["date"] = pd.to_datetime(df["date"]).dt.strftime("%Y-%m-%d")
             df = df[(df["date"] >= start) & (df["date"] <= end)]
@@ -199,9 +218,9 @@ def _empty_nb() -> pd.DataFrame:
 
 
 def fetch_financial(code: str, market: str = "cn") -> pd.DataFrame:
-    """下载财务摘要。仅 A股 用 stock_financial_abstract；港股财务接口结构不同，暂返回空（不报错）。"""
-    if market != "cn":
-        return _empty_fin()  # 港股财务：AKShare 接口结构与 A股 不同，暂略（质量因子对该市场为空）
+    """下载财务摘要。仅 A股 用 stock_financial_abstract；港股与 ETF 无财报，直接返回空。"""
+    if market != "cn" or _is_etf(code):
+        return _empty_fin()  # 港股与 ETF 无上市公司财报，直接返回空，避免无意义的接口报错警告
     try:
         ak = _ak()
         sym = _to_ak_symbol(code)
@@ -259,3 +278,54 @@ def _empty_fin() -> pd.DataFrame:
         columns=["code", "report_period", "pub_date", "revenue", "profit", "roe",
                  "gross_margin", "cashflow", "pe", "pb"]
     )
+
+
+def fetch_fund_flow(code: str, start: str, end: str, market: str = "cn") -> pd.DataFrame:
+    """A股个股主力资金流向（stock_individual_fund_flow）。港股/美股退化返回空。"""
+    if market != "cn" or _is_etf(code):
+        return pd.DataFrame(columns=["date", "code", "main_fund_ratio", "super_fund_ratio"])
+    try:
+        ak = _ak()
+        sym = _to_ak_symbol(code)
+        mkt = "sh" if code.endswith(".SH") else "sz"
+        df = _call_ak(ak.stock_individual_fund_flow, stock=sym, market=mkt)
+        if df is None or df.empty or "日期" not in df.columns:
+            return pd.DataFrame(columns=["date", "code", "main_fund_ratio", "super_fund_ratio"])
+        df = df.rename(columns={
+            "日期": "date",
+            "主力净流入-净占比": "main_fund_ratio",
+            "超大单净流入-净占比": "super_fund_ratio"
+        })
+        df["date"] = pd.to_datetime(df["date"]).dt.strftime("%Y-%m-%d")
+        df["main_fund_ratio"] = pd.to_numeric(df["main_fund_ratio"], errors="coerce") / 100.0
+        df["super_fund_ratio"] = pd.to_numeric(df["super_fund_ratio"], errors="coerce") / 100.0
+        df = df[(df["date"] >= start) & (df["date"] <= end)]
+        return df.assign(code=code)[["date", "code", "main_fund_ratio", "super_fund_ratio"]]
+    except Exception as exc:  # noqa: BLE001
+        log.debug("[akshare] %s 资金流向下载失败: %s", code, exc)
+        return pd.DataFrame(columns=["date", "code", "main_fund_ratio", "super_fund_ratio"])
+
+
+def fetch_cyq(code: str, start: str, end: str, market: str = "cn") -> pd.DataFrame:
+    """A股筹码分布（stock_cyq_em：获利比例 / 90%集中度）。港股/美股退化返回空。"""
+    if market != "cn" or _is_etf(code):
+        return pd.DataFrame(columns=["date", "code", "chip_profit_ratio", "chip_concentration_90"])
+    try:
+        ak = _ak()
+        sym = _to_ak_symbol(code)
+        df = _call_ak(ak.stock_cyq_em, symbol=sym)
+        if df is None or df.empty or "日期" not in df.columns:
+            return pd.DataFrame(columns=["date", "code", "chip_profit_ratio", "chip_concentration_90"])
+        df = df.rename(columns={
+            "日期": "date",
+            "获利比例": "chip_profit_ratio",
+            "90集中度": "chip_concentration_90"
+        })
+        df["date"] = pd.to_datetime(df["date"]).dt.strftime("%Y-%m-%d")
+        df["chip_profit_ratio"] = pd.to_numeric(df["chip_profit_ratio"], errors="coerce")
+        df["chip_concentration_90"] = pd.to_numeric(df["chip_concentration_90"], errors="coerce")
+        df = df[(df["date"] >= start) & (df["date"] <= end)]
+        return df.assign(code=code)[["date", "code", "chip_profit_ratio", "chip_concentration_90"]]
+    except Exception as exc:  # noqa: BLE001
+        log.debug("[akshare] %s 筹码分布下载失败: %s", code, exc)
+        return pd.DataFrame(columns=["date", "code", "chip_profit_ratio", "chip_concentration_90"])

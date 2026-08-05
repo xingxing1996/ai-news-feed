@@ -110,6 +110,7 @@ def _read_json(name: str):
 
 # ---------- API ----------
 @app.get("/health")
+@app.get("/api/health")
 def health():
     sched = getattr(app.state, "scheduler", None)
     jobs = [{"id": j.id, "next": str(j.next_run_time)} for j in sched.get_jobs()] if sched else []
@@ -117,6 +118,7 @@ def health():
 
 
 @app.get("/recommendations")
+@app.get("/api/recommendations")
 def recommendations():
     data = _read_json("recommendations_cn.json") if (OUT / "recommendations_cn.json").exists() \
         else _read_json("recommendations.json")
@@ -126,6 +128,7 @@ def recommendations():
 
 
 @app.get("/report")
+@app.get("/api/report")
 def report():
     for n in ("recommendations_cn.md", "daily_report.md"):
         p = OUT / n
@@ -135,11 +138,13 @@ def report():
 
 
 @app.get("/backtest")
+@app.get("/api/backtest")
 def backtest():
     return _read_json("backtest_metrics.txt") or {"error": "暂无回测"}
 
 
 @app.get("/files")
+@app.get("/api/files")
 def files():
     if not OUT.exists():
         return {"files": []}
@@ -147,6 +152,7 @@ def files():
 
 
 @app.get("/log", response_class=PlainTextResponse)
+@app.get("/api/log", response_class=PlainTextResponse)
 def log_tail():
     """读取训练/调度日志尾部（排错用，看首次训练为什么没出结果）。"""
     for name in ("scheduler.log", "startup.log"):
@@ -157,6 +163,7 @@ def log_tail():
 
 
 @app.get("/run")
+@app.get("/api/run")
 def manual_run():
     """手动触发完整训练（后台）。"""
     threading.Thread(target=_run_cli, args=("run",), daemon=True).start()
@@ -164,10 +171,30 @@ def manual_run():
 
 
 @app.get("/refresh")
+@app.get("/api/refresh")
 def manual_refresh():
     """手动触发日报刷新（后台）。"""
     threading.Thread(target=_run_cli, args=("refresh",), daemon=True).start()
     return {"status": "started", "msg": "刷新已后台触发，看 /log"}
+
+
+@app.get("/reset_and_run")
+@app.get("/api/reset_and_run")
+def manual_reset_run():
+    """重置数据并强行全量重跑（用于补齐港股与全量数据）。"""
+    def _do_reset():
+        try:
+            import shutil
+            if (OUT / "daily_price.parquet").exists():
+                (OUT / "daily_price.parquet").unlink()
+            if (OUT / "features.parquet").exists():
+                (OUT / "features.parquet").unlink()
+        except Exception:  # noqa: BLE001
+            pass
+        _run_cli("run")
+
+    threading.Thread(target=_do_reset, daemon=True).start()
+    return {"status": "started", "msg": "全量数据补齐重跑已后台触发，看 /log 或 /health"}
 
 
 # ---------- 浏览器看板（根路径）----------
@@ -191,12 +218,41 @@ def dashboard():
         rows += "<tr>" + "".join(f"<td>{cell(r.get(c, ''))}</td>" for c in cols) + "</tr>"
 
     return f"""<!doctype html><html><head><meta charset='utf-8'>
-<title>A股+港股 量化推荐</title>
-<style>body{{font-family:system-ui;margin:20px}} table{{border-collapse:collapse;font-size:14px}}
-td,th{{border:1px solid #ddd;padding:5px 8px}} tr:nth-child(even){{background:#f7f7f7}} a{{color:#2563eb}}</style>
+<title>A股+港股 AI 量化推荐</title>
+<style>
+  body{{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;margin:24px;background:#f8fafc;color:#0f172a}}
+  .card{{background:#fff;border-radius:8px;border:1px solid #e2e8f0;padding:16px 20px;margin-bottom:20px;box-shadow:0 1px 3px rgba(0,0,0,0.05)}}
+  h2{{margin-top:0;font-size:20px;color:#1e293b}}
+  table{{border-collapse:collapse;width:100%;font-size:14px}}
+  td,th{{border:1px solid #e2e8f0;padding:8px 12px;text-align:left}}
+  th{{background:#f1f5f9;font-weight:600}}
+  tr:nth-child(even){{background:#f8fafc}}
+  a{{color:#2563eb;text-decoration:none;font-weight:500}}
+  a:hover{{text-decoration:underline}}
+  .api-grid{{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;margin-top:12px}}
+  .api-item{{background:#f8fafc;border:1px solid #cbd5e1;border-radius:6px;padding:10px 14px}}
+  .api-item code{{background:#e2e8f0;padding:2px 6px;border-radius:4px;font-family:monospace;color:#0f172a;font-weight:bold}}
+</style>
 </head><body>
-<h2>A股 + 港股 AI 量化推荐</h2>
-<small>更新: {data.get('update_time','—')} | 三概率: 上涨 / 跑赢大盘 / 跑赢行业 | 非投资建议</small>
-<p><a href='/recommendations'>JSON</a> | <a href='/report'>日报</a> | <a href='/backtest'>回测</a> | <a href='/docs'>API文档</a> | <a href='/health'>状态</a></p>
-<table><thead><tr>{head}</tr></thead><tbody>{rows}</tbody></table>
+<div class="card">
+  <h2>A股 + 港股 AI 量化推荐看板</h2>
+  <small>更新时间: {data.get('update_time','—')} | 评估标的: {len(recs)} 只 | 三概率: 上涨 / 跑赢大盘 / 跑赢行业 | 非投资建议</small>
+</div>
+
+<div class="card">
+  <h3>🔗 系统开放 REST API 接口指南</h3>
+  <div class="api-grid">
+    <div class="api-item"><a href='/report'>/report</a> 或 <code>/api/report</code><br/><small>Markdown 格式 AI 投资日报</small></div>
+    <div class="api-item"><a href='/recommendations'>/recommendations</a> 或 <code>/api/recommendations</code><br/><small>推荐打分 JSON 数据</small></div>
+    <div class="api-item"><a href='/health'>/health</a> 或 <code>/api/health</code><br/><small>系统健康与 APScheduler 调度状态</small></div>
+    <div class="api-item"><a href='/backtest'>/backtest</a> 或 <code>/api/backtest</code><br/><small>策略历史回测绩效指标</small></div>
+    <div class="api-item"><a href='/log'>/log</a> 或 <code>/api/log</code><br/><small>读取最新运行与调度日志</small></div>
+    <div class="api-item"><a href='/docs'>/docs</a><br/><small>Swagger 交互式 API 文档</small></div>
+  </div>
+</div>
+
+<div class="card">
+  <h3>📊 实时股票推荐池（按照 AI 概率降序）</h3>
+  <table><thead><tr>{head}</tr></thead><tbody>{rows}</tbody></table>
+</div>
 </body></html>"""

@@ -50,7 +50,7 @@ def fetch_all(universe_df: pd.DataFrame, start: str, end: str, synthetic: bool,
 
     start_by_code: {code: 起始日}，增量采集时每只股票只拉「已有最后日期之后」。
     """
-    daily_parts, val_parts, fin_parts, nb_parts = [], [], [], []
+    daily_parts, val_parts, fin_parts, nb_parts, flow_parts, cyq_parts = [], [], [], [], [], []
     rows = list(universe_df.itertuples(index=False))
     try:
         from ..config import get_settings as _gs
@@ -72,17 +72,35 @@ def fetch_all(universe_df: pd.DataFrame, start: str, end: str, synthetic: bool,
             nb = L.fetch_northbound(r.code, s, end, r.market)
             if not nb.empty:
                 nb_parts.append(nb)
+        if hasattr(L, "fetch_fund_flow") and (not synthetic) and r.market == "cn":
+            fl = L.fetch_fund_flow(r.code, s, end, r.market)
+            if not fl.empty:
+                flow_parts.append(fl)
+        if hasattr(L, "fetch_cyq") and (not synthetic) and r.market == "cn":
+            cq = L.fetch_cyq(r.code, s, end, r.market)
+            if not cq.empty:
+                cyq_parts.append(cq)
         f = L.fetch_financial(r.code, r.market) if is_ak else L.fetch_financial(r.code)
         if not f.empty:
             fin_parts.append(f)
         if fetch_delay and not synthetic:
             time.sleep(fetch_delay)
 
+    daily_parts = [df for df in daily_parts if not df.empty]
+    val_parts = [df for df in val_parts if not df.empty]
+    fin_parts = [df for df in fin_parts if not df.empty]
+    nb_parts = [df for df in nb_parts if not df.empty]
+    flow_parts = [df for df in flow_parts if not df.empty]
+    cyq_parts = [df for df in cyq_parts if not df.empty]
+
     daily = pd.concat(daily_parts, ignore_index=True) if daily_parts else pd.DataFrame()
     valuation = pd.concat(val_parts, ignore_index=True) if val_parts else pd.DataFrame()
     financial = pd.concat(fin_parts, ignore_index=True) if fin_parts else pd.DataFrame()
     northbound = pd.concat(nb_parts, ignore_index=True) if nb_parts else pd.DataFrame()
-    return {"daily": daily, "valuation": valuation, "financial": financial, "northbound": northbound}
+    fund_flow = pd.concat(flow_parts, ignore_index=True) if flow_parts else pd.DataFrame()
+    cyq = pd.concat(cyq_parts, ignore_index=True) if cyq_parts else pd.DataFrame()
+    return {"daily": daily, "valuation": valuation, "financial": financial,
+            "northbound": northbound, "fund_flow": fund_flow, "cyq": cyq}
 
 
 def fetch_and_store(universe_df: pd.DataFrame | None = None, settings: AttrDict | None = None) -> dict[str, Any]:
@@ -140,6 +158,16 @@ def fetch_and_store(universe_df: pd.DataFrame | None = None, settings: AttrDict 
     if not data.get("northbound", pd.DataFrame()).empty:
         write_parquet(data["northbound"], "northbound")
     stats["northbound_rows"] = len(data.get("northbound", pd.DataFrame()))
+
+    # fund_flow → Parquet（A股主力/超大单资金流向）
+    if not data.get("fund_flow", pd.DataFrame()).empty:
+        write_parquet(data["fund_flow"], "fund_flow")
+    stats["fund_flow_rows"] = len(data.get("fund_flow", pd.DataFrame()))
+
+    # cyq → Parquet（A股筹码分布：获利盘与集中度）
+    if not data.get("cyq", pd.DataFrame()).empty:
+        write_parquet(data["cyq"], "cyq")
+    stats["cyq_rows"] = len(data.get("cyq", pd.DataFrame()))
 
     # financial → SQLite
     if not data["financial"].empty:
