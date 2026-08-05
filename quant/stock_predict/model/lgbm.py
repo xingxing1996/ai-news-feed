@@ -83,7 +83,10 @@ def _train_one(feat_cols, params, splits, target, use_ensemble=True, calibrate=F
     fit_kwargs = {}
     if not Xva.empty:
         fit_kwargs = {"eval_set": [(Xva, yva)], "callbacks": [lgb.early_stopping(50, verbose=False)]}
-    model.fit(Xtr, ytr, **fit_kwargs)
+    import warnings
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        model.fit(Xtr, ytr, **fit_kwargs)
 
     xgbm = None
     if use_ensemble:

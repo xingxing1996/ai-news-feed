@@ -68,10 +68,13 @@ def fetch_valuation(code: str, start: str, end: str, market: str = "us") -> pd.D
         yf = _yf()
         tk = yf.Ticker(code)
         px = yf.download(code, start=start, end=end, progress=False, auto_adjust=True)
-        if px is None or px.empty or "close" not in px:
+        if px is None or px.empty:
             return _empty_valuation()
         if isinstance(px.columns, pd.MultiIndex):
             px.columns = [c[0] if isinstance(c, tuple) else c for c in px.columns]
+        px.columns = [str(c).lower() for c in px.columns]
+        if "close" not in px:
+            return _empty_valuation()
         close = pd.to_numeric(px["close"], errors="coerce")
         close.index = pd.to_datetime(close.index)
 
