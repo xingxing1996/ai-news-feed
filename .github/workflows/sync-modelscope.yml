@@ -14,17 +14,19 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Push Code to ModelScope Studio
-        env:
-          GIT_LFS_SKIP_SMUDGE: "1"
+      - name: Push Code & LFS to ModelScope Studio
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git lfs install
           git config lfs.allowincompletepush true
-          git remote add modelscope https://oauth2:ms-d9c034d8-4f01-43c9-b3eb-12cb35d4b075@www.modelscope.cn/studios/gaoxingxing12415/test_stock_predict.git || true
           
-          # 创建不带任何 LFS 缓存历史指针的极速分支推送给 ModelScope
-          git checkout -b release-ms
-          git rm -rf --cached quant/state/*.parquet 2>/dev/null || true
-          git commit -m "clean lfs sync" || true
-          git push -f modelscope release-ms:master
+          # 绑定带 OAuth2 Token 的远程地址
+          MS_URL="https://oauth2:ms-d9c034d8-4f01-43c9-b3eb-12cb35d4b075@www.modelscope.cn/studios/gaoxingxing12415/test_stock_predict.git"
+          git remote add modelscope "$MS_URL" || git remote set-url modelscope "$MS_URL"
+          
+          # 1. 显式把缺失的 LFS 历史二进制文件上传给 ModelScope
+          git lfs push --all modelscope || true
+          
+          # 2. 正常推送代码至 ModelScope master 分支
+          git push -f modelscope main:master
