@@ -251,7 +251,15 @@ def _normalize_financial_ak(df: pd.DataFrame, code: str) -> pd.DataFrame:
             "cashflow": _pick(df, ["经营活动现金流量净额", "经营现金流净额"]),
             "pe": pd.NA,
             "pb": pd.NA,
+            "profit_growth": _pick(df, ["净利润同比增长率", "净利润同比增长", "归母净利润同比增长率", "净利润增长率"]),
+            "revenue_growth": _pick(df, ["营业收入同比增长率", "营业收入同比增长", "营业总收入同比增长率", "营收增长率"]),
         }
+        # 归一化百分比 (若源数据是 45.2% 格式转为 0.452)
+        if pd.notna(rec["profit_growth"]) and abs(rec["profit_growth"]) > 5.0:
+            rec["profit_growth"] = rec["profit_growth"] / 100.0
+        if pd.notna(rec["revenue_growth"]) and abs(rec["revenue_growth"]) > 5.0:
+            rec["revenue_growth"] = rec["revenue_growth"] / 100.0
+
         rows.append(rec)
     except Exception:  # noqa: BLE001
         return _empty_fin()

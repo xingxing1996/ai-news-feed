@@ -26,11 +26,15 @@ def compute_quality_factors(daily: pd.DataFrame, financial: pd.DataFrame) -> pd.
     for code, g in fin.groupby("code"):
         gg = g.copy()
         if len(gg) > 1:
-            gg["revenue_growth"] = gg["revenue"].pct_change(fill_method=None)
-            gg["profit_growth"] = gg["profit"].pct_change(fill_method=None)
+            if "revenue_growth" not in gg.columns or gg["revenue_growth"].isna().all():
+                gg["revenue_growth"] = gg["revenue"].pct_change(fill_method=None)
+            if "profit_growth" not in gg.columns or gg["profit_growth"].isna().all():
+                gg["profit_growth"] = gg["profit"].pct_change(fill_method=None)
         else:
-            gg["revenue_growth"] = np.nan
-            gg["profit_growth"] = np.nan
+            if "revenue_growth" not in gg.columns:
+                gg["revenue_growth"] = np.nan
+            if "profit_growth" not in gg.columns:
+                gg["profit_growth"] = np.nan
         growth.append(gg)
     fin = pd.concat(growth, ignore_index=True) if growth else fin
 
