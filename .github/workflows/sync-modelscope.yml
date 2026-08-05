@@ -13,13 +13,15 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          lfs: true
 
-      - name: Push to ModelScope Studio
+      - name: Setup Git LFS and Push to ModelScope Studio
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git lfs install
           git config lfs.allowincompletepush true
           git remote add modelscope https://oauth2:ms-d9c034d8-4f01-43c9-b3eb-12cb35d4b075@www.modelscope.cn/studios/gaoxingxing12415/test_stock_predict.git || true
           git lfs push --all modelscope || true
-          git push -f modelscope main:master
+          git fetch modelscope master || true
+          git merge --no-edit -X ours modelscope/master || true
+          git push modelscope main:master
