@@ -199,9 +199,9 @@ def _empty_nb() -> pd.DataFrame:
 
 
 def fetch_financial(code: str, market: str = "cn") -> pd.DataFrame:
-    """下载财务摘要。仅 A股 用 stock_financial_abstract；港股财务接口结构不同，暂返回空（不报错）。"""
-    if market != "cn":
-        return _empty_fin()  # 港股财务：AKShare 接口结构与 A股 不同，暂略（质量因子对该市场为空）
+    """下载财务摘要。仅 A股 用 stock_financial_abstract；港股与 ETF 无财报，直接返回空。"""
+    if market != "cn" or _is_etf(code):
+        return _empty_fin()  # 港股与 ETF 无上市公司财报，直接返回空，避免无意义的接口报错警告
     try:
         ak = _ak()
         sym = _to_ak_symbol(code)
