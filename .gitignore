@@ -21,3 +21,7 @@ feedLastTime.json
 
 # 本地推送脚本（含 token，勿提交）
 push.sh
+
+# 数据缓存 Parquet 文件（模型运行时动态生成，不进 Git）
+*.parquet
+quant/state/*.parquet
