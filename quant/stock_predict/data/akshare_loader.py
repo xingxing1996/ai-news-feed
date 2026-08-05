@@ -91,6 +91,25 @@ def fetch_daily(code: str, start: str, end: str, market: str = "cn") -> pd.DataF
             sym = code.split(".")[0].rjust(5, "0")  # 0700.HK → 00700
             df = _call_ak(ak.stock_hk_daily, symbol=sym, adjust="qfq")
             if df is None or df.empty:
+                # 备用保底接口：stock_hk_hist
+                try:
+                    df = _call_ak(
+                        ak.stock_hk_hist,
+                        symbol=sym,
+                        period="daily",
+                        start_date=pd.to_datetime(start).strftime("%Y%m%d"),
+                        end_date=pd.to_datetime(end).strftime("%Y%m%d"),
+                        adjust="qfq",
+                    )
+                    if df is not None and not df.empty:
+                        colmap = {
+                            "日期": "date", "开盘": "open", "最高": "high", "最低": "low",
+                            "收盘": "close", "成交量": "volume",
+                        }
+                        df = df.rename(columns=colmap)
+                except Exception:  # noqa: BLE001
+                    pass
+            if df is None or df.empty:
                 return _empty_daily()
             df["date"] = pd.to_datetime(df["date"]).dt.strftime("%Y-%m-%d")
             df = df[(df["date"] >= start) & (df["date"] <= end)]
