@@ -47,6 +47,13 @@ cn:
   - {code: "688111.SH", name: "金山办公", industry: "计算机"}      # 科创50
   - {code: "688036.SH", name: "传音控股", industry: "电子"}        # 科创50
   - {code: "688271.SH", name: "联影医疗", industry: "医药生物"}    # 科创50
+  # —— AI算力硬件 / CPO光模块 / 封测 / 机器人龙头 ——
+  - {code: "601138.SH", name: "工业富联", industry: "计算机"}      # AI服务器代工龙头
+  - {code: "300308.SZ", name: "中际旭创", industry: "通信"}        # CPO光模块龙头
+  - {code: "300502.SZ", name: "新易盛",   industry: "通信"}        # 高速光模块龙头
+  - {code: "600584.SH", name: "长电科技", industry: "半导体"}      # 先进芯片封测
+  - {code: "002050.SZ", name: "三花智控", industry: "机械设备"}    # 人形机器人执行器
+  - {code: "601689.SH", name: "拓普集团", industry: "汽车"}        # 机器人执行器零部件
   # —— 其他龙头 ——
   - {code: "601888.SH", name: "中国中免", industry: "商贸零售"}
   - {code: "600031.SH", name: "三一重工", industry: "机械设备"}
@@ -87,6 +94,11 @@ hk:
   - {code: "9866.HK", name: "蔚来",     industry: "汽车"}
   - {code: "2015.HK", name: "理想汽车", industry: "汽车"}
   - {code: "9868.HK", name: "小鹏汽车", industry: "汽车"}
+  # —— 港股 AI 大模型 / 潮玩新消费 / 创新药 ——
+  - {code: "9888.HK", name: "百度集团-SW", industry: "互联网"}
+  - {code: "9992.HK", name: "泡泡玛特",    industry: "商贸零售"}
+  - {code: "6160.HK", name: "百济神州",    industry: "医药生物"}
+  - {code: "0268.HK", name: "金蝶国际",    industry: "计算机"}
   # —— 半导体 / 存储（港股）——
   - {code: "0981.HK", name: "中芯国际", industry: "半导体"}
   - {code: "0992.HK", name: "联想集团", industry: "消费电子"}
@@ -108,6 +120,9 @@ hk:
   - {code: "3033.HK", name: "恒生科技ETF", industry: "指数"}
 
 us:
+  # —— 美股 AI 应用 / 软件补充 ——
+  - {code: "PLTR",  name: "Palantir",  industry: "科技"}
+  - {code: "PANW",  name: "Palo Alto", industry: "科技"}
   # —— 美国七巨头 (Magnificent 7) ——
   - {code: "AAPL",  name: "苹果",      industry: "科技"}
   - {code: "MSFT",  name: "微软",      industry: "科技"}
