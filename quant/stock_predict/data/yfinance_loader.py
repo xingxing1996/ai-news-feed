@@ -143,6 +143,36 @@ def fetch_financial(code: str, market: str = "us") -> pd.DataFrame:
         tk = yf.Ticker(code)
         info = tk.info or {}
         today = pd.Timestamp.utcnow().strftime("%Y-%m-%d")
+
+        # 尝试从季度财报中计算利润与营收同比增速 (profit_growth / revenue_growth)
+        profit_growth, revenue_growth = None, None
+        try:
+            q_fin = tk.quarterly_financials
+            if q_fin is not None and not q_fin.empty and q_fin.shape[1] >= 4:
+                # 拿最新季和去年同期季
+                cols = q_fin.columns
+                # 寻找 Net Income 行
+                net_inc_rows = [idx for idx in q_fin.index if "Net Income" in str(idx)]
+                rev_rows = [idx for idx in q_fin.index if "Total Revenue" in str(idx) or "Revenue" in str(idx)]
+                if net_inc_rows:
+                    curr_p = float(q_fin.loc[net_inc_rows[0], cols[0]])
+                    last_p = float(q_fin.loc[net_inc_rows[0], cols[4 if len(cols)>4 else 3]])
+                    if last_p != 0 and pd.notna(curr_p) and pd.notna(last_p):
+                        profit_growth = (curr_p - last_p) / abs(last_p)
+                if rev_rows:
+                    curr_r = float(q_fin.loc[rev_rows[0], cols[0]])
+                    last_r = float(q_fin.loc[rev_rows[0], cols[4 if len(cols)>4 else 3]])
+                    if last_r != 0 and pd.notna(curr_r) and pd.notna(last_r):
+                        revenue_growth = (curr_r - last_r) / abs(last_r)
+        except Exception:  # noqa: BLE001
+            pass
+
+        # 降级：从 info 中拿 earningsGrowth
+        if profit_growth is None:
+            profit_growth = _num(info, ["earningsGrowth", "earningsQuarterlyGrowth"])
+        if revenue_growth is None:
+            revenue_growth = _num(info, ["revenueGrowth"])
+
         rec = {
             "code": code,
             "report_period": None,
@@ -154,6 +184,8 @@ def fetch_financial(code: str, market: str = "us") -> pd.DataFrame:
             "cashflow": _num(info, ["operatingCashflow"]),
             "pe": _num(info, ["trailingPE"]),
             "pb": _num(info, ["priceToBook"]),
+            "profit_growth": profit_growth,
+            "revenue_growth": revenue_growth,
         }
         return pd.DataFrame([rec])
     except Exception as exc:  # noqa: BLE001
