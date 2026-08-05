@@ -34,19 +34,19 @@ def compute_northbound_factors(northbound: pd.DataFrame) -> pd.DataFrame:
 def compute_capital_chip_factors(fund_flow: pd.DataFrame, cyq: pd.DataFrame) -> pd.DataFrame:
     """主力资金净流入占比 + 筹码获利盘/集中度因子。返回 (date, code) 索引。"""
     feats = []
-    if fund_flow is not None and not fund_flow.empty:
+    if fund_flow is not None and not fund_flow.empty and "main_fund_ratio" in fund_flow.columns:
         fl = fund_flow.copy()
         fl["date"] = pd.to_datetime(fl["date"])
         fl = fl.sort_values(["code", "date"])
         g = fl.groupby("code")
-        fl["main_fund_5d"] = g["main_fund_ratio"].rolling(5, min_periods=2).mean()
-        fl["super_fund_5d"] = g["super_fund_ratio"].rolling(5, min_periods=2).mean()
+        fl["main_fund_5d"] = g["main_fund_ratio"].transform(lambda x: x.rolling(5, min_periods=1).mean())
+        fl["super_fund_5d"] = g["super_fund_ratio"].transform(lambda x: x.rolling(5, min_periods=1).mean())
         fl["date"] = fl["date"].dt.strftime("%Y-%m-%d")
         fl = fl.set_index(["date", "code"]).sort_index()
         cols = [c for c in ["main_fund_ratio", "super_fund_ratio", "main_fund_5d", "super_fund_5d"] if c in fl.columns]
         feats.append(fl[cols])
 
-    if cyq is not None and not cyq.empty:
+    if cyq is not None and not cyq.empty and "chip_profit_ratio" in cyq.columns:
         cq = cyq.copy()
         cq["date"] = pd.to_datetime(cq["date"])
         cq = cq.sort_values(["code", "date"])
