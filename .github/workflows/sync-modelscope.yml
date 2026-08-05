@@ -14,14 +14,17 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup Git LFS and Push to ModelScope Studio
+      - name: Push Code to ModelScope Studio
+        env:
+          GIT_LFS_SKIP_SMUDGE: "1"
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git lfs install
           git config lfs.allowincompletepush true
           git remote add modelscope https://oauth2:ms-d9c034d8-4f01-43c9-b3eb-12cb35d4b075@www.modelscope.cn/studios/gaoxingxing12415/test_stock_predict.git || true
-          git lfs push --all modelscope || true
-          git fetch modelscope master || true
-          git merge --no-edit -X ours modelscope/master || true
-          git push modelscope main:master
+          
+          # 创建不带任何 LFS 缓存历史指针的极速分支推送给 ModelScope
+          git checkout -b release-ms
+          git rm -rf --cached quant/state/*.parquet 2>/dev/null || true
+          git commit -m "clean lfs sync" || true
+          git push -f modelscope release-ms:master
