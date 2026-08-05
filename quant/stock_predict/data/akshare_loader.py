@@ -84,14 +84,19 @@ def _to_date(s) -> str:
 
 
 def fetch_daily(code: str, start: str, end: str, market: str = "cn") -> pd.DataFrame:
-    """下载前复权日线（A股 stock_zh_a_hist / 港股 stock_hk_daily）。返回统一 schema。"""
+    """下载前复权日线（A股 stock_zh_a_hist / 港股 stock_hk_daily + yfinance保底）。返回统一 schema。"""
     try:
         ak = _ak()
         if market == "hk":
             sym = code.split(".")[0].rjust(5, "0")  # 0700.HK → 00700
-            df = _call_ak(ak.stock_hk_daily, symbol=sym, adjust="qfq")
+            df = None
+            try:
+                df = _call_ak(ak.stock_hk_daily, symbol=sym, adjust="qfq")
+            except Exception:  # noqa: BLE001
+                pass
+
             if df is None or df.empty:
-                # 备用保底接口：stock_hk_hist
+                # 备用保底接口 1：stock_hk_hist
                 try:
                     df = _call_ak(
                         ak.stock_hk_hist,
@@ -109,8 +114,15 @@ def fetch_daily(code: str, start: str, end: str, market: str = "cn") -> pd.DataF
                         df = df.rename(columns=colmap)
                 except Exception:  # noqa: BLE001
                     pass
+
+            # 备用保底接口 2：yfinance (100% 极速稳定保底)
             if df is None or df.empty:
-                return _empty_daily()
+                try:
+                    from . import yfinance_loader as YL
+                    return YL.fetch_daily(code, start, end)
+                except Exception:  # noqa: BLE001
+                    return _empty_daily()
+
             df["date"] = pd.to_datetime(df["date"]).dt.strftime("%Y-%m-%d")
             df = df[(df["date"] >= start) & (df["date"] <= end)]
             out = df[["date", "open", "high", "low", "close", "volume"]].copy()
@@ -156,7 +168,7 @@ def fetch_daily(code: str, start: str, end: str, market: str = "cn") -> pd.DataF
 
 
 def fetch_valuation(code: str, start: str, end: str, market: str = "cn") -> pd.DataFrame:
-    """历史 PE/PB。A股 stock_zh_valuation_baidu / 港股 stock_hk_valuation_baidu（同源百度）。"""
+    """历史 PE/PB。A股 stock_zh_valuation_baidu / 港股 stock_hk_valuation_baidu + yfinance保底。"""
     try:
         ak = _ak()
         if market == "cn":
@@ -165,8 +177,19 @@ def fetch_valuation(code: str, start: str, end: str, market: str = "cn") -> pd.D
             pb = _baidu_val(ak, "stock_zh_valuation_baidu", sym, "市净率")
         elif market == "hk":
             sym = code.split(".")[0].rjust(5, "0")  # 0700.HK → 00700
-            pe = _baidu_val(ak, "stock_hk_valuation_baidu", sym, "市盈率(TTM)")
-            pb = _baidu_val(ak, "stock_hk_valuation_baidu", sym, "市净率")
+            pe, pb = None, None
+            try:
+                pe = _baidu_val(ak, "stock_hk_valuation_baidu", sym, "市盈率(TTM)")
+                pb = _baidu_val(ak, "stock_hk_valuation_baidu", sym, "市净率")
+            except Exception:  # noqa: BLE001
+                pass
+            if pe is None and pb is None:
+                # yfinance 估值保底
+                try:
+                    from . import yfinance_loader as YL
+                    return YL.fetch_valuation(code, start, end)
+                except Exception:  # noqa: BLE001
+                    return _empty_valuation()
         else:
             return _empty_valuation()
         if pe is None and pb is None:
