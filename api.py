@@ -91,7 +91,7 @@ def _start_scheduler():
 
 # ---------- 读取 ----------
 def _recs_path():
-    for n in ("recommendations_cn.json", "recommendations.json"):
+    for n in ("recommendations.json", "recommendations_cn.json"):
         p = OUT / n
         if p.exists():
             return p
@@ -185,10 +185,10 @@ def manual_reset_run():
     def _do_reset():
         try:
             import shutil
-            if (OUT / "daily_price.parquet").exists():
-                (OUT / "daily_price.parquet").unlink()
-            if (OUT / "features.parquet").exists():
-                (OUT / "features.parquet").unlink()
+            for old_f in ("daily_price.parquet", "features.parquet", "recommendations_cn.json", "recommendations_cn.md"):
+                p = OUT / old_f
+                if p.exists():
+                    p.unlink()
         except Exception:  # noqa: BLE001
             pass
         _run_cli("run")
