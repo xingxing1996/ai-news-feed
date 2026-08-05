@@ -1,0 +1,51 @@
+name: Refresh Quant Report
+
+# 每 2 小时：复用每日训练持久化的模型 + 最新特征快照，拉实时新闻，刷新 recommendations.json。
+# 不重训、不重拉历史行情（日线日内不变）——模型每天由 train.yml 训练一次。
+on:
+  schedule:
+    - cron: '17 */2 * * *'   # 每 2 小时（与 update/feed 错峰）
+  workflow_dispatch:
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+        cache: pip
+        cache-dependency-path: quant/requirements.txt
+
+    - name: 安装依赖
+      run: pip install -r quant/requirements.txt
+
+    - name: 先解析模型版本（保证 config/models.yaml 最新）
+      env:
+        ARK_API_KEY: ${{ secrets.ARK_API_KEY }}
+      run: MODELS_CONFIG=config/models.yaml python resolve_models.py || true
+
+    - name: 刷新日报（复用模型 + 最新新闻；缺 state 则回退完整训练）
+      env:
+        ARK_API_KEY: ${{ secrets.ARK_API_KEY }}
+      working-directory: quant
+      run: |
+        # GHA 跨 job 无共享磁盘：模型只在 train.yml 提交的 quant/state/ 里。
+        # 若 state 缺失（train 还没成功/push 失败），回退跑一次完整 run（顺带重建 state）。
+        PYTHONPATH=$GITHUB_WORKSPACE:$GITHUB_WORKSPACE/quant \
+        STOCK_PREDICT_CONFIG=config/settings.us.yaml python -m stock_predict.cli refresh \
+        || PYTHONPATH=$GITHUB_WORKSPACE:$GITHUB_WORKSPACE/quant \
+           STOCK_PREDICT_CONFIG=config/settings.us.yaml python -m stock_predict.cli run
+
+    - name: 提交 recommendations.json + 日报 + state + 日志
+      if: always()
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git fetch origin main && git reset origin/main
+        cp quant/data/output/recommendations_us.json recommendations_us.json 2>/dev/null || true
+        cp quant/data/output/recommendations_us.md recommendations_us.md 2>/dev/null || true
+        git add -f recommendations_us.json recommendations_us.md quant/state/ logs/ 2>/dev/null || true
+        git commit -m "Refresh quant report (US+KR, every 2h)" || exit 0
+        git push

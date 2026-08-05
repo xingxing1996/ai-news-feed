@@ -1,0 +1,17 @@
+# docker compose up -d   （构建+常驻定时）
+# 日报/模型产物持久化在 ./data（卷），ARK_API_KEY 从 .env 或环境读
+services:
+  stock-predict:
+    build: .
+    image: stock-predict:latest
+    container_name: stock-predict
+    restart: unless-stopped
+    environment:
+      ARK_API_KEY: ${ARK_API_KEY}          # 火山方舟 key（必填，走新闻 LLM）
+      TZ: Asia/Shanghai
+      # 每个工作日 16:00 北京时间（A股15:00收盘后）跑一次。
+      # 16:00 CST = 08:00 UTC。改成 "*/5 * * * *" 可每5分钟测试。
+      CRON_SCHEDULE: "0 8 * * 1-5"
+    volumes:
+      - ./data:/app/data                   # 持久化：行情/模型/日报
+# 可选：把 key 放 .env：echo "ARK_API_KEY=ark-xxxx" > .env

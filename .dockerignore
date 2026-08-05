@@ -1,0 +1,13 @@
+# 不打进镜像
+**/__pycache__/
+*.pyc
+*.egg-info/
+.git/
+.github/
+.claude/
+.idea/
+.vscode/
+.DS_Store
+quant/data/
+quant/config/settings.local.yaml
+data/

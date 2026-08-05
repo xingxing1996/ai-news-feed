@@ -1,0 +1,77 @@
+# 美股(+韩股)配置 —— 跑在 GitHub Actions（美国机房，yfinance 可用）。
+# A股/港股因 AKShare 从美国被墙，走 settings.cn.yaml 在中国机器跑。
+paths:
+  project_root: .
+  raw_dir: data/raw
+  qlib_dir: data/qlib_data
+  warehouse_dir: data/warehouse
+  sqlite_path: data/meta.db
+  output_dir: data/output
+
+universe:
+  config_file: config/universe.yaml
+  markets: [us, kr]                       # ★只跑美股+韩股（yfinance 在美国能拉）
+  demo_mode: false
+
+data:
+  synthetic: false
+  years_back: 6
+  sources: {cn: akshare, hk: akshare, us: yfinance}
+
+feature:
+  use_alpha158: true
+  use_qlib_alpha: false
+  label_horizon: 20
+  process: rank
+  neutralize: true
+  valuation: true
+  quality: true
+  industry: false
+  news: false
+
+model:
+  name: lightgbm
+  ensemble: true
+  lightgbm: {objective: binary, n_estimators: 500, learning_rate: 0.02, num_leaves: 64,
+             max_depth: -1, min_child_samples: 80, subsample: 0.8, colsample_bytree: 0.8,
+             reg_alpha: 0.1, reg_lambda: 1.0, random_state: 42}
+  split: {train_end: "2022-12-31", valid_start: "2023-01-01", valid_end: "2023-12-31",
+          test_start: "2024-01-01", test_end: ""}
+
+backtest:
+  top_n: 15
+  hold_days: 20
+  commission_bps: 3.0
+  slippage_bps: 5.0
+  impact_coef: 10.0
+  weighting: inv_vol
+  ranking: label                        # 美股仅 label(跑赢行业) IC 为正(0.09)；abs/bench 为负
+  max_weight: 0.12
+  max_industry: 0.40
+  n_drop: 5
+  benchmark: "QQQ"
+
+report:
+  top_k: 0                              # 0=全部股票都列出
+  min_probability: 0.0                  # 0=不过滤（校准后概率集中在~0.5，阈值会滤空）
+  out_path: data/output/recommendations_us.md
+  explain_method: shap
+
+news:
+  enabled: true
+  sources: [sec, rss]                     # 美股：SEC EDGAR + RSS（不用 akshare）
+  rss_feeds:
+    - "https://feeds.content.dowjones.io/public/rss/SB1000.xml"
+    - "https://www.cnbc.com/id/100003114/device/rss/rss.html"
+    - "https://www.marketwatch.com/rss/topstories"
+  dedup: true
+  max_codes: 20
+  per_stock: 3
+
+embedding: {model_path: "", dim: 1024, index_path: data/output/news.faiss}
+llm:
+  base_url: "https://ark.cn-beijing.volces.com/api/v3"
+  api_key: ""
+  model: "deepseek-v3-2-251201"
+  temperature: 0.1
+  timeout: 180

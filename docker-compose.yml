@@ -1,0 +1,17 @@
+# 本地部署（A股+港股）：复用根 Dockerfile，覆盖配置为 settings.cn、映射端口、挂卷。
+# ModelScope 创空间：不用 compose，直接用根 Dockerfile（默认 settings.modelspace + 7860）。
+services:
+  quant:
+    build: .
+    image: stock-predict:latest
+    container_name: stock-predict
+    restart: unless-stopped
+    ports:
+      - "8000:7860"                      # 本地 8000 → 容器 7860
+    environment:
+      TZ: Asia/Shanghai
+      ARK_API_KEY: ${ARK_API_KEY}        # 新闻 LLM；可空
+      STOCK_PREDICT_CONFIG: /app/quant/config/settings.cn.yaml   # 本地用 cn 配置(相对路径)
+      USE_APSCHEDULER: "1"               # api.py 进程内调度（工作日17点训练+每2h刷新）
+    volumes:
+      - ./quant-data:/app/quant/data     # 本地持久化（settings.cn 的相对数据路径）

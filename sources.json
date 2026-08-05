@@ -1,0 +1,88 @@
+{
+    "科技与产品": [
+        "https://news.ycombinator.com/rss",
+        "https://techcrunch.com/feed/",
+        "https://www.theverge.com/rss/index.xml",
+        "https://www.wired.com/feed/rss",
+        "https://arstechnica.com/feed/",
+        "https://www.producthunt.com/feed",
+        "https://developer.apple.com/news/rss/news.rss"
+    ],
+    "AI与前沿": [
+        "https://export.arxiv.org/rss/cs.AI",
+        "https://arxiv.org/rss/cs.LG",
+        "https://huggingface.co/blog/feed.xml",
+        "https://blog.google/technology/ai/rss/",
+        "https://developers.googleblog.com/feed/",
+        "https://rsshub.rssforever.com/jiqizhixin/post",
+        "https://rsshub.rssforever.com/quantumman/daily",
+        "https://news.mit.edu/topic/mitquantum-computing-rss.xml"
+    ],
+    "工程与开源": [
+        "https://blog.cloudflare.com/rss/",
+        "https://netflixtechblog.com/feed",
+        "https://blog.bytebytego.com/feed",
+        "https://github.blog/feed/",
+        "https://developer.nvidia.com/blog/feed/",
+        "https://thenewstack.io/feed/",
+        "https://stackoverflow.blog/feed/",
+        "https://engineering.fb.com/feed/",
+        "https://blog.pragmaticengineer.com/feed/",
+        "https://martinfowler.com/feed.atom",
+        "https://www.infoq.com/feed"
+    ],
+    "硬科技产业": [
+        "https://spectrum.ieee.org/rss/fulltext",
+        "https://semianalysis.com/feed",
+        "https://electrek.co/feed/",
+        "https://cleantechnica.com/feed/",
+        "https://spacenews.com/feed/"
+    ],
+    "商业与金融": [
+        "https://feeds.a.dj.com/rss/RSSMarketsMain.xml",
+        "https://seekingalpha.com/market_currents.xml",
+        "https://news.crunchbase.com/feed/",
+        "https://www.investing.com/rss/news_301.rss"
+    ],
+    "地缘政治": [
+        "https://feeds.bbci.co.uk/news/world/rss.xml",
+        "https://foreignpolicy.com/feed/"
+    ],
+    "生物医药": [
+        "https://www.fiercebiotech.com/rss.xml",
+        "https://www.statnews.com/feed/",
+        "https://www.nature.com/nature.rss"
+    ],
+    "加密货币": [
+        "https://cointelegraph.com/rss",
+        "https://coindesk.com/arc/outboundfeeds/rss/",
+        "https://decrypt.co/feed"
+    ],
+    "网络安全": [
+        "https://feeds.feedburner.com/TheHackersNews",
+        "https://www.bleepingcomputer.com/feed/"
+    ],
+    "娱乐与文化": [
+        "https://variety.com/feed/",
+        "https://pagesix.com/feed/",
+        "https://deadline.com/feed/",
+        "https://www.buzzfeed.com/celebrity.xml",
+        "https://www.gamespot.com/feeds/mashup/",
+        "https://www.pcgamer.com/rss/",
+        "https://www.eurogamer.net/feed",
+        "https://www.billboard.com/feed/",
+        "https://www.nme.com/rss"
+    ],
+    "YouTube热榜": [
+        "https://www.youtube.com/feeds/videos.xml?user=marquesbrownlee",
+        "https://www.youtube.com/feeds/videos.xml?user=LinusTechTips",
+        "https://www.youtube.com/feeds/videos.xml?user=MrBeast",
+        "https://www.youtube.com/feeds/videos.xml?user=cnbc",
+        "https://www.youtube.com/feeds/videos.xml?user=BBC"
+    ],
+    "中国视角": [
+        "https://rsshub.rssforever.com/36kr/newsflashes",
+        "https://rsshub.rssforever.com/latepost",
+        "https://rsshub.rssforever.com/zhihu/hot"
+    ]
+}

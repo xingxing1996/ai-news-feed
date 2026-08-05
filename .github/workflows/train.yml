@@ -1,0 +1,60 @@
+name: Daily Quant Train
+
+# 每天：完整量化训练（A股+港股 AKShare 拉数据 → 重训 LightGBM+XGBoost → 回测 → 日报）
+# 产出 recommendations.json（跑赢行业概率+评分+理由），与新闻 feed.json 无关。
+# 注意：GHA 是美国机器，A股 AKShare 数据可能部分拉不到 → 降级跳过，不中断。
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '27 1 * * *'   # 每天 01:27 UTC（与 resolve-models 错峰）
+  workflow_dispatch:
+
+jobs:
+  train:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+        cache: pip
+        cache-dependency-path: quant/requirements.txt
+
+    - name: 安装 quant 依赖
+      run: pip install -r quant/requirements.txt
+
+    - name: 先解析模型版本（保证 config/models.yaml 最新）
+      env:
+        ARK_API_KEY: ${{ secrets.ARK_API_KEY }}
+      run: MODELS_CONFIG=config/models.yaml python resolve_models.py || true
+
+    - name: 训练 + 回测 + 日报
+      env:
+        ARK_API_KEY: ${{ secrets.ARK_API_KEY }}
+      working-directory: quant
+      run: |
+        PYTHONPATH=$GITHUB_WORKSPACE:$GITHUB_WORKSPACE/quant \
+        STOCK_PREDICT_CONFIG=config/settings.us.yaml python -m stock_predict.cli run
+
+    - name: 上传模型 artifact
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: quant-model
+        path: quant/data/output/model.lgb
+        if-no-files-found: ignore
+
+    - name: 提交 recommendations.json + 日报 + 日志
+      if: always()
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git fetch origin main && git reset origin/main
+        # 把量化产物拷到仓库根（便于在 GitHub 直接看）—— 美股(+韩股)版
+        cp quant/data/output/recommendations_us.json recommendations_us.json 2>/dev/null || true
+        cp quant/data/output/recommendations_us.md recommendations_us.md 2>/dev/null || true
+        cp quant/data/output/backtest_metrics.txt backtest_metrics_us.json 2>/dev/null || true
+        git add -f recommendations_us.json recommendations_us.md backtest_metrics_us.json quant/state/ logs/ 2>/dev/null || true
+        git commit -m "Daily quant train (US+KR): recommendations + report + model state" || exit 0
+        git push

@@ -1,0 +1,5 @@
+feedparser
+requests
+python-dateutil
+pyyaml
+volcengine-python-sdk[ark]

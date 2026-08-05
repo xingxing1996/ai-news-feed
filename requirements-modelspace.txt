@@ -1,0 +1,34 @@
+# ModelScope 创空间依赖（自包含：quant 全量 + Gradio 看板 + APScheduler 调度）。
+# 创空间装这个（Docker 模式用 Dockerfile.modelspace）。
+# 走清华源：pip install -i https://pypi.tuna.tsinghua.edu.cn/simple -r requirements-modelspace.txt
+
+# --- quant 核心（同 quant/requirements.txt）---
+pyqlib>=0.9.6
+lightgbm>=4.0,<5
+xgboost>=2.0
+akshare>=1.12
+yfinance>=0.2.40
+pandas>=2.0,<3
+numpy>=1.24,<2
+pyarrow>=14
+duckdb>=0.10
+sqlalchemy>=2.0
+scipy>=1.10
+scikit-learn>=1.3
+shap>=0.44
+pyyaml>=6.0
+typer>=0.12
+rich>=13
+jinja2>=3.1
+openai>=1.30
+feedparser>=6.0
+requests>=2.31
+lxml>=5.0
+tqdm>=4.66
+python-dateutil>=2.9
+
+# --- 创空间看板 + 进程内调度 ---
+gradio>=4.0
+apscheduler>=3.10
+fastapi>=0.110
+uvicorn>=0.29

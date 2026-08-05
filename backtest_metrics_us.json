@@ -1,0 +1,18 @@
+{
+  "ann_return": 0.27016668390511356,
+  "ann_vol": 0.18716069679093408,
+  "sharpe": 1.371218501809131,
+  "max_drawdown": -0.2226996979276034,
+  "bench_ann_return": 0.4476039594765504,
+  "excess_ann": -0.13806872751809462,
+  "information_ratio": -0.9784093273943076,
+  "win_rate": 0.5515695067264574,
+  "n_days": 669,
+  "top_n": 15,
+  "hold_days": 20,
+  "n_rebalance": 34,
+  "avg_turnover": 0.5672782307777537,
+  "start": "2024-01-02",
+  "end": "2026-08-03",
+  "ranking": "label"
+}

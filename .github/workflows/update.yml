@@ -1,0 +1,39 @@
+name: Update AI Feed
+
+# 每天 早8点 + 晚11点（北京）跑：RSS → Ark LLM 评分/摘要 → feed.json
+# 08:00 / 23:00 CST = 00:00 / 15:00 UTC
+on:
+  schedule:
+    - cron: '0 0,15 * * *'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+        cache: pip
+
+    - name: Install dependencies
+      run: pip install -r requirements.txt
+
+    - name: Run crawler and AI script
+      env:
+        ARK_API_KEY: ${{ secrets.ARK_API_KEY }}
+      run: python main.py
+
+    - name: Commit feed.json + logs
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git fetch origin main
+        git reset origin/main
+        git add feed.json feedLastTime.json logs/ || true
+        git commit -m "Auto-update feed.json (every 2h)" || exit 0
+        git push

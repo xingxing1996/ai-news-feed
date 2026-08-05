@@ -1,0 +1,87 @@
+# Qlib qrun 工作流配置 —— 供 qlib.contrib 程序化调用参考。
+# 本项目主链路用自研脚本编排（见 stock_predict/），Qlib 主要承担：
+#   1) 数据 .bin 与 calendar/instruments（qlib_init.provider_uri = ${paths.qlib_dir}）
+#   2) Alpha158 价量因子（features/alpha.py）
+#   3) 可选：TopkDropout 回测（backtest/strategy.py 备用路径）
+#
+# 此文件同时可作为 `qrun config/qlib_workflow.yaml` 的入口（标准 Qlib 工作流）。
+
+qlib_init:
+  provider_uri: "data/qlib_data"
+  region: "cn"
+
+market: &market "all"            # Qlib instruments 池名（由我们 dump 的 instruments 决定）
+benchmark: &benchmark "SH000300"
+
+data_handler_config: &data_handler_config
+  start_time: 2018-01-01
+  end_time: 2025-12-31
+  fit_start_time: 2018-01-01
+  fit_end_time: 2019-12-31
+  instruments: *market
+  infer_processors:
+    - { class: "RobustZScoreNorm",
+        kwargs: { fields_group: "feature", clip_outlier: true } }
+    - { class: "Fillna", kwargs: { fields_group: "feature" } }
+  learn_processors:
+    - { class: "DropnaLabel" }
+    - { class: "CSRankNorm", kwargs: { fields_group: "label" } }
+  label: ["Ref($close, -2) / Ref($close, -1) - 1"]   # 默认绝对收益 label；项目主用超额收益 label（自研）
+
+task:
+  model: &model
+    class: "LGBModel"
+    module_path: "qlib.contrib.model.gbdt"
+    kwargs:
+      loss: mse
+      colsample_bytree: 0.887
+      learning_rate: 0.0421
+      subsample: 0.878
+      lambda_l1: 205.699
+      lambda_l2: 580.976
+      max_depth: 8
+      num_leaves: 210
+      num_threads: 8
+
+  dataset: &dataset
+    class: "DatasetH"
+    module_path: "qlib.data.dataset"
+    kwargs:
+      handler:
+        class: "Alpha158"
+        module_path: "qlib.contrib.data.handler"
+        kwargs: *data_handler_config
+      segments:
+        train: [2018-01-01, 2019-12-31]
+        valid: [2020-01-01, 2021-12-31]
+        test:  [2022-01-01, 2025-12-31]
+
+  record: &record
+    - class: "SignalRecord"
+      module_path: "qlib.workflow.record_temp"
+    - class: "SigAnaRecord"
+      module_path: "qlib.workflow.record_temp"
+    - class: "PortAnaRecord"
+      module_path: "qlib.workflow.record_temp"
+      kwargs:
+        backtest: &backtest
+          start_time: 2022-01-01
+          end_time: 2025-12-31
+          account: 100000000
+          benchmark: *benchmark
+          exchange_kwargs:
+            limit_threshold: 0.095
+            deal_price: close
+            open_cost: 0.0005
+            close_cost: 0.0015
+            min_cost: 5
+        strategy:
+          class: "TopkDropoutStrategy"
+          module_path: "qlib.contrib.strategy.signal_strategy"
+          kwargs:
+            signal: *model
+            topk: 20
+            n_drop: 5
+
+port_analysis_config:
+  backtest: *backtest
