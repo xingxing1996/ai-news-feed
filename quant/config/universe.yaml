@@ -37,7 +37,9 @@ cn:
   - {code: "000725.SZ", name: "京东方A",  industry: "电子"}
   - {code: "000100.SZ", name: "TCL科技", industry: "电子"}
   - {code: "002475.SZ", name: "立讯精密", industry: "电子"}
-  - {code: "603986.SH", name: "兆易创新", industry: "半导体"}      # 存储(MCU/NOR Flash)
+  - {code: "603986.SH", name: "兆易创新(长鑫科技概念)", industry: "半导体"}  # 存储(MCU/DRAM/长鑫存储核心关联)
+  - {code: "600641.SH", name: "万业企业(长鑫科技概念)", industry: "半导体"}  # 长鑫存储持股平台
+  - {code: "688019.SH", name: "安集科技(长鑫供应链)",   industry: "半导体"}  # 存储抛光液/长鑫供应链
   - {code: "300223.SZ", name: "北京君正", industry: "半导体"}      # 存储(DRAM/SRAM)
   - {code: "301308.SZ", name: "江波龙",   industry: "半导体"}      # 存储模组
   - {code: "603501.SH", name: "韦尔股份", industry: "半导体"}      # CIS
