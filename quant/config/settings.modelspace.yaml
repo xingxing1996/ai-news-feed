@@ -10,7 +10,7 @@ paths:
 
 universe:
   config_file: config/universe.yaml            # 相对 quant 包根
-  markets: [cn, hk]                       # ★A股+港股（ModelScope 在国内，AKShare 可用，决不触发 yfinance 美股）
+  markets: [cn]                           # ★ModelScope 在国内阿里云 IP，专跑 A股（AKShare 秒抓，100% 极速畅通）
   demo_mode: false
 
 data:
