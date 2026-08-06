@@ -119,15 +119,22 @@ def _train_one(feat_cols, params, splits, target, use_ensemble=True, calibrate=F
             log.info("[model] XGBoost 不可用（%s）：%s", target, exc)
             xgbm = None
 
-    def _proba(X):
-        p = model.predict_proba(X)[:, 1]
-        if xgbm is not None:
-            r1 = pd.Series(p).rank(pct=True)
-            r2 = pd.Series(xgbm.predict_proba(X)[:, 1]).rank(pct=True)
-            p = ((r1 + r2) / 2).values
-        return p
+    def _proba(df_sub: pd.DataFrame):
+        X = df_sub[feat_cols]
+        p1 = model.predict_proba(X)[:, 1]
+        if xgbm is None:
+            return p1
+        p2 = xgbm.predict_proba(X)[:, 1]
 
-    proba = _proba(splits["_all"][feat_cols])
+        # 核心防泄漏重构：必须按交易日 (date) 逐日进行截面 rank 融合！
+        # 绝对不允许对跨越数年的全量数据集做一次性 rank，彻底拔除时间维未来泄漏！
+        dates_ser = df_sub.index.get_level_values("date") if isinstance(df_sub.index, pd.MultiIndex) else df_sub["date"]
+        temp = pd.DataFrame({"date": dates_ser, "p1": p1, "p2": p2}, index=df_sub.index)
+        r1 = temp.groupby("date")["p1"].rank(pct=True)
+        r2 = temp.groupby("date")["p2"].rank(pct=True)
+        return ((r1 + r2) / 2.0).values
+
+    proba = _proba(splits["_all"])
 
     # 概率校准（isotonic，valid 拟合）：默认【关】。
     # 原因：模型偏弱时 isotonic 会把所有概率压回基准率(~0.5)，区分度全无、毫无意义。
@@ -137,7 +144,7 @@ def _train_one(feat_cols, params, splits, target, use_ensemble=True, calibrate=F
         try:
             from sklearn.isotonic import IsotonicRegression
 
-            iso = IsotonicRegression(out_of_bounds="clip").fit(_proba(Xva), yva.values)
+            iso = IsotonicRegression(out_of_bounds="clip").fit(_proba(splits["valid"]), yva.values)
             proba = iso.transform(proba)
             calib = True
         except Exception as exc:  # noqa: BLE001
