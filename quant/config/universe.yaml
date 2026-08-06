@@ -157,6 +157,10 @@ us:
   - {code: "TQQQ",  name: "纳指3倍做多(TQQQ)", industry: "指数"}   # 纳指3倍做多
   - {code: "IBIT",  name: "现货比特币ETF(IBIT)", industry: "指数"}# 现货比特币
   - {code: "TLT",   name: "美债20年+ETF(TLT)", industry: "指数"}  # 宏观利率降息锚
+  # —— 大宗商品 / 原油能源 / 宏观对冲 ——
+  - {code: "USO",   name: "美国原油基金ETF(USO)", industry: "指数"} # 跟踪 WTI 原油期货现货 (美国原油ETF)
+  - {code: "XLE",   name: "能源行业精选ETF(XLE)", industry: "指数"} # 埃克森美孚/雪佛龙能源巨头ETF
+  - {code: "XOP",   name: "油气勘探开采ETF(XOP)", industry: "指数"} # 油气上游勘探开采ETF
 
 kr:
   - {code: "000660.KS", name: "SK海力士(韩股)", industry: "半导体"}

@@ -161,6 +161,8 @@ def _get_industry_catalyst(code: str, name: str, industry: str, mkt: str) -> str
         return "🍷 消费龙头防御属性：现金流充沛与高股息分红防守属性强，估值处于历史低位，消费刺激政策边际提振。"
     if "创新药" in name or "512480" in c_upper or "恒瑞" in name or "百济" in name or "药明" in name:
         return "💊 创新药/BD出海：出海授权 (BD) 交易频频破纪录，医保目录动态调整扶持创新药全产业链。"
+    if "USO" in c_upper or "XLE" in c_upper or "XOP" in c_upper or "原油" in name or "能源" in name:
+        return "🛢️ 全球原油/大宗能源催化：地缘政治溢价与 OPEC+ 减产支撑 WTI 原油供给，全球能源巨头充沛现金流与高股息防守属性极强。"
     if "指数" in ind or "ETF" in name:
         return "📊 宏观 ETF/指数锚：整体配置一揽子成分股，分散个股风险，有效捕捉板块β大盘动量收益。"
     return "⚡ 行业大动量：近期资金面关注度高，板块整体成交量活跃，多头趋势保持平稳。"
