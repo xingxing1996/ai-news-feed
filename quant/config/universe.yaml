@@ -137,6 +137,7 @@ us:
   - {code: "TSLA",  name: "特斯拉",    industry: "汽车"}
   # —— 存储 / 半导体设备 / 电子蓝筹 ——
   - {code: "MU",    name: "美光科技",  industry: "半导体"}        # 存储(DRAM/HBM)
+  - {code: "SKHY",  name: "SK海力士ADR",industry: "半导体"}        # SK海力士美股ADR (Nasdaq: SKHY)
   - {code: "WDC",   name: "西部数据(HDD龙头)", industry: "半导体"}  # 拆分后的HDD业务 (WDC)
   - {code: "SNDK",  name: "闪迪(Flash闪存)",   industry: "半导体"}  # 2025年2月独立拆分上市 (SNDK)
   - {code: "AVGO",  name: "博通",      industry: "半导体"}
