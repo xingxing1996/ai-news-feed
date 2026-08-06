@@ -299,7 +299,7 @@ def generate_daily_report(as_of: str | None = None, pred_df=None, feats_df=None,
         # 归因：优先 SHAP（模型真实依赖），否则截面分位规则
         if use_shap and shap_values is not None and code in section.index:
             ridx = section.index.get_loc(code)
-            reasons, risks = explain.explain_shap_row(shap_values[ridx], feat_cols)
+            reasons, risks = explain.explain_shap_row(shap_values[ridx], feat_cols, row=row)
         else:
             reasons, risks = explain.explain_row(row, feat_cols, section, model=model)
         # 技术信号（RSI 超买超卖 / 均线多空头 / 动量）

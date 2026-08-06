@@ -149,8 +149,33 @@ def explain_with_shap(model, X_section: pd.DataFrame, row_idx, top_k: int = 3) -
     return reasons, risks
 
 
-def explain_shap_row(shap_vec, feat_cols: list[str], k: int = 3) -> tuple[list[str], list[str]]:
-    """把单只股票的 SHAP 向量映射成人话理由/风险（精确归因）。"""
+def _fmt_shap(v: float) -> str:
+    """自适应 SHAP 贡献度精度格式化，拒绝无意义的 +0.00。"""
+    if abs(v) < 0.005 and abs(v) >= 0.0001:
+        return f"{v:+.3f}"
+    elif abs(v) < 0.0001 and abs(v) > 0:
+        return f"{v:+.4f}"
+    return f"{v:+.2f}"
+
+
+def _fmt_feat_val(f: str, val: float) -> str:
+    """把原始因子提取为带单位的极其可读的真实数值（如 ROE 28.5%、毛利率 48.6%）。"""
+    if val is None or pd.isna(val):
+        return ""
+    f_lower = f.lower()
+    if any(k in f_lower for k in ("margin", "roe", "roa", "yield", "ret", "roc", "rate", "pct")):
+        if abs(val) <= 5.0:  # 已经是小数
+            return f" {val*100:.1f}%"
+        return f" {val:.1f}%"
+    elif any(k in f_lower for k in ("pe", "pb", "ps", "ratio", "multiple")):
+        return f" {val:.1f}x"
+    elif abs(val) < 1000:
+        return f" {val:.2f}"
+    return ""
+
+
+def explain_shap_row(shap_vec, feat_cols: list[str], k: int = 3, row: pd.Series | None = None) -> tuple[list[str], list[str]]:
+    """把单只股票的 SHAP 向量映射成人话理由/风险，包含特征真实数值与高精度 SHAP 贡献度。"""
     s = pd.Series(shap_vec, index=list(feat_cols))
     pos = s[s > 0].sort_values(ascending=False)
     neg = s[s < 0].sort_values()
@@ -159,14 +184,20 @@ def explain_shap_row(shap_vec, feat_cols: list[str], k: int = 3) -> tuple[list[s
         info = _lookup(f)
         if not info:
             continue
-        reasons.append(f"{info[0]}（SHAP {v:+.2f}）")
+        val_str = ""
+        if row is not None and f in row.index:
+            val_str = _fmt_feat_val(f, float(row[f])) if pd.notna(row[f]) else ""
+        reasons.append(f"{info[0]}{val_str}（SHAP {_fmt_shap(v)}）")
         if len(reasons) >= k:
             break
     for f, v in neg.head(k * 2).items():
         info = _lookup(f)
         if not info:
             continue
-        risks.append(f"{info[1]}（SHAP {v:+.2f}）")
+        val_str = ""
+        if row is not None and f in row.index:
+            val_str = _fmt_feat_val(f, float(row[f])) if pd.notna(row[f]) else ""
+        risks.append(f"{info[1]}{val_str}（SHAP {_fmt_shap(v)}）")
         if len(risks) >= k:
             break
     return reasons, risks
