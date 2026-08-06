@@ -142,6 +142,13 @@ def _rating(prob: float, prob_up: float, events: list[dict], completeness: float
 def generate_daily_report(as_of: str | None = None, pred_df=None, feats_df=None,
                           state_dir: str | None = None) -> str:
     cfg = get_settings()
+
+    # 安全初始化 daily_df，防止底层提取 close 现价保底时发生 NameError: name 'daily_df' is not defined
+    try:
+        daily_df = read_parquet("daily_price")
+    except Exception:  # noqa: BLE001
+        daily_df = pd.DataFrame()
+
     pred = pred_df if pred_df is not None else read_parquet("predictions")
     feats = feats_df if feats_df is not None else read_parquet("features")
     if pred.empty or feats.empty:

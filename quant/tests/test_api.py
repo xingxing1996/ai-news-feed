@@ -97,3 +97,12 @@ def test_swagger_docs():
     """测试 Swagger /docs 接口。"""
     resp = client.get("/docs")
     assert resp.status_code == 200
+
+
+def test_refresh_endpoint():
+    """测试 GET /refresh 接口。"""
+    for endpoint in ("/refresh", "/api/refresh"):
+        resp = client.get(endpoint)
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data.get("status") == "started"
