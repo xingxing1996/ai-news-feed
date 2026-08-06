@@ -166,6 +166,25 @@ def _get_industry_catalyst(code: str, name: str, industry: str, mkt: str) -> str
     return "⚡ 行业大动量：近期资金面关注度高，板块整体成交量活跃，多头趋势保持平稳。"
 
 
+def _load_universe_dict() -> dict[str, dict[str, str]]:
+    """从 config/universe.yaml 中加载全量股票代码 ↔ (name, industry, market) 兜底映射。"""
+    res = {}
+    try:
+        from ..config import get_universe
+        uni = get_universe()
+        for mkt, items in uni.items():
+            for it in items:
+                code = str(it.get("code"))
+                res[code] = {
+                    "name": str(it.get("name", code)),
+                    "industry": str(it.get("industry", "—")),
+                    "market": str(mkt),
+                }
+    except Exception:  # noqa: BLE001
+        pass
+    return res
+
+
 def generate_daily_report(as_of: str | None = None, pred_df=None, feats_df=None,
                           state_dir: str | None = None) -> str:
     cfg = get_settings()
@@ -263,7 +282,17 @@ def generate_daily_report(as_of: str | None = None, pred_df=None, feats_df=None,
             continue
         row = feats.loc[(as_of, code)]
         # ETF / 指数标记（"指数"行业 或 code 明显是 ETF ticker）
-        meta = {k: row[k] for k in ("name", "industry", "market") if k in row.index}
+        uni_dict = _load_universe_dict()
+        meta = {k: row[k] for k in ("name", "industry", "market") if k in row.index and pd.notna(row.get(k))}
+        if code in uni_dict:
+            u_meta = uni_dict[code]
+            if not meta.get("name") or meta.get("name") == code:
+                meta["name"] = u_meta["name"]
+            if not meta.get("industry") or meta.get("industry") in ("—", ""):
+                meta["industry"] = u_meta["industry"]
+            if not meta.get("market") or meta.get("market") in ("—", ""):
+                meta["market"] = u_meta["market"]
+
         is_etf = (meta.get("industry") == "指数") or any(
             code.upper().endswith(s) for s in ("ETF", "QQQ", "SPY", "SMH", "SOXX", "SOXL", "GLD", "GDX", "XLE", "USO")
         )

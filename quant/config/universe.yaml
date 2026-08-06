@@ -14,8 +14,10 @@ cn:
   - {code: "600600.SH", name: "青岛啤酒", industry: "食品饮料"}      # 啤酒龙头
   - {code: "000333.SZ", name: "美的集团", industry: "家用电器"}
   - {code: "000651.SZ", name: "格力电器", industry: "家用电器"}
-  # —— 金融 / 券商 ETF / 保险 ——
+  - {code: "002050.SZ", name: "三花智控", industry: "家用电器"}
+  # —— 金融 / 券商 ETF / 保险 / 银行 ——
   - {code: "512880.SH", name: "证券ETF",   industry: "指数"}
+  - {code: "510880.SH", name: "红利ETF",   industry: "指数"}
   - {code: "600030.SH", name: "中信证券", industry: "非银金融"}
   - {code: "300059.SZ", name: "东方财富", industry: "非银金融"}
   - {code: "601688.SH", name: "华泰证券", industry: "非银金融"}
@@ -23,17 +25,28 @@ cn:
   - {code: "601628.SH", name: "中国人寿", industry: "非银金融"}
   - {code: "600036.SH", name: "招商银行", industry: "银行"}
   - {code: "601398.SH", name: "工商银行", industry: "银行"}
+  - {code: "000001.SZ", name: "平安银行", industry: "银行"}
+  - {code: "601166.SH", name: "兴业银行", industry: "银行"}
+  - {code: "600016.SH", name: "民生银行", industry: "银行"}
+  - {code: "601939.SH", name: "建设银行", industry: "银行"}
+  - {code: "601988.SH", name: "中国银行", industry: "银行"}
   # —— 创新药 / 医药龙头 ——
   - {code: "512480.SH", name: "创新药ETF", industry: "指数"}
   - {code: "600276.SH", name: "恒瑞医药", industry: "医药生物"}
   - {code: "688235.SH", name: "百济神州", industry: "医药生物"}
   - {code: "603259.SH", name: "药明康德", industry: "医药生物"}
-  # —— 新能源 / 电池 / 汽车龙头 ——
+  - {code: "688271.SH", name: "联影医疗", industry: "医药生物"}
+  # —— 新能源 / 电池 / 汽车 / 周期 ——
   - {code: "515700.SH", name: "新能源车ETF", industry: "指数"}
   - {code: "300750.SZ", name: "宁德时代", industry: "电力设备"}
   - {code: "002594.SZ", name: "比亚迪",   industry: "汽车"}
   - {code: "601012.SH", name: "隆基绿能", industry: "电力设备"}
-  # —— 芯片算力 / CPO光模块 / 半导体 / 电子龙头 ——
+  - {code: "601689.SH", name: "拓普集团", industry: "汽车"}
+  - {code: "600547.SH", name: "山东黄金", industry: "有色金属"}
+  - {code: "601899.SH", name: "紫金矿业", industry: "有色金属"}
+  - {code: "600048.SH", name: "保利发展", industry: "房地产"}
+  - {code: "600585.SH", name: "海螺水泥", industry: "建筑材料"}
+  # —— 芯片算力 / CPO光模块 / 半导体 / 电子 / 通信龙头 ——
   - {code: "688256.SH", name: "寒武纪",   industry: "半导体"}      # AI芯片绝对龙头
   - {code: "688041.SH", name: "海光信息", industry: "半导体"}      # 国产CPU/DCU算力
   - {code: "688008.SH", name: "澜起科技", industry: "半导体"}      # 内存接口芯片龙头
@@ -55,6 +68,11 @@ cn:
   - {code: "002371.SZ", name: "北方华创", industry: "半导体"}      # 半导体设备
   - {code: "688981.SH", name: "中芯国际", industry: "半导体"}      # 晶圆代工
   - {code: "688111.SH", name: "金山办公", industry: "计算机"}      # 软件龙头
+  - {code: "000725.SZ", name: "京东方A",  industry: "电子"}
+  - {code: "000100.SZ", name: "TCL科技",  industry: "电子"}
+  - {code: "688036.SH", name: "传音控股", industry: "电子"}
+  - {code: "600941.SH", name: "中国移动", industry: "通信"}
+  - {code: "601728.SH", name: "中国电信", industry: "通信"}
   # —— AI算力硬件 / 工业富联 ——
   - {code: "601138.SH", name: "工业富联", industry: "计算机"}      # AI服务器代工龙头
   # —— ETF / 指数代理 ——

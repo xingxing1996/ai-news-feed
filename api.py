@@ -129,11 +129,26 @@ def recommendations():
         data = json.loads(p.read_text(encoding="utf-8"))
         recs = data.get("recommendations", [])
         
-        # 动态属性补齐防御：防止旧版本遗留 JSON 缺乏 current_price / target_price / pred_return
+        # 动态属性补齐防御：防止旧版本遗留 JSON 缺乏 current_price / target_price / pred_return / 真实中文名
+        try:
+            from quant.stock_predict.report.daily import _load_universe_dict
+            uni_dict = _load_universe_dict()
+        except Exception:  # noqa: BLE001
+            uni_dict = {}
+
         daily_df = None
         for r in recs:
+            code = r.get("code")
+            if code and code in uni_dict:
+                u_info = uni_dict[code]
+                if not r.get("name") or r.get("name") == code or r.get("name") == "—":
+                    r["name"] = u_info["name"]
+                if not r.get("industry") or r.get("industry") in ("—", ""):
+                    r["industry"] = u_info["industry"]
+                if not r.get("market") or r.get("market") in ("—", ""):
+                    r["market"] = u_info["market"]
+
             if "current_price" not in r or r.get("current_price", 0) == 0:
-                code = r.get("code")
                 prob_up = r.get("prob_up", 0.5)
                 pred_ret = float(r.get("pred_return", (prob_up - 0.5) * 0.25))
                 c_price = 0.0
