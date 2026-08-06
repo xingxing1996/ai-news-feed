@@ -126,12 +126,10 @@ def _train_one(feat_cols, params, splits, target, use_ensemble=True, calibrate=F
             return p1
         p2 = xgbm.predict_proba(X)[:, 1]
 
-        # 核心防泄漏重构：必须按交易日 (date) 逐日进行截面 rank 融合！
-        # 绝对不允许对跨越数年的全量数据集做一次性 rank，彻底拔除时间维未来泄漏！
-        dates_ser = df_sub.index.get_level_values("date") if isinstance(df_sub.index, pd.MultiIndex) else df_sub["date"]
-        temp = pd.DataFrame({"date": dates_ser, "p1": p1, "p2": p2}, index=df_sub.index)
-        r1 = temp.groupby("date")["p1"].rank(pct=True)
-        r2 = temp.groupby("date")["p2"].rank(pct=True)
+        # 核心防泄漏重构：必须按 MultiIndex 的 "date" level 逐日进行截面 rank 融合！
+        temp = pd.DataFrame({"p1": p1, "p2": p2}, index=df_sub.index)
+        r1 = temp.groupby(level="date")["p1"].rank(pct=True)
+        r2 = temp.groupby(level="date")["p2"].rank(pct=True)
         return ((r1 + r2) / 2.0).values
 
     proba = _proba(splits["_all"])
