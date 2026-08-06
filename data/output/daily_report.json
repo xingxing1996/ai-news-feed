@@ -1,5 +1,5 @@
 {
-  "update_time": "2026-08-06 13:04:23",
+  "update_time": "2026-08-06 16:19:36",
   "horizon_days": 20,
   "note": "概率含义：prob=跑赢行业概率, prob_up=未来上涨概率, prob_bench=跑赢大盘概率；非买卖建议",
   "n": 4,
@@ -97,7 +97,7 @@
       "score": 55,
       "suggestion": "回避",
       "breaking_event": null,
-      "valuation": "PE 23.1x（历史 43% 分位，中性）；PB 1.89x（历史 43% 分位，中性）",
+      "valuation": "PE 23.1x（历史 43% 分位，适中）；PB 1.89x（历史 43% 分位，适中）",
       "confidence": "高",
       "data_completeness": 1.0,
       "reasons": [
@@ -134,7 +134,7 @@
       "score": 55,
       "suggestion": "回避",
       "breaking_event": null,
-      "valuation": "PE 124.4x（历史 64% 分位，中性）；PB 15.33x（历史 64% 分位，中性）",
+      "valuation": "PE 124.4x（历史 64% 分位，适中）；PB 15.33x（历史 64% 分位，适中）",
       "confidence": "高",
       "data_completeness": 1.0,
       "reasons": [

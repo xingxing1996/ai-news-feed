@@ -202,29 +202,45 @@ def technical_reasons(row: pd.Series) -> tuple[list[str], list[str]]:
     return reasons, risks
 
 
-def valuation_hint(row: pd.Series, raw_pe: float | None = None, raw_pb: float | None = None) -> str:
+def valuation_hint(row: pd.Series | dict, raw_pe: float | None = None, raw_pb: float | None = None,
+                   valuation_df: pd.DataFrame | None = None, code: str | None = None) -> str:
     """估值显式提示：PE/PB 实际值 + 历史分位 → 偏低/偏高。
 
-    优先展示实际数值（raw_pe/raw_pb）；若无原始值则只展示分位。
+    优先展示实际数值（raw_pe/raw_pb）+ 历史分位；若丢失分位则去 valuation_df 即时计算。
     """
-    pe = row.get("pe_percentile")
-    pb = row.get("pb_percentile")
-    pe = float(pe) if pe is not None and not pd.isna(pe) else None
-    pb = float(pb) if pb is not None and not pd.isna(pb) else None
+    pe = row.get("pe_percentile") if hasattr(row, "get") else None
+    pb = row.get("pb_percentile") if hasattr(row, "get") else None
+    pe = float(pe) if pe is not None and pd.notna(pe) else None
+    pb = float(pb) if pb is not None and pd.notna(pb) else None
 
-    # 尝试从 row 里读原始 pe/pb（兼容旧调用路径）
-    if raw_pe is None:
+    # 尝试从 row 里读原始 pe/pb
+    if raw_pe is None and hasattr(row, "get"):
         _pe_raw = row.get("pe")
-        raw_pe = float(_pe_raw) if _pe_raw is not None and not pd.isna(_pe_raw) else None
-    if raw_pb is None:
+        raw_pe = float(_pe_raw) if _pe_raw is not None and pd.notna(_pe_raw) else None
+    if raw_pb is None and hasattr(row, "get"):
         _pb_raw = row.get("pb")
-        raw_pb = float(_pb_raw) if _pb_raw is not None and not pd.isna(_pb_raw) else None
+        raw_pb = float(_pb_raw) if _pb_raw is not None and pd.notna(_pb_raw) else None
+
+    # 去 valuation_df 历史序列中实时计算百分位保底
+    if (pe is None or pb is None) and valuation_df is not None and not valuation_df.empty and code:
+        sub_v = valuation_df[valuation_df["code"] == code].sort_values("date")
+        if not sub_v.empty:
+            if pe is None and "pe" in sub_v.columns and sub_v["pe"].notna().any():
+                v_pe = sub_v["pe"].dropna()
+                if not v_pe.empty:
+                    raw_pe = float(v_pe.iloc[-1])
+                    pe = float(v_pe.rank(pct=True).iloc[-1])
+            if pb is None and "pb" in sub_v.columns and sub_v["pb"].notna().any():
+                v_pb = sub_v["pb"].dropna()
+                if not v_pb.empty:
+                    raw_pb = float(v_pb.iloc[-1])
+                    pb = float(v_pb.rank(pct=True).iloc[-1])
 
     if pe is None and pb is None and raw_pe is None and raw_pb is None:
         return ""
     parts = []
     if pe is not None or raw_pe is not None:
-        label = "偏低" if pe is not None and pe < 0.3 else ("偏高" if pe is not None and pe > 0.7 else "中性")
+        label = "偏低" if pe is not None and pe < 0.3 else ("偏高" if pe is not None and pe > 0.7 else "适中")
         pct_str = f"历史 {pe:.0%} 分位" if pe is not None else ""
         val_str = f"PE {raw_pe:.1f}x" if raw_pe is not None and raw_pe > 0 else "静态PE"
         if pct_str:
@@ -232,7 +248,7 @@ def valuation_hint(row: pd.Series, raw_pe: float | None = None, raw_pb: float | 
         else:
             parts.append(val_str)
     if pb is not None or raw_pb is not None:
-        label = "偏低" if pb is not None and pb < 0.3 else ("偏高" if pb is not None and pb > 0.7 else "中性")
+        label = "偏低" if pb is not None and pb < 0.3 else ("偏高" if pb is not None and pb > 0.7 else "适中")
         pct_str = f"历史 {pb:.0%} 分位" if pb is not None else ""
         val_str = f"PB {raw_pb:.2f}x" if raw_pb is not None and raw_pb > 0 else "PB"
         if pct_str:

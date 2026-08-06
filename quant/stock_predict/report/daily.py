@@ -143,11 +143,16 @@ def generate_daily_report(as_of: str | None = None, pred_df=None, feats_df=None,
                           state_dir: str | None = None) -> str:
     cfg = get_settings()
 
-    # 安全初始化 daily_df，防止底层提取 close 现价保底时发生 NameError: name 'daily_df' is not defined
+    # 安全初始化 daily_df 与 val_df，防止底层提取现价与估值百分位保底时缺失
     try:
         daily_df = read_parquet("daily_price")
     except Exception:  # noqa: BLE001
         daily_df = pd.DataFrame()
+
+    try:
+        val_df = read_parquet("valuation")
+    except Exception:  # noqa: BLE001
+        val_df = pd.DataFrame()
 
     pred = pred_df if pred_df is not None else read_parquet("predictions")
     feats = feats_df if feats_df is not None else read_parquet("features")
@@ -287,7 +292,7 @@ def generate_daily_report(as_of: str | None = None, pred_df=None, feats_df=None,
         # 读取实际 PE/PB 原始值（来自 valuation 数据的最新快照）
         raw_pe = float(row["pe"]) if "pe" in row.index and pd.notna(row.get("pe")) else None
         raw_pb = float(row["pb"]) if "pb" in row.index and pd.notna(row.get("pb")) else None
-        val_hint = explain.valuation_hint(row, raw_pe=raw_pe, raw_pb=raw_pb)
+        val_hint = explain.valuation_hint(row, raw_pe=raw_pe, raw_pb=raw_pb, valuation_df=val_df, code=code)
 
         # 读取实际收盘现价（绝对价格 3 重保底提取）
         raw_close = row.get("close_raw") or row.get("close") or row.get("price")
