@@ -234,8 +234,11 @@ def technical_reasons(row: pd.Series) -> tuple[list[str], list[str]]:
 
 
 def valuation_hint(row: pd.Series | dict, raw_pe: float | None = None, raw_pb: float | None = None,
-                   valuation_df: pd.DataFrame | None = None, code: str | None = None) -> str:
-    """估值全维度显式提示：静态 PE + 动态 PE + PB + 历史分位 → 偏低/适中/偏高。"""
+                   valuation_df: pd.DataFrame | None = None, code: str | None = None) -> tuple[str, dict[str, float | None]]:
+    """估值全维度显式提示：静态 PE + 动态 PE + PB + 历史分位 → 偏低/适中/偏高。
+
+    返回：(hint_str, val_dict) 字典包含纯 float 数值：raw_pe, pe, pe_dynamic, raw_pb, pb, pe_percentile, pb_percentile
+    """
     pe = row.get("pe_percentile") if hasattr(row, "get") else None
     pb = row.get("pb_percentile") if hasattr(row, "get") else None
     pe = float(pe) if pe is not None and pd.notna(pe) else None
@@ -275,20 +278,30 @@ def valuation_hint(row: pd.Series | dict, raw_pe: float | None = None, raw_pb: f
                 if not v_pb.empty:
                     pb = float(v_pb.rank(pct=True).iloc[-1])
 
-    if pe is None and pb is None and raw_pe is None and raw_pb is None:
-        return ""
+    final_pe = pe_ttm if pe_ttm is not None else raw_pe
+    final_pe_dynamic = pe_dynamic if pe_dynamic is not None else (round(final_pe * 0.92, 2) if final_pe and final_pe > 0 else None)
+
+    val_dict = {
+        "raw_pe": round(final_pe, 2) if final_pe else None,
+        "pe": round(final_pe, 2) if final_pe else None,
+        "pe_dynamic": round(final_pe_dynamic, 2) if final_pe_dynamic else None,
+        "raw_pb": round(raw_pb, 2) if raw_pb else None,
+        "pb": round(raw_pb, 2) if raw_pb else None,
+        "pe_percentile": round(pe, 4) if pe is not None else None,
+        "pb_percentile": round(pb, 4) if pb is not None else None,
+    }
+
+    if pe is None and pb is None and final_pe is None and raw_pb is None:
+        return "", val_dict
 
     parts = []
     # PE 展示块（结合 静态PE / 动态PE / 绝对PE）
-    if pe is not None or raw_pe is not None or pe_ttm is not None:
-        static_val = pe_ttm if pe_ttm is not None else raw_pe
+    if pe is not None or final_pe is not None:
         pe_sub_parts = []
-        if static_val is not None and static_val > 0:
-            pe_sub_parts.append(f"静态PE {static_val:.1f}x")
-        if pe_dynamic is not None and pe_dynamic > 0:
-            pe_sub_parts.append(f"动态PE {pe_dynamic:.1f}x")
-        elif static_val is not None and static_val > 0 and pe_dynamic is None:
-            pe_sub_parts.append(f"动态PE {static_val*0.92:.1f}x(预估)")
+        if final_pe is not None and final_pe > 0:
+            pe_sub_parts.append(f"静态PE {final_pe:.1f}x")
+        if final_pe_dynamic is not None and final_pe_dynamic > 0:
+            pe_sub_parts.append(f"动态PE {final_pe_dynamic:.1f}x(预估)" if pe_dynamic is None else f"动态PE {final_pe_dynamic:.1f}x")
 
         pe_str = " / ".join(pe_sub_parts) if pe_sub_parts else "PE"
         label = "偏低" if pe is not None and pe < 0.3 else ("偏高" if pe is not None and pe > 0.7 else "适中")
@@ -308,7 +321,7 @@ def valuation_hint(row: pd.Series | dict, raw_pe: float | None = None, raw_pb: f
         else:
             parts.append(val_str)
 
-    return "；".join(parts)
+    return "；".join(parts), val_dict
 
 
 def generate_ai_invest_summary(card: dict) -> str:

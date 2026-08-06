@@ -348,7 +348,7 @@ def generate_daily_report(as_of: str | None = None, pred_df=None, feats_df=None,
         # 读取实际 PE/PB 原始值（来自 valuation 数据的最新快照）
         raw_pe = float(row["pe"]) if "pe" in row.index and pd.notna(row.get("pe")) else None
         raw_pb = float(row["pb"]) if "pb" in row.index and pd.notna(row.get("pb")) else None
-        val_hint = explain.valuation_hint(row, raw_pe=raw_pe, raw_pb=raw_pb, valuation_df=val_df, code=code)
+        val_hint, val_dict = explain.valuation_hint(row, raw_pe=raw_pe, raw_pb=raw_pb, valuation_df=val_df, code=code)
 
         # 读取实际收盘现价（绝对价格 3 重保底提取）
         raw_close = row.get("close_raw") or row.get("close") or row.get("price")
@@ -402,6 +402,13 @@ def generate_daily_report(as_of: str | None = None, pred_df=None, feats_df=None,
             "score": round(calibrated_prob * 100),
             "suggestion": rating,
             "breaking_event": breaking,
+            "raw_pe": val_dict.get("raw_pe"),
+            "pe": val_dict.get("pe"),
+            "pe_dynamic": val_dict.get("pe_dynamic"),
+            "raw_pb": val_dict.get("raw_pb"),
+            "pb": val_dict.get("pb"),
+            "pe_percentile": val_dict.get("pe_percentile"),
+            "pb_percentile": val_dict.get("pb_percentile"),
             "valuation": val_hint,
             "catalyst": _get_industry_catalyst(code, meta.get("name") or code, meta.get("industry") or "", mkt),
             "confidence": confidence,
