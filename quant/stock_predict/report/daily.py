@@ -241,12 +241,14 @@ def generate_daily_report(as_of: str | None = None, pred_df=None, feats_df=None,
         # 估值提示（在卡片生成时统一计算，带 raw_pe/raw_pb）
 
         # —— 数据质量：特征完整度 + 关键价量特征是否缺失 ——
-        # 排除该市场完全未开启/不适用（整个市场全为 NaN）的大块特征作为分母
+        # 排除非该市场适用的 A 股独有因子列 (北向资金 / 筹码分布 / 主力资金流)
         mkt = meta.get("market", "cn").lower()
-        mkt_section = section[section["market"] == mkt] if "market" in section.columns else section
-        valid_fcols = [c for c in feat_cols if c in mkt_section.columns and mkt_section[c].notna().any()]
-        if not valid_fcols:
-            valid_fcols = [c for c in feat_cols if c in row.index and pd.notna(row[c])]
+        cn_only_kws = ("north_", "cyq_", "flow_", "fund_")
+        if mkt in ("hk", "us", "kr"):
+            valid_fcols = [c for c in feat_cols if c in row.index and not any(kw in c for kw in cn_only_kws)]
+        else:
+            valid_fcols = [c for c in feat_cols if c in row.index]
+
         n_present = sum(1 for c in valid_fcols if pd.notna(row[c]))
         completeness = round(n_present / max(len(valid_fcols), 1), 2)
         key_missing = [c for c in ("ROC20", "MA20", "RET1D") if c in feat_cols and pd.isna(row.get(c))]
@@ -278,9 +280,26 @@ def generate_daily_report(as_of: str | None = None, pred_df=None, feats_df=None,
         raw_pe = float(row["pe"]) if "pe" in row.index and pd.notna(row.get("pe")) else None
         raw_pb = float(row["pb"]) if "pb" in row.index and pd.notna(row.get("pb")) else None
         val_hint = explain.valuation_hint(row, raw_pe=raw_pe, raw_pb=raw_pb)
-        # 读取实际收盘现价
-        raw_close = row.get("close") or row.get("close_raw") or row.get("price")
-        current_price = round(float(raw_close), 2) if pd.notna(raw_close) and float(raw_close) > 0 else 0.0
+
+        # 读取实际收盘现价（绝对价格 3 重保底提取）
+        raw_close = row.get("close_raw") or row.get("close") or row.get("price")
+        current_price = 0.0
+        if pd.notna(raw_close) and float(raw_close) > 1.0:
+            current_price = round(float(raw_close), 2)
+        if current_price <= 0 and not daily_df.empty:
+            sub_d = daily_df[daily_df["code"] == code]
+            if not sub_d.empty:
+                current_price = round(float(sub_d.iloc[-1]["close"]), 2)
+        # 第三重保底：如 9988.HK 仍为空，通过 yfinance.fast_info 极速获取最新成交现价
+        if current_price <= 0 and "." in code:
+            try:
+                import yfinance as _yf_fast
+                tk_fast = _yf_fast.Ticker(code).fast_info
+                px_fast = getattr(tk_fast, "last_price", None) or getattr(tk_fast, "previous_close", None)
+                if px_fast and float(px_fast) > 0:
+                    current_price = round(float(px_fast), 2)
+            except Exception:  # noqa: BLE001
+                pass
 
         # 概率温和校准（将原生逻辑斯蒂极值收缩在 40% ~ 75% 真实中线统计分布区间，避免 90%+ 盲目绝对化误导）
         calibrated_prob_up = round(0.5 + (prob_up - 0.5) * 0.5, 3)
