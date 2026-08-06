@@ -120,20 +120,23 @@ def health():
 @app.get("/recommendations")
 @app.get("/api/recommendations")
 def recommendations():
-    data = _read_json("recommendations_cn.json") if (OUT / "recommendations_cn.json").exists() \
-        else _read_json("recommendations.json")
-    if data is None:
-        return JSONResponse({"error": "暂无结果，首次训练进行中（约5–10分钟），看 /health"}, status_code=404)
-    return data
+    p = _recs_path()
+    if not p:
+        return JSONResponse({"error": "暂无结果，首次训练进行中，看 /health"}, status_code=404)
+    try:
+        data = json.loads(p.read_text(encoding="utf-8"))
+        return JSONResponse(content=data, headers={"Cache-Control": "no-cache, no-store, must-revalidate"})
+    except Exception as exc:  # noqa: BLE001
+        return JSONResponse({"error": str(exc)}, status_code=500)
 
 
 @app.get("/report")
 @app.get("/api/report")
 def report():
-    for n in ("recommendations_cn.md", "daily_report.md"):
+    for n in ("daily_report.md", "recommendations_us.md", "recommendations_cn.md"):
         p = OUT / n
         if p.exists():
-            return PlainTextResponse(p.read_text(encoding="utf-8"))
+            return PlainTextResponse(p.read_text(encoding="utf-8"), headers={"Cache-Control": "no-cache, no-store, must-revalidate"})
     return JSONResponse({"error": "暂无日报"}, status_code=404)
 
 
@@ -199,7 +202,8 @@ def manual_reset_run():
 
 # ---------- 浏览器看板（根路径）----------
 @app.get("/", response_class=HTMLResponse)
-def dashboard():
+def dashboard(response: Response):
+    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
     p = _recs_path()
     if not p:
         return HTMLResponse("<h2>stock-predict</h2><p>首次训练进行中，稍后刷新（看 <a href='/health'>/health</a>）。</p>")
