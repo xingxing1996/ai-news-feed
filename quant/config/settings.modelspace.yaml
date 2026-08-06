@@ -56,7 +56,7 @@ backtest:
 report:
   top_k: 0                               # 0=全部列出
   min_probability: 0.0
-  out_path: /mnt/workspace/data/output/recommendations_cn.md
+  out_path: /mnt/workspace/data/output/daily_report.md
   explain_method: shap
 
 news:

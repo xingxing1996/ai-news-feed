@@ -51,10 +51,10 @@ jobs:
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
         git fetch origin main && git reset origin/main
-        # 把量化产物拷到仓库根（便于在 GitHub 直接看）—— 美股(+韩股)版
+        # 把量化产物拷到仓库根（便于在 GitHub 直接看）—— 美股+港股+韩股版
         cp quant/data/output/recommendations_us.json recommendations_us.json 2>/dev/null || true
         cp quant/data/output/recommendations_us.md recommendations_us.md 2>/dev/null || true
         cp quant/data/output/backtest_metrics.txt backtest_metrics_us.json 2>/dev/null || true
         git add -f recommendations_us.json recommendations_us.md backtest_metrics_us.json quant/state/ logs/ 2>/dev/null || true
-        git commit -m "Daily quant train (US+KR): recommendations + report + model state" || exit 0
+        git commit -m "Daily quant train (US+HK+KR): recommendations + report + model state" || exit 0
         git push

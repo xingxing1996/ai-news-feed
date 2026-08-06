@@ -10,7 +10,7 @@ paths:
 
 universe:
   config_file: config/universe.yaml
-  markets: [us, kr]                       # ★只跑美股+韩股（yfinance 在美国能拉）
+  markets: [us, hk, kr]                       # ★美股+港股+韩股（在 GitHub Actions 中全量高品质抓取）
   demo_mode: false
 
 data:
