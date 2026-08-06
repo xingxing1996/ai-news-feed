@@ -138,6 +138,9 @@ def _create_retry(client, kwargs, max_tries: int = 3):
         except Exception as exc:  # noqa: BLE001
             last_exc = exc
             sl = str(exc).lower()
+            if "403" in sl or "forbidden" in sl or "401" in sl or "unauthorized" in sl:
+                log.warning("[news] 火山方舟 API Key 无权限或未开启模型权限 (403/401)，熔断重试，退化规则新闻抽取")
+                break
             if ("429" in sl or "ratelimit" in sl or "toomany" in sl
                     or "timed out" in sl or "timeout" in sl or "apitimeout" in sl
                     or "404" in sl or "notfound" in sl or "does not exist" in sl
