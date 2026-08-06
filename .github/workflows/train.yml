@@ -45,15 +45,18 @@ jobs:
         path: quant/data/output/model.lgb
         if-no-files-found: ignore
 
-    - name: 提交 recommendations.json + 日报 + 日志
+    - name: 提交 recommendations_us.json + 日报 + 日志
       if: always()
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
         git fetch origin main && git reset origin/main
-        # 把量化产物拷到仓库根（便于在 GitHub 直接看）—— 美股+港股+韩股版
+        # 把量化产物拷到仓库根（便于在 GitHub 直接看）—— 支持美股+港股+韩股版与多格式保底
         cp quant/data/output/recommendations_us.json recommendations_us.json 2>/dev/null || true
+        cp quant/data/output/daily_report.json recommendations_us.json 2>/dev/null || true
         cp quant/data/output/recommendations_us.md recommendations_us.md 2>/dev/null || true
+        cp quant/data/output/daily_report.md recommendations_us.md 2>/dev/null || true
+        cp quant/data/output/daily_report.json feed.json 2>/dev/null || true
         cp quant/data/output/backtest_metrics.txt backtest_metrics_us.json 2>/dev/null || true
         git add -f recommendations_us.json recommendations_us.md backtest_metrics_us.json quant/state/ logs/ 2>/dev/null || true
         git commit -m "Daily quant train (US+HK+KR): recommendations + report + model state" || exit 0
