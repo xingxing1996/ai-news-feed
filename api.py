@@ -238,8 +238,7 @@ def manual_reset_run():
 
 # ---------- 浏览器看板（根路径）----------
 @app.get("/", response_class=HTMLResponse)
-def dashboard(response: Response):
-    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+def dashboard():
     p = _recs_path()
     if not p:
         return HTMLResponse("<h2>stock-predict</h2><p>首次训练进行中，稍后刷新（看 <a href='/health'>/health</a>）。</p>")
@@ -261,7 +260,7 @@ def dashboard(response: Response):
     for r in recs:
         rows += "<tr>" + "".join(f"<td>{cell(c, r.get(c, ''))}</td>" for c in cols) + "</tr>"
 
-    return f"""<!doctype html><html><head><meta charset='utf-8'>
+    html_content = f"""<!doctype html><html><head><meta charset='utf-8'>
 <title>A股+港股 AI 量化推荐</title>
 <style>
   body{{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;margin:24px;background:#f8fafc;color:#0f172a}}
@@ -300,3 +299,4 @@ def dashboard(response: Response):
   <table><thead><tr>{head}</tr></thead><tbody>{rows}</tbody></table>
 </div>
 </body></html>"""
+    return HTMLResponse(content=html_content, headers={"Cache-Control": "no-cache, no-store, must-revalidate"})
