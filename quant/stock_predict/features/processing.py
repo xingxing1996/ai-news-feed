@@ -12,20 +12,12 @@ import numpy as np
 import pandas as pd
 
 
-def winsorize_global(df: pd.DataFrame, q: tuple[float, float] = (0.01, 0.99)) -> pd.DataFrame:
-    """全局按列去极值（向量化，快）。"""
-    lo = df.quantile(q[0])
-    hi = df.quantile(q[1])
-    return df.clip(lower=lo, upper=hi, axis=1)
-
-
-def winsorize_mad_global(df: pd.DataFrame, k: float = 3.0) -> pd.DataFrame:
-    """全局 MAD 去极值（向量化）。"""
-    med = df.median()
-    mad = (df - med).abs().median()
-    bound = k * 1.4826 * mad
-    bound = bound.where(bound > 0, np.nan)
-    return df.clip(lower=med - bound, upper=med + bound, axis=1)
+def winsorize_cs(df: pd.DataFrame, q: tuple[float, float] = (0.01, 0.99)) -> pd.DataFrame:
+    """严格截面 (per date) 去极值，绝不跨越时间线偷看未来分位数。"""
+    g = df.groupby(level="date")
+    lo = g.transform(lambda s: s.quantile(q[0]))
+    hi = g.transform(lambda s: s.quantile(q[1]))
+    return df.clip(lower=lo, upper=hi)
 
 
 def zscore_cs(df: pd.DataFrame) -> pd.DataFrame:
@@ -51,7 +43,7 @@ def process_features(df: pd.DataFrame, method: str = "rank",
     if df.empty:
         return df
     if winsorize == "quantile":
-        df = winsorize_global(df)
+        df = winsorize_cs(df)
     elif winsorize == "mad":
         df = winsorize_mad_global(df)
     if method == "rank":
