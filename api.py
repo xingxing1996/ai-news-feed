@@ -91,7 +91,7 @@ def _start_scheduler():
 
 # ---------- 读取 ----------
 def _recs_path():
-    for n in ("recommendations.json", "recommendations_cn.json"):
+    for n in ("daily_report.json", "recommendations_us.json", "recommendations.json", "recommendations_cn.json"):
         p = OUT / n
         if p.exists():
             return p
