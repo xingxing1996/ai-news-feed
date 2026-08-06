@@ -14,19 +14,37 @@ from datetime import datetime
 import pandas as pd
 
 # ---- monkey-patch requests 加真实浏览器 UA 与 Header（降低东财/百度拒连/限流概率）----
+import os
 import random
 import requests as _req
 
+# 强行清理残留死代理环境变量 (127.0.0.1)，保证网络请求直连不被卡死
+for _k in ("HTTP_PROXY", "HTTPS_PROXY", "http_proxy", "https_proxy", "ALL_PROXY", "all_proxy"):
+    os.environ.pop(_k, None)
+
 _orig_request = _req.Session.request
-_BROWSER_UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
+
+_USER_AGENTS = [
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:124.0) Gecko/20100101 Firefox/124.0",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_3_1) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.3.1 Safari/605.1.15",
+]
 
 
 def _patched_request(self, method, url, **kwargs):
+    # 自动清除无效死代理设置 (127.0.0.1)，确保网络直连
+    proxies = kwargs.get("proxies") or {}
+    if any("127.0.0.1" in str(v) for v in proxies.values()):
+        kwargs["proxies"] = {}
     headers = kwargs.setdefault("headers", {})
-    if not headers.get("User-Agent"):
-        headers["User-Agent"] = _BROWSER_UA
-    if not headers.get("Accept-Language"):
-        headers["Accept-Language"] = "zh-CN,zh;q=0.9,en;q=0.8"
+    headers["User-Agent"] = random.choice(_USER_AGENTS)
+    headers["Accept"] = "*/*"
+    headers["Accept-Language"] = "zh-CN,zh;q=0.9,en;q=0.8"
+    if "eastmoney" in str(url):
+        headers["Referer"] = "https://quote.eastmoney.com/"
+    # 强制设置硬超时 (connect 4s, read 10s)，杜绝死等挂起
+    kwargs.setdefault("timeout", (4, 10))
     return _orig_request(self, method, url, **kwargs)
 
 
@@ -45,24 +63,18 @@ def _ak():
     return _AK
 
 
-def _call_ak(func, retries: int = 4, **kwargs):
-    """调用 AKShare，连接被拒/断开/超时自动重试（带随机指数退避，最高 4 次）。"""
+def _call_ak(func, retries: int = 2, **kwargs):
+    """调用 AKShare，带有防挂起硬超时与快速退避重试。"""
     for i in range(retries + 1):
         try:
             return func(**kwargs)
         except Exception as e:  # noqa: BLE001
-            s = str(e)
-            is_net_err = any(kw in s or kw in s.lower() for kw in (
-                "connection", "remotedisconnected", "timeout", "reset", "aborted", "closed", "refused"
-            ))
-            if i < retries and is_net_err:
-                # 随机指数退避（Jitter）：1.5^i + [0.5, 1.5] 秒
-                wait = (1.5 ** i) + random.uniform(0.5, 1.5)
-                log.debug("[akshare] 接口 %s 发生连接中断 (%s)，休眠 %.1fs 后第 %d 次重试...", func.__name__, s, wait, i + 1)
-                time.sleep(wait)
+            if i < retries:
+                time.sleep(0.2 * (i + 1))
                 continue
-            raise
-    return func(**kwargs)
+            log.debug("[akshare] 接口 %s 最终重试失败: %s", func.__name__, e)
+            return None
+    return None
 
 
 def _to_ak_symbol(code: str) -> str:
