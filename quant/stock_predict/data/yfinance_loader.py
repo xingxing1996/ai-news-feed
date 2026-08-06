@@ -92,7 +92,18 @@ def fetch_valuation(code: str, start: str, end: str, market: str = "us") -> pd.D
         if ni_row is None:
             return _empty_valuation()
         ni = ni_row.dropna().sort_index()
-        ttm = ni.rolling(4, min_periods=4).sum()
+        # TTM 净利润 = 最近4季滚动和（若不足4季按已存在季数做年化） → EPS_TTM
+        ni_row = next((inc.loc[n] for n in
+                       ("Net Income", "Net Income Common Stockholders", "Net Income From Continuing Ops")
+                       if n in inc.index), None)
+        if ni_row is None:
+            return _empty_valuation()
+        ni = pd.to_numeric(ni_row, errors="coerce").dropna().sort_index()
+        if ni.empty:
+            return _empty_valuation()
+        cnt = ni.rolling(4, min_periods=1).count()
+        sums = ni.rolling(4, min_periods=1).sum()
+        ttm = sums * (4.0 / cnt.clip(lower=1))
         eps = ttm / float(shares)                 # period_end -> EPS_TTM
         eps.index = eps.index + pd.Timedelta(days=45)   # 发布滞后
         eps_daily = eps.reindex(close.index, method="ffill")
@@ -102,15 +113,23 @@ def fetch_valuation(code: str, start: str, end: str, market: str = "us") -> pd.D
         if bal is not None and not bal.empty:
             for n in ("Stockholders Equity", "Total Equity Gross", "Common Stock Equity"):
                 if n in bal.index:
-                    eq = bal.loc[n].dropna().sort_index() / float(shares)
-                    eq.index = eq.index + pd.Timedelta(days=45)
-                    pb_ps = eq.reindex(close.index, method="ffill")
-                    break
+                    eq = pd.to_numeric(bal.loc[n], errors="coerce").dropna().sort_index() / float(shares)
+                    if not eq.empty:
+                        eq.index = eq.index + pd.Timedelta(days=45)
+                        pb_ps = eq.reindex(close.index, method="ffill")
+                        break
 
         out = pd.DataFrame({"close": close})
         out["pe"] = out["close"] / eps_daily
         out["pb"] = out["close"] / pb_ps if pb_ps is not None else np.nan
         out = out.replace([np.inf, -np.inf], np.nan)
+
+        # 静态 info 保底：如果算出来的 pe/pb 全空，用 info 补充
+        if out["pe"].isna().all() and _num(info, ["trailingPE", "forwardPE"]) is not None:
+            out["pe"] = float(_num(info, ["trailingPE", "forwardPE"]))
+        if out["pb"].isna().all() and _num(info, ["priceToBook"]) is not None:
+            out["pb"] = float(_num(info, ["priceToBook"]))
+
         out = out.reset_index()
         out = out.rename(columns={out.columns[0]: "date"})
         out["date"] = pd.to_datetime(out["date"]).dt.strftime("%Y-%m-%d")
@@ -148,20 +167,20 @@ def fetch_financial(code: str, market: str = "us") -> pd.DataFrame:
         profit_growth, revenue_growth = None, None
         try:
             q_fin = tk.quarterly_financials
-            if q_fin is not None and not q_fin.empty and q_fin.shape[1] >= 4:
-                # 拿最新季和去年同期季
+            if q_fin is not None and not q_fin.empty and q_fin.shape[1] >= 2:
                 cols = q_fin.columns
                 # 寻找 Net Income 行
                 net_inc_rows = [idx for idx in q_fin.index if "Net Income" in str(idx)]
                 rev_rows = [idx for idx in q_fin.index if "Total Revenue" in str(idx) or "Revenue" in str(idx)]
+                idx_last = 1 if len(cols) >= 2 else 0
                 if net_inc_rows:
                     curr_p = float(q_fin.loc[net_inc_rows[0], cols[0]])
-                    last_p = float(q_fin.loc[net_inc_rows[0], cols[4 if len(cols)>4 else 3]])
+                    last_p = float(q_fin.loc[net_inc_rows[0], cols[idx_last]])
                     if last_p != 0 and pd.notna(curr_p) and pd.notna(last_p):
                         profit_growth = (curr_p - last_p) / abs(last_p)
                 if rev_rows:
                     curr_r = float(q_fin.loc[rev_rows[0], cols[0]])
-                    last_r = float(q_fin.loc[rev_rows[0], cols[4 if len(cols)>4 else 3]])
+                    last_r = float(q_fin.loc[rev_rows[0], cols[idx_last]])
                     if last_r != 0 and pd.notna(curr_r) and pd.notna(last_r):
                         revenue_growth = (curr_r - last_r) / abs(last_r)
         except Exception:  # noqa: BLE001
