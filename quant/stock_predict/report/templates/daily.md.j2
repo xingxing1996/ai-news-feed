@@ -36,6 +36,8 @@
 - **可信度**：`{{ c.confidence }}`（数据完整度 `{{ "%.0f"|format(c.data_completeness * 100) }}%`）
 {% if c.valuation %}- **估值**：{{ c.valuation }}
 {% endif %}
+{% if c.catalyst %}- **⚡ 产业链催化与核心看点**：{{ c.catalyst }}
+{% endif %}
 {% if c.ai_summary %}
 > **🤖 AI 机构投研点评**：  
 > {{ c.ai_summary }}

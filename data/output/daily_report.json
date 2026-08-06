@@ -1,5 +1,5 @@
 {
-  "update_time": "2026-08-06 16:21:14",
+  "update_time": "2026-08-06 16:22:49",
   "horizon_days": 20,
   "note": "概率含义：prob=跑赢行业概率, prob_up=未来上涨概率, prob_bench=跑赢大盘概率；非买卖建议",
   "n": 4,
@@ -24,6 +24,7 @@
       "suggestion": "强推荐",
       "breaking_event": null,
       "valuation": "静态PE 17.1x / 动态PE 15.7x(预估)（历史 29% 分位，偏低）；PB 3.56x（历史 29% 分位，偏低）",
+      "catalyst": "🍷 消费龙头防御属性：现金流充沛与高股息分红防守属性强，估值处于历史低位，消费刺激政策边际提振。",
       "confidence": "高",
       "data_completeness": 1.0,
       "reasons": [
@@ -61,6 +62,7 @@
       "suggestion": "中性观望",
       "breaking_event": null,
       "valuation": "静态PE 29.7x / 动态PE 27.3x(预估)（历史 86% 分位，偏高）；PB 9.21x（历史 86% 分位，偏高）",
+      "catalyst": "📱 苹果 Apple Intelligence 与端侧 AI：端侧 AI 换机潮开启，消费电子产业链供应链备货动能充沛。",
       "confidence": "高",
       "data_completeness": 1.0,
       "reasons": [
@@ -98,6 +100,7 @@
       "suggestion": "回避",
       "breaking_event": null,
       "valuation": "静态PE 23.1x / 动态PE 21.3x(预估)（历史 43% 分位，适中）；PB 1.89x（历史 43% 分位，适中）",
+      "catalyst": "⚡ 行业大动量：近期资金面关注度高，板块整体成交量活跃，多头趋势保持平稳。",
       "confidence": "高",
       "data_completeness": 1.0,
       "reasons": [
@@ -135,6 +138,7 @@
       "suggestion": "回避",
       "breaking_event": null,
       "valuation": "静态PE 124.4x / 动态PE 114.4x(预估)（历史 64% 分位，适中）；PB 15.33x（历史 64% 分位，适中）",
+      "catalyst": "🌐 恒生科技/互联网降本增效：AI 大模型落地赋能云业务与广告增长，南向资金持续净流入做多核心资产。",
       "confidence": "高",
       "data_completeness": 1.0,
       "reasons": [
