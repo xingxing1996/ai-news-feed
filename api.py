@@ -31,7 +31,7 @@ os.environ.setdefault("STOCK_PREDICT_CONFIG", str(ROOT / "quant" / "config" / "s
 OUT = Path(os.environ.get("OUT_DIR", "/mnt/workspace/data/output"))
 QUANT = ROOT / "quant"
 
-from fastapi import FastAPI  # noqa: E402
+from fastapi import FastAPI, Response  # noqa: E402
 from fastapi.responses import HTMLResponse, JSONResponse, PlainTextResponse  # noqa: E402
 
 # apscheduler 容错：没装也能跑（仅失去进程内调度，外部 cron 仍可调度）
@@ -124,7 +124,7 @@ def health():
 def recommendations():
     p = _recs_path()
     if not p:
-        return JSONResponse({"error": "暂无结果，首次训练进行中，看 /health"}, status_code=404)
+        return JSONResponse({"error": "暂无结果，首次训练进行中，看 /health"}, status_code=404, headers={"Cache-Control": "no-cache, no-store, must-revalidate"})
     try:
         data = json.loads(p.read_text(encoding="utf-8"))
         recs = data.get("recommendations", [])
@@ -173,7 +173,7 @@ def report():
         p = OUT / n
         if p.exists():
             return PlainTextResponse(p.read_text(encoding="utf-8"), headers={"Cache-Control": "no-cache, no-store, must-revalidate"})
-    return JSONResponse({"error": "暂无日报"}, status_code=404)
+    return JSONResponse({"error": "暂无日报"}, status_code=404, headers={"Cache-Control": "no-cache, no-store, must-revalidate"})
 
 
 @app.get("/backtest")
@@ -238,11 +238,11 @@ def manual_reset_run():
 
 # ---------- 浏览器看板（根路径）----------
 @app.get("/", response_class=HTMLResponse)
-def dashboard(response: Response):
-    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+def dashboard():
     p = _recs_path()
     if not p:
-        return HTMLResponse("<h2>stock-predict</h2><p>首次训练进行中，稍后刷新（看 <a href='/health'>/health</a>）。</p>")
+        return HTMLResponse("<h2>stock-predict</h2><p>首次训练进行中，稍后刷新（看 <a href='/health'>/health</a>）。</p>",
+                            headers={"Cache-Control": "no-cache, no-store, must-revalidate"})
     data = json.loads(p.read_text(encoding="utf-8"))
     recs = data.get("recommendations", [])
     cols = ["name", "code", "market", "industry", "current_price", "target_price", "expected_return_pct", "prob_up", "prob_bench", "prob", "score", "confidence"]
