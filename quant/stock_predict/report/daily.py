@@ -449,6 +449,13 @@ def generate_daily_report(as_of: str | None = None, pred_df=None, feats_df=None,
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(text, encoding="utf-8")
 
+    # 同步多镜像写盘 Markdown 日报（包括 recommendations_us.md / recommendations_cn.md / recommendations.md）
+    for alt_md in ("recommendations_us.md", "recommendations_cn.md", "recommendations.md"):
+        try:
+            (out_path.parent / alt_md).write_text(text, encoding="utf-8")
+        except Exception:  # noqa: BLE001
+            pass
+
     # 同步输出 recommendations.json（纯量化模型结果，与新闻 feed 无关）
     import json as _json
     from datetime import datetime, timezone, timedelta
@@ -461,8 +468,16 @@ def generate_daily_report(as_of: str | None = None, pred_df=None, feats_df=None,
         "n": len(cards),
         "recommendations": cards,
     }
+    rec_json_str = _json.dumps(rec, ensure_ascii=False, indent=2)
     rec_path = out_path.with_suffix(".json")  # out_path 为 *.md → 同名 .json
-    rec_path.write_text(_json.dumps(rec, ensure_ascii=False, indent=2), encoding="utf-8")
+    rec_path.write_text(rec_json_str, encoding="utf-8")
+
+    # 同步多镜像写盘 JSON 推荐池（包括 recommendations_us.json / recommendations_cn.json / recommendations.json）
+    for alt_json in ("recommendations_us.json", "recommendations_cn.json", "recommendations.json"):
+        try:
+            (out_path.parent / alt_json).write_text(rec_json_str, encoding="utf-8")
+        except Exception:  # noqa: BLE001
+            pass
 
     log.info("[report] 日报: %s；recommendations.json: %s（%d 只）", out_path, rec_path, len(cards))
     return text
