@@ -54,7 +54,7 @@ backtest:
 report:
   top_k: 0                              # 0=全部股票都列出
   min_probability: 0.0                  # 0=不过滤（校准后概率集中在~0.5，阈值会滤空）
-  out_path: data/output/recommendations_us.md
+  out_path: data/output/daily_report.md
   explain_method: shap
 
 news:
