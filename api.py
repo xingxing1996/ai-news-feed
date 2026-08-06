@@ -238,7 +238,8 @@ def manual_reset_run():
 
 # ---------- 浏览器看板（根路径）----------
 @app.get("/", response_class=HTMLResponse)
-def dashboard():
+def dashboard(response: Response):
+    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
     p = _recs_path()
     if not p:
         return HTMLResponse("<h2>stock-predict</h2><p>首次训练进行中，稍后刷新（看 <a href='/health'>/health</a>）。</p>",
