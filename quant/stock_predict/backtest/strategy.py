@@ -51,7 +51,7 @@ def _ranking_signal(pred: pd.DataFrame, mode: str = "blend") -> pd.DataFrame:
 
 
 def _run_core(signal: pd.DataFrame, daily: pd.DataFrame, cfg) -> dict:
-    """给定排序信号，跑 Top-N 持有组合回测，返回指标 dict。"""
+    """给定排序信号，跑严格无未来函数的 T+1 真实调仓持有组合回测，返回指标 dict。"""
     top_n = int(cfg.backtest.top_n)
     hold = int(cfg.backtest.hold_days)
     comm = float(cfg.backtest.commission_bps) / 1e4
@@ -71,9 +71,10 @@ def _run_core(signal: pd.DataFrame, daily: pd.DataFrame, cfg) -> dict:
     common_codes = signal.columns.intersection(close.columns)
     dates = signal.index[(signal.index >= test_start)
                          & (signal.index <= (test_end if test_end else signal.index.max()))].sort_values()
-    if len(dates) == 0:
-        raise RuntimeError("test 段内无预测日期，请检查切分配置。")
+    if len(dates) < 2:
+        raise RuntimeError("test 段内预测日期不足 2 天，无法进行 T+1 严格无未来函数回测。")
 
+    # 1. 计算个股 T+1 真实的隔日收益率 (ret_t1 = close[t] / close[t-1] - 1)
     ret = close.pct_change(fill_method=None)
     mkt_ret = ret.mean(axis=1)
     vol = ret.rolling(60, min_periods=20).std().fillna(0.02)
@@ -96,26 +97,39 @@ def _run_core(signal: pd.DataFrame, daily: pd.DataFrame, cfg) -> dict:
                 w.loc[codes_idx] *= max_ind / s
         return w / w.sum()
 
-    port_dates, port_ret, prev_weights, weights = [], [], pd.Series(dtype=float), pd.Series(dtype=float)
+    port_dates, port_ret, prev_weights, current_weights = [], [], pd.Series(dtype=float), pd.Series(dtype=float)
     turnover_sum = n_rebal = 0
-    for i, d in enumerate(dates):
+    next_cost = 0.0
+
+    # 2. 严格 T+1 调仓循环：d_signal 日产生收盘信号，d_exec 日才执行调仓并承受 d_exec 的真实收益与交易摩擦
+    for i in range(len(dates) - 1):
+        d_signal = dates[i]      # T 日：收盘后计算模型预测信号
+        d_exec = dates[i + 1]    # T+1 日：实际调仓并承担持仓收益
+
+        # 是否触发调仓
         if i % hold == 0:
-            row = signal.loc[d, common_codes].dropna()
+            row = signal.loc[d_signal, common_codes].dropna()
             new_holdings = row.nlargest(top_n).index.tolist() if len(row) >= top_n else row.index.tolist()
-            weights = _make_weights(new_holdings, d)
-            churn = _weight_churn(prev_weights, weights)
-            cost = (comm + slip) * churn + impact_coef * (churn ** 0.5) / 1e4
-            prev_weights = weights
+            new_weights = _make_weights(new_holdings, d_signal)
+            churn = _weight_churn(prev_weights, new_weights)
+            # 包含双边印花税、佣金、滑点与冲击成本
+            next_cost = (comm + slip + 0.001) * churn + impact_coef * (churn ** 0.5) / 1e4
+            current_weights = new_weights
+            prev_weights = current_weights
             n_rebal += 1
             turnover_sum += churn
         else:
-            cost = 0.0
-        if weights.empty:
+            next_cost = 0.0
+
+        if current_weights.empty:
             continue
-        day_ret = ret.loc[d, weights.index] if d in ret.index else pd.Series(dtype=float)
-        pr = float((weights * day_ret.fillna(0.0)).sum())
-        port_dates.append(d)
-        port_ret.append(pr - cost)
+
+        # 计算 T+1 日调仓后的真实盘中收益率
+        day_ret = ret.loc[d_exec, current_weights.index] if d_exec in ret.index else pd.Series(dtype=float)
+        pr = float((current_weights * day_ret.fillna(0.0)).sum())
+        
+        port_dates.append(d_exec)
+        port_ret.append(pr - next_cost)
 
     port = pd.Series(port_ret, index=port_dates, name="portfolio")
     port.index.name = "date"
@@ -124,7 +138,7 @@ def _run_core(signal: pd.DataFrame, daily: pd.DataFrame, cfg) -> dict:
     report = metrics.compute(port, bench)
     report.update({"top_n": top_n, "hold_days": hold, "n_rebalance": n_rebal,
                    "avg_turnover": float(turnover_sum / n_rebal) if n_rebal else 0.0,
-                   "start": str(pd.Timestamp(dates[0]).date()), "end": str(pd.Timestamp(dates[-1]).date())})
+                   "start": str(pd.Timestamp(dates[1]).date()), "end": str(pd.Timestamp(dates[-1]).date())})
     return report, port, bench
 
 
