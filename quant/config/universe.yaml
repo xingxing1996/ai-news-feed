@@ -149,6 +149,7 @@ us:
   - {code: "ARM",   name: "ARM",       industry: "半导体"}
   - {code: "QCOM",  name: "高通",      industry: "半导体"}
   - {code: "INTC",  name: "英特尔",    industry: "半导体"}
+  - {code: "SPCX",   name: "SpaceX概念(SPCX)", industry: "商业航天"} # SpaceX
   - {code: "RKLB",   name: "RocketLab(SpaceX概念)", industry: "商业航天"} # Rocket Lab
   - {code: "COIN",  name: "Coinbase(Circle概念)",  industry: "金融科技"} # 数字货币/Circle概念
   # —— 金融 ——
