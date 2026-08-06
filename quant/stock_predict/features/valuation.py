@@ -1,7 +1,7 @@
 """估值因子（设计文档 5.2）。
 
 核心：用**历史分位**而非绝对值。
-  pe_percentile / pb_percentile / fcf_yield / fcf_yield_percentile
+  pe_percentile / pb_percentile / ocf_yield / ocf_yield_percentile
 """
 from __future__ import annotations
 
@@ -18,7 +18,7 @@ _PCT_WINDOW = 252 * 3  # 3 年滚动分位窗口
 def _rolling_pct_rank(s: pd.Series, w: int) -> pd.Series:
     res = s.rolling(w, min_periods=1).rank(pct=True)
     if res.isna().any():
-        res = res.ffill().bfill()
+        res = res.ffill()  # 仅向后填充；不用 bfill（会用未来值回填历史，违反 PIT）
     return res
 
 
@@ -49,15 +49,18 @@ def compute_valuation_factors(
         feats.append(v[cols])
 
 
-    # ---- fcf_yield（来自 financial 现金流 + daily 市值 PIT 严格对齐）----
+    # ---- ocf_yield（经营现金流收益率 = 经营现金流/市值；来自 financial 现金流 + daily 市值 PIT 严格对齐）----
+    # 注：数据层只有经营现金流(OCF)，无 CapEx，故不能算自由现金流(FCF=OCF-CapEx)，
+    # 此因子实为 OCF yield，切勿对外称作"自由现金流收益率"。
     if not financial.empty and "market_cap" in daily.columns:
         fin = financial[["code", "pub_date", "cashflow"]].copy()
         fin["pub_date_dt"] = pd.to_datetime(fin["pub_date"])
         d = daily[["date", "code", "market_cap"]].copy()
         d["date_dt"] = pd.to_datetime(d["date"])
 
-        d_sorted = d.sort_values(["code", "date_dt"]).reset_index(drop=True)
-        fin_sorted = fin.dropna(subset=["pub_date_dt"]).sort_values(["code", "pub_date_dt"]).reset_index(drop=True)
+        # merge_asof 要求 on 键(date_dt)全局单调；多 code 时按 [code,on] 排序不满足，故仅按 on 键排序
+        d_sorted = d.sort_values("date_dt").reset_index(drop=True)
+        fin_sorted = fin.dropna(subset=["pub_date_dt"]).sort_values("pub_date_dt").reset_index(drop=True)
 
         merged = pd.merge_asof(
             d_sorted,
@@ -68,14 +71,14 @@ def compute_valuation_factors(
             direction="backward"  # 严格 PIT：仅使用交易日前已发布的最新现金流
         )
 
-        merged["fcf_yield"] = merged["cashflow"] / merged["market_cap"].replace(0, np.nan)
+        merged["ocf_yield"] = merged["cashflow"] / merged["market_cap"].replace(0, np.nan)
         merged = merged.sort_values(["code", "date_dt"])
-        merged["fcf_yield_percentile"] = merged.groupby("code")["fcf_yield"].transform(
+        merged["ocf_yield_percentile"] = merged.groupby("code")["ocf_yield"].transform(
             lambda s: _rolling_pct_rank(s, _PCT_WINDOW)
         )
         merged["date"] = merged["date_dt"].dt.strftime("%Y-%m-%d")
         merged = merged.set_index(["date", "code"]).sort_index()
-        feats.append(merged[["fcf_yield", "fcf_yield_percentile"]])
+        feats.append(merged[["ocf_yield", "ocf_yield_percentile"]])
 
     if not feats:
         return pd.DataFrame()

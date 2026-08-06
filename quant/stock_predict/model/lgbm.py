@@ -61,21 +61,19 @@ def _split(df: pd.DataFrame, seg: dict, embargo_days: int = 0) -> dict[str, pd.D
     else:
         out["test"] = df.iloc[0:0]
 
-    # 智能自适应保底：若硬编码日期切出来的训练集为空（如新增样本年份靠后），自动按 60%/20%/20% 动态切分
+    # 智能自适应保底：若硬编码日期切出空训练集（如样本年份靠后），按 60/20/20 动态切分，
+    # 同样施加 embargo 隔离带（与主路径一致，杜绝标签穿越）；样本不足以切分则报错而非全集合泄漏。
     if out["train"].empty:
         unique_dates = sorted(dates.unique())
         n_dates = len(unique_dates)
-        if n_dates >= 3:
-            idx1 = int(n_dates * 0.6)
-            idx2 = int(n_dates * 0.8)
-            d1, d2 = unique_dates[idx1], unique_dates[idx2]
-            out["train"] = df[dates < d1]
-            out["valid"] = df[(dates >= d1) & (dates < d2)]
-            out["test"] = df[dates >= d2]
-        else:
-            out["train"] = df
-            out["valid"] = df
-            out["test"] = df
+        if n_dates < 3:
+            raise RuntimeError(f"样本日期数({n_dates})不足以做 train/valid/test 切分，请检查数据范围")
+        idx1 = int(n_dates * 0.6)
+        idx2 = int(n_dates * 0.8)
+        d1, d2 = unique_dates[idx1], unique_dates[idx2]
+        out["train"] = df[dates < (d1 - emb)]
+        out["valid"] = df[(dates >= d1) & (dates < (d2 - emb))]
+        out["test"] = df[dates >= d2]
     return out
 
 
@@ -112,9 +110,14 @@ def _train_one(feat_cols, params, splits, target, use_ensemble=True, calibrate=F
             xgbm = xgb.XGBClassifier(
                 n_estimators=400, learning_rate=0.05, max_depth=6,
                 subsample=0.8, colsample_bytree=0.8, reg_lambda=1.0,
-                n_jobs=-1, eval_metric="logloss", verbosity=0,
+                n_jobs=-1, random_state=42, eval_metric="logloss", verbosity=0,
+                early_stopping_rounds=50,
             )
-            xgbm.fit(Xtr, ytr)
+            # 有 valid 集则早停（与 LightGBM 对称，防过拟合）；无 valid 则全量训练
+            if not Xva.empty:
+                xgbm.fit(Xtr, ytr, eval_set=[(Xva, yva)], verbose=False)
+            else:
+                xgbm.fit(Xtr, ytr)
         except Exception as exc:  # noqa: BLE001
             log.info("[model] XGBoost 不可用（%s）：%s", target, exc)
             xgbm = None

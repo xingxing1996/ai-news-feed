@@ -23,8 +23,8 @@ _FEATURE_LABELS: list[tuple[str, str, str, bool]] = [
     # 估值：低 = 好
     ("pe_percentile",         "PE",  "PE 处于历史低位（估值便宜）",  "PE 处于历史高位（偏贵）",       False),
     ("pb_percentile",         "PB",  "PB 处于历史低位",              "PB 处于历史高位",               False),
-    ("fcf_yield_percentile",  "FCF", "自由现金流收益率处历史高位",    "自由现金流收益率偏低",          True),
-    ("fcf_yield",             "FCF", "自由现金流收益率高",           "自由现金流收益率低",            True),
+    ("ocf_yield_percentile",  "OCF", "经营现金流收益率处历史高位",    "经营现金流收益率偏低",          True),
+    ("ocf_yield",             "OCF", "经营现金流收益率高",           "经营现金流收益率低",            True),
     # 质量：高 = 好
     ("roe",                   "ROE", "ROE 较高（盈利能力强）",        "ROE 偏低",                      True),
     ("gross_margin",          "毛利", "毛利率较高",                  "毛利率偏低",                    True),
@@ -62,6 +62,21 @@ def _lookup(feat: str) -> tuple[str, str, bool] | None:
     for prefix, _tag, good, bad, bullish in _FEATURE_LABELS:
         if feat.startswith(prefix):
             return good, bad, bullish
+    return None
+
+
+def _row_val_raw(row, f):
+    """展示用原始值：优先 *_raw（process:rank 后原列已被覆盖成截面分位，直接展示会误导）。"""
+    if row is None:
+        return None
+    for key in (f + "_raw", f):
+        if key in getattr(row, "index", []):
+            v = row[key]
+            if pd.notna(v):
+                try:
+                    return float(v)
+                except (TypeError, ValueError):  # noqa: BLE001
+                    return None
     return None
 
 
@@ -185,8 +200,9 @@ def explain_shap_row(shap_vec, feat_cols: list[str], k: int = 5, row: pd.Series 
         if not info:
             continue
         val_str = ""
-        if row is not None and f in row.index:
-            val_str = _fmt_feat_val(f, float(row[f])) if pd.notna(row[f]) else ""
+        _rv = _row_val_raw(row, f)
+        if _rv is not None:
+            val_str = _fmt_feat_val(f, _rv)
         reasons.append(f"🟢 {info[0]}{val_str}（SHAP 贡献 {_fmt_shap(v)}）")
         if len(reasons) >= k:
             break
@@ -195,8 +211,9 @@ def explain_shap_row(shap_vec, feat_cols: list[str], k: int = 5, row: pd.Series 
         if not info:
             continue
         val_str = ""
-        if row is not None and f in row.index:
-            val_str = _fmt_feat_val(f, float(row[f])) if pd.notna(row[f]) else ""
+        _rv = _row_val_raw(row, f)
+        if _rv is not None:
+            val_str = _fmt_feat_val(f, _rv)
         risks.append(f"🔴 {info[1]}{val_str}（SHAP 扣分 {_fmt_shap(v)}）")
         if len(risks) >= k:
             break
@@ -209,8 +226,12 @@ def technical_reasons(row: pd.Series) -> tuple[list[str], list[str]]:
     risks: list[str] = []
 
     def g(k):
-        v = row.get(k)
-        return float(v) if v is not None and not pd.isna(v) else None
+        # 优先原始值副本（process:rank 后原列已是截面分位）；技术信号阈值按原始值设定
+        for key in (k + "_raw", k):
+            v = row.get(key)
+            if v is not None and not pd.isna(v):
+                return float(v)
+        return None
 
     rsi = next((g(c) for c in ("RSI6", "RSI12", "RSI24") if g(c) is not None), None)
     if rsi is not None and rsi > 0:

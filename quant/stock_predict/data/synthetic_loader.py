@@ -103,33 +103,43 @@ def fetch_valuation(code: str, start: str, end: str) -> pd.DataFrame:
 
 
 def fetch_financial(code: str, market: str = "cn") -> pd.DataFrame:
-    """从最新一期合成行情反推一个财务快照（够做 quality 因子）。"""
-    today_dt = datetime.today()
-    today = today_dt.strftime("%Y-%m-%d")
-    start = (today_dt - timedelta(days=400)).strftime("%Y-%m-%d")
+    """合成多期财报（够做 quality 因子，且 PIT 可对齐）。
+    每期 report_period = 季度末，pub_date = 报告期 + 披露滞后（年报90天/季报45天），
+    保证 merge_asof(backward) 只匹配已公开财报，与真实 loader 行为一致。"""
     rng = np.random.default_rng(_seed(code) + 1)
-    df = _gen_series(code, start, today)
-    if df.empty:
-        return _empty_fin()
-    last = df.iloc[-1]
-    rev = float(last["market_cap"]) * float(rng.uniform(0.1, 0.5))
-    profit = max(last["eps"], 1e-3) * float(rng.uniform(1e7, 5e8))
-    return pd.DataFrame(
-        [
-            {
-                "code": code,
-                "report_period": (datetime.today().year - 1),
-                "pub_date": today,
-                "revenue": rev,
-                "profit": profit,
-                "roe": float(rng.uniform(0.03, 0.30)),
-                "gross_margin": float(rng.uniform(0.15, 0.70)),
-                "cashflow": profit * float(rng.uniform(0.6, 1.8)),
-                "pe": float(last["pe"]),
-                "pb": float(last["pb"]),
-            }
-        ]
-    )
+    today_dt = datetime.today()
+    base_rev = float(rng.uniform(1e9, 5e10))
+    base_margin = float(rng.uniform(0.15, 0.70))
+    g = float(rng.uniform(0.72, 1.0))  # 期际温和增长因子
+    last_day = {3: 31, 6: 30, 9: 30, 12: 31}
+    cy, cq = today_dt.year, max(q for q in (3, 6, 9, 12) if q <= today_dt.month)
+    periods = []
+    for _ in range(8):
+        periods.append((cy, cq))
+        cq -= 3
+        if cq <= 0:
+            cq += 12
+            cy -= 1
+    periods = sorted(periods)
+    rows = []
+    for i, (yy, mm) in enumerate(periods):
+        rp = datetime(yy, mm, last_day[mm])
+        pub = rp + timedelta(days=90 if mm == 12 else 45)
+        rev = base_rev * (g ** (len(periods) - 1 - i))
+        profit = rev * base_margin
+        rows.append({
+            "code": code,
+            "report_period": rp.strftime("%Y-%m-%d"),
+            "pub_date": pub.strftime("%Y-%m-%d"),
+            "revenue": rev,
+            "profit": profit,
+            "roe": float(rng.uniform(0.03, 0.30)),
+            "gross_margin": base_margin,
+            "cashflow": profit * float(rng.uniform(0.6, 1.8)),
+            "pe": pd.NA,
+            "pb": pd.NA,
+        })
+    return pd.DataFrame(rows)
 
 
 def _empty_daily() -> pd.DataFrame:

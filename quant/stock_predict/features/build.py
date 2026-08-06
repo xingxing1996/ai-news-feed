@@ -41,6 +41,9 @@ def build_feature_matrix() -> tuple[pd.DataFrame, dict]:
     blocks: list[pd.DataFrame] = []
 
     # 价量因子（alpha）
+    # 给 daily 附上 market，让 BETA/CMKT 按市场分组（避免跨市场交易日历污染）
+    if "market" not in daily.columns and "market" in universe.columns:
+        daily = daily.merge(universe[["code", "market"]], on="code", how="left")
     alpha_df = alpha.compute_alpha_factors(daily)
     if not alpha_df.empty:
         blocks.append(alpha_df)
@@ -125,6 +128,11 @@ def build_feature_matrix() -> tuple[pd.DataFrame, dict]:
                                                           "label", "abs_label", "bench_label", "bench_excess", "bench_future",
                                                           "industry", "market", "name", "market_cap") and c not in _DISPLAY_ONLY]
     # 1) 因子去极值 + 截面标准化
+    # 先保留原始值副本 *_raw 供日报展示：process:rank 会把因子原地覆盖成截面百分位，
+    # 日报的「目标价/动量/技术信号/反波动率仓位」必须用原始值，否则把分位当收益率 → 系统性失真。
+    for c in feat_cols_now:
+        if c + "_raw" not in mat.columns:
+            mat[c + "_raw"] = mat[c]
     pmethod = fcfg.get("process", "zscore")
     if pmethod != "none" and feat_cols_now:
         try:
@@ -149,7 +157,8 @@ def build_feature_matrix() -> tuple[pd.DataFrame, dict]:
     feat_cols = [c for c in mat.columns if c not in ("future_return", "industry_excess", "industry_excess_neu",
                                                        "label", "abs_label", "bench_label", "bench_excess", "bench_future",
                                                        "industry", "market", "name", "market_cap",
-                                                       "pe", "pb")]
+                                                       "pe", "pb")
+                 and not c.endswith("_raw")]  # *_raw 仅供日报展示，不进模型
     stats = {
         "rows": int(len(mat)),
         "feature_cols": int(len(feat_cols)),

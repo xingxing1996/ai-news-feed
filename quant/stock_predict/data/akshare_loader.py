@@ -95,6 +95,45 @@ def _to_date(s) -> str:
     return pd.to_datetime(s).strftime("%Y-%m-%d")
 
 
+_A_SPOT_CACHE: dict | None = None  # 模块级缓存：code → 当前总市值（元），整批一次拉取
+
+
+def _ak_total_mcap_now(code: str) -> float | None:
+    """A 股当前总市值（元）。批量缓存 stock_zh_a_spot_em 一次，供历史市值按价格比例回填。
+    取不到（网络失败等）返回 None，调用方降级为 NA，绝不抛错。"""
+    global _A_SPOT_CACHE
+    if _A_SPOT_CACHE is None:
+        try:
+            ak = _ak()
+            spot = _call_ak(ak.stock_zh_a_spot_em)
+            if spot is not None and not spot.empty and "总市值" in spot.columns:
+                code_col = "代码" if "代码" in spot.columns else spot.columns[1]
+                _A_SPOT_CACHE = dict(zip(
+                    spot[code_col].astype(str),
+                    pd.to_numeric(spot["总市值"], errors="coerce"),
+                ))
+            else:
+                _A_SPOT_CACHE = {}
+        except Exception:  # noqa: BLE001
+            _A_SPOT_CACHE = {}
+    sym = str(_to_ak_symbol(code))
+    mc = _A_SPOT_CACHE.get(sym) if isinstance(_A_SPOT_CACHE, dict) else None
+    return float(mc) if pd.notna(mc) else None
+
+
+def _ak_hist_market_cap(out: pd.DataFrame, code: str):
+    """A 股历史总市值：当前总市值 × (close / 最新close) ≈ 总股本×close，仅用历史价、严格 PIT。"""
+    try:
+        mc_now = _ak_total_mcap_now(code)
+        if mc_now and not out.empty:
+            last_close = float(out.iloc[-1]["close"])
+            if last_close > 0:
+                return mc_now * (pd.to_numeric(out["close"], errors="coerce") / last_close)
+    except Exception:  # noqa: BLE001
+        pass
+    return pd.NA
+
+
 def fetch_daily(code: str, start: str, end: str, market: str = "cn") -> pd.DataFrame:
     """下载前复权日线（A股 stock_zh_a_hist / 港股 stock_hk_daily + yfinance保底）。返回统一 schema。"""
     try:
@@ -172,7 +211,7 @@ def fetch_daily(code: str, start: str, end: str, market: str = "cn") -> pd.DataF
         df["date"] = pd.to_datetime(df["date"]).dt.strftime("%Y-%m-%d")
         df["code"] = code
         out = df[["date", "code", "open", "high", "low", "close", "volume"]].copy()
-        out["market_cap"] = pd.NA
+        out["market_cap"] = _ak_hist_market_cap(out, code)  # 总市值（按价格比例回填，PIT）
         return out
     except Exception as exc:  # noqa: BLE001
         log.warning("[akshare] %s 行情下载失败: %s", code, exc)
@@ -268,44 +307,97 @@ def fetch_financial(code: str, market: str = "cn") -> pd.DataFrame:
         return _empty_fin()
 
 
-def _normalize_financial_ak(df: pd.DataFrame, code: str) -> pd.DataFrame:
-    """尽力把 AKShare 财务表拍平成统一 schema（容忍字段缺失）。"""
-    # 不同版本列名差异大；这里用通用兜底：取不到就留空
-    rows = []
-    today = datetime.today().strftime("%Y-%m-%d")
-    # 尝试取最近一期作为代表（避免被复杂结构拖垮）
-    try:
-        rec = {
-            "code": code,
-            "report_period": None,
-            "pub_date": today,
-            "revenue": _pick(df, ["营业总收入", "营业收入", "总营收"]),
-            "profit": _pick(df, ["净利润", "归母净利润"]),
-            "roe": _pick(df, ["净资产收益率", "ROE"]),
-            "gross_margin": _pick(df, ["销售毛利率", "毛利率"]),
-            "cashflow": _pick(df, ["经营活动现金流量净额", "经营现金流净额"]),
-            "pe": pd.NA,
-            "pb": pd.NA,
-            "profit_growth": _pick(df, ["净利润同比增长率", "净利润同比增长", "归母净利润同比增长率", "净利润增长率"]),
-            "revenue_growth": _pick(df, ["营业收入同比增长率", "营业收入同比增长", "营业总收入同比增长率", "营收增长率"]),
-        }
-        # 归一化百分比 (若源数据是 45.2% 格式转为 0.452)
-        if pd.notna(rec["profit_growth"]) and abs(rec["profit_growth"]) > 5.0:
-            rec["profit_growth"] = rec["profit_growth"] / 100.0
-        if pd.notna(rec["revenue_growth"]) and abs(rec["revenue_growth"]) > 5.0:
-            rec["revenue_growth"] = rec["revenue_growth"] / 100.0
+def _parse_period(col) -> pd.Timestamp:
+    """报告期列名(如 20260331 / '2026-03-31') → Timestamp，无法解析返回 NaT。"""
+    s = str(col).strip()
+    for fmt in ("%Y%m%d", "%Y-%m-%d"):
+        try:
+            return pd.Timestamp(datetime.strptime(s, fmt))
+        except ValueError:
+            continue
+    return pd.NaT
 
-        rows.append(rec)
+
+def _ak_disclosure_deadline(rp: pd.Timestamp) -> pd.Timestamp:
+    """A股法定财报披露截止日，作为 PIT 安全的 pub_date 下界（只用已公开财报，绝不偷看未来）。
+    Q1(截至3/31)→4/30、H1(6/30)→8/31、Q3(9/30)→10/31、年报(12/31)→次年4/30。"""
+    y, m = rp.year, rp.month
+    if m == 3:
+        return pd.Timestamp(year=y, month=4, day=30)
+    if m == 6:
+        return pd.Timestamp(year=y, month=8, day=31)
+    if m == 9:
+        return pd.Timestamp(year=y, month=10, day=31)
+    if m == 12:
+        return pd.Timestamp(year=y + 1, month=4, day=30)
+    return rp + pd.Timedelta(days=120)  # 未知季度兜底
+
+
+def _find_indicator_row(ind: pd.DataFrame, names: list[str]):
+    """在以"指标"为索引的宽表里按候选名找行（先精确后包含），返回首个命中的 Series 或 None。"""
+    idx = ind.index.astype(str)
+    for n in names:  # 精确匹配
+        hit = ind.loc[idx == n]
+        if not hit.empty:
+            return hit.iloc[0]
+    for n in names:  # 包含匹配（容忍后缀/括号/空格差异）
+        mask = idx.str.contains(n, na=False, regex=False)
+        if mask.any():
+            return ind.loc[mask].iloc[0]
+    return None
+
+
+# akshare 指标名 → 标准字段（多候选，适配不同版本列名）
+_AK_FIELD_MAP = {
+    "revenue": ["营业总收入", "营业收入", "总营收"],
+    "profit": ["归母净利润", "归属母公司股东的净利润", "净利润"],
+    "roe": ["加权净资产收益率", "净资产收益率", "ROE"],
+    "gross_margin": ["销售毛利率", "毛利率"],
+    "cashflow": ["经营活动产生的现金流量净额", "经营活动现金流量净额", "经营现金流净额"],
+    "profit_growth": ["归母净利润同比增长率", "归属母公司股东的净利润同比增长率", "净利润同比增长率", "净利润同比增长", "净利润增长率"],
+    "revenue_growth": ["营业总收入同比增长率", "营业收入同比增长率", "营业收入同比增长", "营收同比增长率", "营收增长率"],
+}
+
+
+def _normalize_financial_ak(df: pd.DataFrame, code: str) -> pd.DataFrame:
+    """把 AKShare stock_financial_abstract 宽表（行=指标，列=报告期 YYYYMMDD）拍平成多期 PIT 财务。
+
+    每个报告期落一行；pub_date 取该期法定披露截止日，保证 merge_asof(backward) 只匹配
+    "交易日 >= 披露日"的已公开财报，严格 Point-in-Time、无未来函数。
+    （旧实现把指标名当列名查、且 pub_date 写死今天 → 既取不到值又架空 PIT，已废弃。）
+    """
+    if df is None or df.empty or "指标" not in df.columns:
+        return _empty_fin()
+    try:
+        ind = df.set_index("指标")
+        row_of = {f: _find_indicator_row(ind, names) for f, names in _AK_FIELD_MAP.items()}
+        period_cols = [c for c in df.columns if c not in ("选项", "指标")]
+        rows = []
+        for pc in period_cols:
+            rp = _parse_period(pc)
+            if pd.isna(rp):
+                continue
+            pub = _ak_disclosure_deadline(rp)
+            rec = {
+                "code": code,
+                "report_period": rp.strftime("%Y-%m-%d"),
+                "pub_date": pub.strftime("%Y-%m-%d"),
+            }
+            for field in _AK_FIELD_MAP:
+                s = row_of.get(field)
+                rec[field] = pd.to_numeric(s.get(pc), errors="coerce") if s is not None else pd.NA
+            rec["pe"] = pd.NA
+            rec["pb"] = pd.NA
+            # 增长率若源数据是 45.2 这类百分号值，归一化到 0.452
+            for g in ("profit_growth", "revenue_growth"):
+                if pd.notna(rec[g]) and abs(rec[g]) > 5.0:
+                    rec[g] = rec[g] / 100.0
+            rows.append(rec)
+        if not rows:
+            return _empty_fin()
+        return pd.DataFrame(rows)
     except Exception:  # noqa: BLE001
         return _empty_fin()
-    return pd.DataFrame(rows)
-
-
-def _pick(df: pd.DataFrame, names: list[str]):
-    for n in names:
-        if n in df.columns:
-            return pd.to_numeric(df[n].iloc[0], errors="coerce")
-    return pd.NA
 
 
 def _empty_daily() -> pd.DataFrame:

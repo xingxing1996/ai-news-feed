@@ -46,7 +46,9 @@ def fetch_daily(code: str, start: str, end: str, market: str = "us") -> pd.DataF
         try:
             tk = yf.Ticker(code)
             info = tk.info or {}
-            shares = info.get("sharesOutstanding") or info.get("impliedShares") or info.get("floatShares")
+            # 总市值：优先 sharesOutstanding(总股本)×close；其次 info["marketCap"](总市值快照)。
+            # 不用 floatShares(流通股) 做乘数——与总股本口径不一致，会让市值跨股票不可比。
+            shares = info.get("sharesOutstanding") or info.get("impliedShares")
             if shares and "close" in out.columns:
                 out["market_cap"] = out["close"] * float(shares)
             else:
@@ -161,57 +163,101 @@ def fetch_valuation(code: str, start: str, end: str, market: str = "us") -> pd.D
         return _empty_valuation()
 
 
+def _yf_stmt_row(stmt, names: list[str]):
+    """从 yfinance 季度报表(行=指标,列=报告期 Timestamp)按候选名取首行(Series)；无则 None。"""
+    if stmt is None or getattr(stmt, "empty", True):
+        return None
+    idx = stmt.index.astype(str)
+    for n in names:
+        hits = stmt.loc[idx.str.contains(n, na=False, regex=False)]
+        if not hits.empty:
+            return hits.iloc[0]
+    return None
+
+
+def _yf_stmt(tk, primary: str, fallback: str):
+    """优先用新版 *_stmt 接口，回退到旧版 *_financials/*_balance_sheet/*_cashflow。"""
+    s = getattr(tk, primary, None)
+    if s is None or getattr(s, "empty", True):
+        s = getattr(tk, fallback, None)
+    return s
+
+
+def _yf_quarterly_rows(tk, code: str) -> list[dict]:
+    """从季度三大表拼多期 PIT 财务行。pub_date = 报告期 + (年报90天 / 季报45天)。
+    严格 Point-in-Time：每期只用该期已披露数据，绝不把今天的快照盖到历史。"""
+    qf = _yf_stmt(tk, "quarterly_income_stmt", "quarterly_financials")
+    qb = _yf_stmt(tk, "quarterly_balance_sheet", "quarterly_balance_sheet")
+    qc = _yf_stmt(tk, "quarterly_cashflow", "quarterly_cashflow")
+    rev = _yf_stmt_row(qf, ["Total Revenue", "Revenue"])
+    ni = _yf_stmt_row(qf, ["Net Income", "NetIncome"])
+    gp = _yf_stmt_row(qf, ["Gross Profit", "GrossProfit"])
+    eq = _yf_stmt_row(qb, ["Stockholders Equity", "Total Equity", "Common Stock Equity", "Total Stockholder Equity"])
+    ocf = _yf_stmt_row(qc, ["Operating Cash Flow", "Total Cash From Operating Activities", "OperatingCashflow"])
+    periods = set()
+    for s in (rev, ni, gp, eq, ocf):
+        if s is not None:
+            try:
+                periods |= set(s.index)
+            except Exception:  # noqa: BLE001
+                pass
+    if not periods:
+        return []
+    periods = sorted(periods, key=lambda p: pd.Timestamp(p))  # 升序，便于按位置取去年同期
+
+    def _g(s, p):
+        if s is None:
+            return pd.NA
+        try:
+            return pd.to_numeric(s.get(p), errors="coerce")
+        except Exception:  # noqa: BLE001
+            return pd.NA
+
+    rows = []
+    for i, p in enumerate(periods):
+        rp = pd.Timestamp(p)
+        if pd.isna(rp):
+            continue
+        pub = rp + pd.Timedelta(days=90 if rp.month == 12 else 45)
+        revenue = _g(rev, p)
+        profit = _g(ni, p)
+        gpv = _g(gp, p)
+        ocfv = _g(ocf, p)
+        gross_margin = gpv / revenue if (pd.notna(gpv) and pd.notna(revenue) and revenue) else pd.NA
+        # YoY：去年同期(约 4 个季度前)，没有则留 NA（quality 兜底再算）
+        profit_growth = revenue_growth = pd.NA
+        if i >= 4:
+            yoy = periods[i - 4]
+            r_prev, p_prev = _g(rev, yoy), _g(ni, yoy)
+            if pd.notna(revenue) and pd.notna(r_prev) and r_prev:
+                revenue_growth = revenue / r_prev - 1
+            if pd.notna(profit) and pd.notna(p_prev) and p_prev:
+                profit_growth = profit / p_prev - 1
+        rows.append({
+            "code": code,
+            "report_period": rp.strftime("%Y-%m-%d"),
+            "pub_date": pub.strftime("%Y-%m-%d"),
+            "revenue": revenue,
+            "profit": profit,
+            "roe": pd.NA,  # 季度 ROE 年化不可靠，宁缺毋滥（避免错误值污染截面 rank）
+            "gross_margin": gross_margin,
+            "cashflow": ocfv,
+            "pe": pd.NA,
+            "pb": pd.NA,
+            "profit_growth": profit_growth,
+            "revenue_growth": revenue_growth,
+        })
+    return rows
+
+
 def fetch_financial(code: str, market: str = "us") -> pd.DataFrame:
     try:
         yf = _yf()
         tk = yf.Ticker(code)
-        info = tk.info or {}
-        today = pd.Timestamp.utcnow().strftime("%Y-%m-%d")
-
-        # 尝试从季度财报中计算利润与营收同比增速 (profit_growth / revenue_growth)
-        profit_growth, revenue_growth = None, None
-        try:
-            q_fin = tk.quarterly_financials
-            if q_fin is not None and not q_fin.empty and q_fin.shape[1] >= 2:
-                cols = q_fin.columns
-                # 寻找 Net Income 行
-                net_inc_rows = [idx for idx in q_fin.index if "Net Income" in str(idx)]
-                rev_rows = [idx for idx in q_fin.index if "Total Revenue" in str(idx) or "Revenue" in str(idx)]
-                idx_last = 1 if len(cols) >= 2 else 0
-                if net_inc_rows:
-                    curr_p = float(q_fin.loc[net_inc_rows[0], cols[0]])
-                    last_p = float(q_fin.loc[net_inc_rows[0], cols[idx_last]])
-                    if last_p != 0 and pd.notna(curr_p) and pd.notna(last_p):
-                        profit_growth = (curr_p - last_p) / abs(last_p)
-                if rev_rows:
-                    curr_r = float(q_fin.loc[rev_rows[0], cols[0]])
-                    last_r = float(q_fin.loc[rev_rows[0], cols[idx_last]])
-                    if last_r != 0 and pd.notna(curr_r) and pd.notna(last_r):
-                        revenue_growth = (curr_r - last_r) / abs(last_r)
-        except Exception:  # noqa: BLE001
-            pass
-
-        # 降级：从 info 中拿 earningsGrowth
-        if profit_growth is None:
-            profit_growth = _num(info, ["earningsGrowth", "earningsQuarterlyGrowth"])
-        if revenue_growth is None:
-            revenue_growth = _num(info, ["revenueGrowth"])
-
-        rec = {
-            "code": code,
-            "report_period": None,
-            "pub_date": today,
-            "revenue": _num(info, ["totalRevenue"]),
-            "profit": _num(info, ["netIncomeToCommon"]),
-            "roe": _num(info, ["returnOnEquity"]),
-            "gross_margin": _num(info, ["grossMargins"]),
-            "cashflow": _num(info, ["operatingCashflow"]),
-            "pe": _num(info, ["trailingPE"]),
-            "pb": _num(info, ["priceToBook"]),
-            "profit_growth": profit_growth,
-            "revenue_growth": revenue_growth,
-        }
-        return pd.DataFrame([rec])
+        rows = _yf_quarterly_rows(tk, code)
+        if rows:
+            return pd.DataFrame(rows)
+        return _empty_fin()  # 季度表取不到则返回空（不回退 today，避免历史假死/泄漏）
     except Exception as exc:  # noqa: BLE001
         log.warning("[yfinance] %s 财务下载失败: %s", code, exc)
         return _empty_fin()

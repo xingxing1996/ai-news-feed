@@ -10,6 +10,11 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 
+# 持仓历史分位滚动窗口：仅用过去 3 年数据，min_periods 防冷启动。
+# 注意：必须用滚动 rank，不能用整条序列的全历史 rank（那样 t 日会用到未来 → 未来函数）。
+_LEVEL_WIN = 252 * 3
+_LEVEL_MIN = 60
+
 
 def compute_northbound_factors(northbound: pd.DataFrame) -> pd.DataFrame:
     """北向持股数量 → 变化率 + 历史分位。返回 (date, code) 索引。"""
@@ -25,7 +30,10 @@ def compute_northbound_factors(northbound: pd.DataFrame) -> pd.DataFrame:
     nb["north_chg5"] = g.pct_change(5)
     nb["north_chg20"] = g.pct_change(20)
     nb = nb.replace([np.inf, -np.inf], np.nan)
-    nb["north_level"] = g.rank(pct=True)  # 持股相对历史水平
+    # north_level：滚动历史分位（仅过去窗口，min_periods 防冷启动），严格无未来函数。
+    nb["north_level"] = nb.groupby("code")["north_shares"].transform(
+        lambda s: s.rolling(_LEVEL_WIN, min_periods=_LEVEL_MIN).rank(pct=True)
+    )
 
     nb["date"] = nb["date"].dt.strftime("%Y-%m-%d")
     return nb.set_index(["date", "code"]).sort_index()[["north_chg5", "north_chg20", "north_level"]]

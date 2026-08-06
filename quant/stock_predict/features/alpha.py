@@ -128,8 +128,17 @@ def _feats_for_code(g: pd.DataFrame, market_ret: pd.Series) -> pd.DataFrame:
         out[f"SKEW{w}"] = ret.rolling(w, min_periods=w // 2).skew()
         out[f"KURT{w}"] = ret.rolling(w, min_periods=w // 2).kurt()
 
-    # 与市场的关系（Beta / 相关）
-    mkt = market_ret.reindex(g["date"].values).values
+    # 与市场的关系（Beta / 相关）：market_ret 可能按 date 索引(全局)或 (date,market) 索引(分市场)。
+    # 分市场可避免 CN/HK/US/KR 不同交易日历混算导致的 BETA/CMKT 跨市场污染。
+    if isinstance(market_ret.index, pd.MultiIndex):
+        mkt_of_code = g["market"].iloc[0] if "market" in g.columns else None
+        mi = pd.MultiIndex.from_arrays(
+            [pd.Index(g["date"].values), pd.Index([mkt_of_code] * len(g))],
+            names=["date", "market"],
+        )
+        mkt = market_ret.reindex(mi).values
+    else:
+        mkt = market_ret.reindex(g["date"].values).values
     mkt = pd.Series(mkt, index=g.index)
     for w in [20, 60]:
         cov = ret.rolling(w, min_periods=w // 2).cov(mkt)
@@ -147,7 +156,11 @@ def _pandas_alpha(daily: pd.DataFrame) -> pd.DataFrame:
     """pandas 实现的 Alpha158 风格因子。"""
     daily = daily.sort_values(["code", "date"]).reset_index(drop=True)
     daily["ret"] = daily.groupby("code")["close"].pct_change(fill_method=None)
-    market_ret = daily.groupby("date")["ret"].mean()
+    # 市场收益按市场分组：CN/HK/US/KR 交易日历不同，混算会让 BETA/CMKT 跨市场污染
+    if "market" in daily.columns:
+        market_ret = daily.groupby(["date", "market"])["ret"].mean()
+    else:
+        market_ret = daily.groupby("date")["ret"].mean()
 
     parts = []
     for code, g in daily.groupby("code"):

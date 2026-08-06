@@ -19,32 +19,38 @@ def compute_quality_factors(daily: pd.DataFrame, financial: pd.DataFrame) -> pd.
 
     fin = financial.copy()
     fin["pub_date"] = pd.to_datetime(fin["pub_date"], errors="coerce")
+    fin["report_period"] = pd.to_datetime(fin.get("report_period"), errors="coerce")
 
-    # 增长（需要多期）：按 code 报告期排序后 pct_change
-    fin = fin.sort_values(["code", "pub_date"])
-    growth = []
-    for code, g in fin.groupby("code"):
-        gg = g.copy()
-        if len(gg) > 1:
-            if "revenue_growth" not in gg.columns or gg["revenue_growth"].isna().all():
-                gg["revenue_growth"] = gg["revenue"].pct_change(fill_method=None)
-            if "profit_growth" not in gg.columns or gg["profit_growth"].isna().all():
-                gg["profit_growth"] = gg["profit"].pct_change(fill_method=None)
-        else:
-            if "revenue_growth" not in gg.columns:
-                gg["revenue_growth"] = np.nan
-            if "profit_growth" not in gg.columns:
-                gg["profit_growth"] = np.nan
-        growth.append(gg)
-    fin = pd.concat(growth, ignore_index=True) if growth else fin
+    # 同比增长 YoY：用去年同期 report_period 自连接，避免环比(Q4→Q1)的季节性失真。
+    if "report_period" in fin.columns and fin["report_period"].notna().any() and len(fin) > 1:
+        prev = fin[["code", "report_period", "revenue", "profit"]].copy()
+        prev["report_period"] = prev["report_period"] + pd.DateOffset(years=1)  # 去年同期行搬到今年的键
+        prev = prev.rename(columns={"revenue": "_rev_yoy", "profit": "_prof_yoy"})
+        fin = fin.merge(prev, on=["code", "report_period"], how="left")
+        if ("revenue_growth" not in fin.columns) or fin["revenue_growth"].isna().all():
+            fin["revenue_growth"] = np.where(
+                fin["_rev_yoy"].notna() & (fin["_rev_yoy"] != 0) & fin["revenue"].notna(),
+                fin["revenue"] / fin["_rev_yoy"] - 1, np.nan)
+        if ("profit_growth" not in fin.columns) or fin["profit_growth"].isna().all():
+            fin["profit_growth"] = np.where(
+                fin["_prof_yoy"].notna() & (fin["_prof_yoy"] != 0) & fin["profit"].notna(),
+                fin["profit"] / fin["_prof_yoy"] - 1, np.nan)
+        fin = fin.drop(columns=[c for c in ("_rev_yoy", "_prof_yoy") if c in fin.columns])
+    else:
+        # 无 report_period（退化）：保留源增长或留空
+        if "revenue_growth" not in fin.columns:
+            fin["revenue_growth"] = np.nan
+        if "profit_growth" not in fin.columns:
+            fin["profit_growth"] = np.nan
 
     # 严格 PIT (Point-in-Time) 时间对齐：交易日 (date) 只能匹配在该交易日之前 (pub_date <= date) 已经发布的最新财报
     d = daily[["date", "code"]].copy()
     d["date_dt"] = pd.to_datetime(d["date"])
     fin["pub_date_dt"] = pd.to_datetime(fin["pub_date"])
 
-    d_sorted = d.sort_values(["code", "date_dt"]).reset_index(drop=True)
-    fin_sorted = fin.sort_values(["code", "pub_date_dt"]).reset_index(drop=True)
+    # merge_asof 要求 on 键(date_dt)全局单调；多 code 时按 [code,on] 排序不满足，故仅按 on 键排序
+    d_sorted = d.sort_values("date_dt").reset_index(drop=True)
+    fin_sorted = fin.sort_values("pub_date_dt").reset_index(drop=True)
 
     merged = pd.merge_asof(
         d_sorted,

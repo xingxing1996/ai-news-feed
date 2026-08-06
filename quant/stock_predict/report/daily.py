@@ -343,8 +343,9 @@ def generate_daily_report(as_of: str | None = None, pred_df=None, feats_df=None,
         if is_etf and not any("ETF/指数" in r for r in risks):
             risks.append("ℹ️ ETF/指数：跑赢行业概率参考意义有限，建议看上涨概率与技术信号")
 
-        # 计算反波动率风控仓位（若无 STD20，默认基础分）
-        std20 = float(row["STD20"]) if "STD20" in row.index and pd.notna(row.get("STD20")) and float(row.get("STD20")) > 0 else 0.02
+        # 计算反波动率风控仓位（用 STD20 原始值；process:rank 后 STD20 列是截面分位，不能当波动率）
+        _std20_raw = row.get("STD20_raw") if "STD20_raw" in row.index else row.get("STD20")
+        std20 = float(_std20_raw) if _std20_raw is not None and pd.notna(_std20_raw) and float(_std20_raw) > 0 else 0.02
         inv_vol = 1.0 / std20
 
         # 读取实际 PE/PB 原始值（来自 valuation 数据的最新快照）
@@ -376,8 +377,9 @@ def generate_daily_report(as_of: str | None = None, pred_df=None, feats_df=None,
         calibrated_prob_up = round(float(prob_up), 3)
         calibrated_prob = round(float(prob), 3)
         
-        # 预估收益率基于模型超额胜率与 20 日真实历史动量折算
-        roc20_val = float(row.get("ROC20", 0.0)) if pd.notna(row.get("ROC20")) else 0.0
+        # 预估收益率基于模型超额胜率与 20 日真实历史动量折算（必须用 ROC20 原始值，非截面分位）
+        _roc20_raw = row.get("ROC20_raw") if "ROC20_raw" in row.index else row.get("ROC20")
+        roc20_val = float(_roc20_raw) if _roc20_raw is not None and pd.notna(_roc20_raw) else 0.0
         prob_diff = calibrated_prob_up - 0.5
         pred_ret = round(float(prob_diff * 0.40 + roc20_val * 0.50), 4)
 
