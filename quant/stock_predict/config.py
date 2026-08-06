@@ -69,7 +69,13 @@ def _resolve_paths(cfg: AttrDict, root: Path) -> AttrDict:
     output_dir = Path(paths.get("output_dir", "data/output"))
 
     def _abs(p: Path) -> str:
-        return str(p if p.is_absolute() else (root / p))
+        if p.is_absolute():
+            if p.exists() or p.parent.exists():
+                return str(p)
+            # 若像 /mnt/workspace 这种绝对路径在非 ModelScope 容器环境不存在，退避为项目相对路径
+            p_rel = Path(*p.parts[2:]) if len(p.parts) > 2 else Path(p.name)
+            return str(root / p_rel)
+        return str(root / p)
 
     cfg["paths"] = AttrDict(
         project_root=str(root),

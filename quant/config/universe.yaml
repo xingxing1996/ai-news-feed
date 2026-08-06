@@ -137,7 +137,8 @@ us:
   - {code: "TSLA",  name: "特斯拉",    industry: "汽车"}
   # —— 存储 / 半导体设备 / 电子蓝筹 ——
   - {code: "MU",    name: "美光科技",  industry: "半导体"}        # 存储(DRAM/HBM)
-  - {code: "WDC",   name: "西部数据(闪迪)", industry: "半导体"}   # 存储(NAND Flash)
+  - {code: "WDC",   name: "西部数据(HDD龙头)", industry: "半导体"}  # 拆分后的HDD业务 (WDC)
+  - {code: "SNDK",  name: "闪迪(Flash闪存)",   industry: "半导体"}  # 2025年2月独立拆分上市 (SNDK)
   - {code: "AVGO",  name: "博通",      industry: "半导体"}
   - {code: "AMD",   name: "AMD",       industry: "半导体"}
   - {code: "TSM",   name: "台积电",    industry: "半导体"}        # 台积电 ADR
@@ -152,7 +153,7 @@ us:
   - {code: "ARM",   name: "ARM",       industry: "半导体"}
   - {code: "QCOM",  name: "高通",      industry: "半导体"}
   - {code: "INTC",  name: "英特尔",    industry: "半导体"}
-  - {code: "SPCX",   name: "SpaceX概念(SPCX)", industry: "商业航天"} # SpaceX
+  - {code: "SPCX",   name: "SpaceX",   industry: "商业航天"}      # SpaceX正股 (Nasdaq: SPCX)
   - {code: "RKLB",   name: "RocketLab(SpaceX概念)", industry: "商业航天"} # Rocket Lab
   - {code: "COIN",  name: "Coinbase(Circle概念)",  industry: "金融科技"} # 数字货币/Circle概念
   # —— 金融 ——
