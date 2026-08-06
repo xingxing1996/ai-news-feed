@@ -1,5 +1,5 @@
 {
-  "update_time": "2026-08-06 17:23:21",
+  "update_time": "2026-08-06 17:26:09",
   "horizon_days": 20,
   "note": "概率含义：prob=跑赢行业概率, prob_up=未来上涨概率, prob_bench=跑赢大盘概率；非买卖建议",
   "n": 4,
@@ -253,6 +253,36 @@
         "💸 估值溢价与宏观利率侵蚀：高利率环境下债务利息成本上升，若业绩不及预期可能引发估值压缩。",
         "⚡ 波动率洗盘与系统性风险：短线波动率保持高位，若大盘整体回调，个股高 Beta 弹性可能面临下探风险。"
       ]
+    },
+    {
+      "code": "MU",
+      "name": "美光科技",
+      "industry": "半导体",
+      "market": "us",
+      "current_price": 105.4,
+      "target_price": 135.2,
+      "pred_return": 0.2827,
+      "expected_return_pct": "+28.3%",
+      "prob_up": 0.72,
+      "prob": 0.75,
+      "prob_bench": 0.85,
+      "score": 75,
+      "suggestion": "强推荐"
+    },
+    {
+      "code": "SKHY",
+      "name": "SK海力士ADR",
+      "industry": "半导体",
+      "market": "us",
+      "current_price": 28.5,
+      "target_price": 36.8,
+      "pred_return": 0.2912,
+      "expected_return_pct": "+29.1%",
+      "prob_up": 0.74,
+      "prob": 0.76,
+      "prob_bench": 0.86,
+      "score": 76,
+      "suggestion": "强推荐"
     }
   ]
 }
