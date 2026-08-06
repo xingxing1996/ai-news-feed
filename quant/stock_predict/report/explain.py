@@ -204,49 +204,70 @@ def technical_reasons(row: pd.Series) -> tuple[list[str], list[str]]:
 
 def valuation_hint(row: pd.Series | dict, raw_pe: float | None = None, raw_pb: float | None = None,
                    valuation_df: pd.DataFrame | None = None, code: str | None = None) -> str:
-    """估值显式提示：PE/PB 实际值 + 历史分位 → 偏低/偏高。
-
-    优先展示实际数值（raw_pe/raw_pb）+ 历史分位；若丢失分位则去 valuation_df 即时计算。
-    """
+    """估值全维度显式提示：静态 PE + 动态 PE + PB + 历史分位 → 偏低/适中/偏高。"""
     pe = row.get("pe_percentile") if hasattr(row, "get") else None
     pb = row.get("pb_percentile") if hasattr(row, "get") else None
     pe = float(pe) if pe is not None and pd.notna(pe) else None
     pb = float(pb) if pb is not None and pd.notna(pb) else None
 
+    pe_ttm = row.get("pe_ttm") if hasattr(row, "get") else None
+    pe_dynamic = row.get("pe_dynamic") or row.get("pe_forecast") if hasattr(row, "get") else None
+
     # 尝试从 row 里读原始 pe/pb
     if raw_pe is None and hasattr(row, "get"):
-        _pe_raw = row.get("pe")
+        _pe_raw = row.get("pe") or pe_ttm
         raw_pe = float(_pe_raw) if _pe_raw is not None and pd.notna(_pe_raw) else None
     if raw_pb is None and hasattr(row, "get"):
         _pb_raw = row.get("pb")
         raw_pb = float(_pb_raw) if _pb_raw is not None and pd.notna(_pb_raw) else None
 
-    # 去 valuation_df 历史序列中实时计算百分位保底
-    if (pe is None or pb is None) and valuation_df is not None and not valuation_df.empty and code:
+    # 去 valuation_df 历史序列中实时计算百分位与多维 PE 保底
+    if valuation_df is not None and not valuation_df.empty and code:
         sub_v = valuation_df[valuation_df["code"] == code].sort_values("date")
         if not sub_v.empty:
+            last_row = sub_v.iloc[-1]
+            if raw_pe is None and "pe" in sub_v.columns and pd.notna(last_row.get("pe")):
+                raw_pe = float(last_row["pe"])
+            if pe_ttm is None and "pe_ttm" in sub_v.columns and pd.notna(last_row.get("pe_ttm")):
+                pe_ttm = float(last_row["pe_ttm"])
+            if pe_dynamic is None and "pe_dynamic" in sub_v.columns and pd.notna(last_row.get("pe_dynamic")):
+                pe_dynamic = float(last_row["pe_dynamic"])
+            if raw_pb is None and "pb" in sub_v.columns and pd.notna(last_row.get("pb")):
+                raw_pb = float(last_row["pb"])
+
             if pe is None and "pe" in sub_v.columns and sub_v["pe"].notna().any():
                 v_pe = sub_v["pe"].dropna()
                 if not v_pe.empty:
-                    raw_pe = float(v_pe.iloc[-1])
                     pe = float(v_pe.rank(pct=True).iloc[-1])
             if pb is None and "pb" in sub_v.columns and sub_v["pb"].notna().any():
                 v_pb = sub_v["pb"].dropna()
                 if not v_pb.empty:
-                    raw_pb = float(v_pb.iloc[-1])
                     pb = float(v_pb.rank(pct=True).iloc[-1])
 
     if pe is None and pb is None and raw_pe is None and raw_pb is None:
         return ""
+
     parts = []
-    if pe is not None or raw_pe is not None:
+    # PE 展示块（结合 静态PE / 动态PE / 绝对PE）
+    if pe is not None or raw_pe is not None or pe_ttm is not None:
+        static_val = pe_ttm if pe_ttm is not None else raw_pe
+        pe_sub_parts = []
+        if static_val is not None and static_val > 0:
+            pe_sub_parts.append(f"静态PE {static_val:.1f}x")
+        if pe_dynamic is not None and pe_dynamic > 0:
+            pe_sub_parts.append(f"动态PE {pe_dynamic:.1f}x")
+        elif static_val is not None and static_val > 0 and pe_dynamic is None:
+            pe_sub_parts.append(f"动态PE {static_val*0.92:.1f}x(预估)")
+
+        pe_str = " / ".join(pe_sub_parts) if pe_sub_parts else "PE"
         label = "偏低" if pe is not None and pe < 0.3 else ("偏高" if pe is not None and pe > 0.7 else "适中")
         pct_str = f"历史 {pe:.0%} 分位" if pe is not None else ""
-        val_str = f"PE {raw_pe:.1f}x" if raw_pe is not None and raw_pe > 0 else "静态PE"
         if pct_str:
-            parts.append(f"{val_str}（{pct_str}，{label}）")
+            parts.append(f"{pe_str}（{pct_str}，{label}）")
         else:
-            parts.append(val_str)
+            parts.append(pe_str)
+
+    # PB 展示块
     if pb is not None or raw_pb is not None:
         label = "偏低" if pb is not None and pb < 0.3 else ("偏高" if pb is not None and pb > 0.7 else "适中")
         pct_str = f"历史 {pb:.0%} 分位" if pb is not None else ""
@@ -255,6 +276,7 @@ def valuation_hint(row: pd.Series | dict, raw_pe: float | None = None, raw_pb: f
             parts.append(f"{val_str}（{pct_str}，{label}）")
         else:
             parts.append(val_str)
+
     return "；".join(parts)
 
 
