@@ -49,22 +49,33 @@ def compute_valuation_factors(
         feats.append(v[cols])
 
 
-    # ---- fcf_yield（来自 financial 现金流 + daily 市值）----
+    # ---- fcf_yield（来自 financial 现金流 + daily 市值 PIT 严格对齐）----
     if not financial.empty and "market_cap" in daily.columns:
         fin = financial[["code", "pub_date", "cashflow"]].copy()
-        fin["pub_date"] = pd.to_datetime(fin["pub_date"])
-        fin = fin.sort_values(["code", "pub_date"]).drop_duplicates("code", keep="last")
+        fin["pub_date_dt"] = pd.to_datetime(fin["pub_date"])
         d = daily[["date", "code", "market_cap"]].copy()
-        d["date"] = pd.to_datetime(d["date"])
-        d = d.merge(fin[["code", "cashflow"]], on="code", how="left")
-        d["fcf_yield"] = d["cashflow"] / d["market_cap"].replace(0, np.nan)
-        d = d.sort_values(["code", "date"])
-        d["fcf_yield_percentile"] = d.groupby("code")["fcf_yield"].transform(
+        d["date_dt"] = pd.to_datetime(d["date"])
+
+        d_sorted = d.sort_values(["code", "date_dt"]).reset_index(drop=True)
+        fin_sorted = fin.dropna(subset=["pub_date_dt"]).sort_values(["code", "pub_date_dt"]).reset_index(drop=True)
+
+        merged = pd.merge_asof(
+            d_sorted,
+            fin_sorted,
+            by="code",
+            left_on="date_dt",
+            right_on="pub_date_dt",
+            direction="backward"  # 严格 PIT：仅使用交易日前已发布的最新现金流
+        )
+
+        merged["fcf_yield"] = merged["cashflow"] / merged["market_cap"].replace(0, np.nan)
+        merged = merged.sort_values(["code", "date_dt"])
+        merged["fcf_yield_percentile"] = merged.groupby("code")["fcf_yield"].transform(
             lambda s: _rolling_pct_rank(s, _PCT_WINDOW)
         )
-        d["date"] = d["date"].dt.strftime("%Y-%m-%d")
-        d = d.set_index(["date", "code"]).sort_index()
-        feats.append(d[["fcf_yield", "fcf_yield_percentile"]])
+        merged["date"] = merged["date_dt"].dt.strftime("%Y-%m-%d")
+        merged = merged.set_index(["date", "code"]).sort_index()
+        feats.append(merged[["fcf_yield", "fcf_yield_percentile"]])
 
     if not feats:
         return pd.DataFrame()

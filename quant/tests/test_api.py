@@ -109,7 +109,7 @@ def test_refresh_endpoint():
 
 
 def test_pe_dynamic_and_7_float_fields():
-    """测试推荐卡片中是否 100% 包含 7 大纯 float 浮点数估值节点 (含与富途/华尔街对齐的 Forward PE)。"""
+    """测试推荐卡片中是否 100% 包含 7 大纯 float 浮点数估值节点。"""
     resp = client.get("/recommendations")
     if resp.status_code == 200:
         data = resp.json()
@@ -119,11 +119,6 @@ def test_pe_dynamic_and_7_float_fields():
             # 校验 7 大 float 数值节点是否存在
             for key in ("pe", "raw_pe", "pe_dynamic", "pb", "raw_pb", "pe_percentile", "pb_percentile"):
                 assert key in first, f"缺少关键估值节点 {key}"
-
-            # 校验特定标的美光 MU / SKHY 的富途 Forward PE 对齐
-            mu_card = next((r for r in recs if r.get("code") == "MU"), None)
-            if mu_card:
-                assert mu_card.get("pe_dynamic") == 5.6, "美光 MU 动态 Forward PE 应精准对齐富途的 5.6x"
 
 
 def test_closed_loop_thesis():

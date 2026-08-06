@@ -176,35 +176,16 @@ def recommendations():
                 r["expected_return_pct"] = f"{pred_ret * 100:+.1f}%"
                 r["horizon_days"] = 20
 
-            # 动态 PE/PB 字段防御注入：确保每个 JSON 卡片 100% 显式包含这 7 个 PE 相关字段 (与富途/华尔街一致预期对齐)
-            try:
-                from quant.stock_predict.report.explain import CONSENSUS_FORWARD_PE
-                c_upper = str(code).upper() if code else ""
-                cons = CONSENSUS_FORWARD_PE.get(c_upper) or (CONSENSUS_FORWARD_PE.get("000660.KS") if "SKHY" in c_upper or "海力士" in c_upper else None)
-            except Exception:  # noqa: BLE001
-                cons = None
-
-            pe_val = r.get("pe") if r.get("pe") is not None else (r.get("raw_pe") or (cons["raw_pe"] if cons else None))
-            pb_val = r.get("pb") if r.get("pb") is not None else (r.get("raw_pb") or (cons["pb"] if cons else None))
-            pe_dyn_val = r.get("pe_dynamic") if r.get("pe_dynamic") is not None else (cons["forward_pe"] if cons else (round(pe_val * 0.92, 2) if pe_val and isinstance(pe_val, (int, float)) and pe_val > 0 else None))
-
+            # 动态 PE/PB 字段防御注入：确保每个 JSON 卡片 100% 显式包含这 7 个 PE 相关字段
+            pe_val = r.get("pe") if r.get("pe") is not None else r.get("raw_pe")
+            pb_val = r.get("pb") if r.get("pb") is not None else r.get("raw_pb")
             r["pe"] = pe_val
             r["raw_pe"] = pe_val
-            r["pe_dynamic"] = pe_dyn_val
+            r["pe_dynamic"] = r.get("pe_dynamic") if r.get("pe_dynamic") is not None else None
             r["pb"] = pb_val
             r["raw_pb"] = pb_val
-            r["pe_percentile"] = r.get("pe_percentile") if r.get("pe_percentile") is not None else (cons["pe_pct"] if cons else (0.45 if pe_val else None))
-            r["pb_percentile"] = r.get("pb_percentile") if r.get("pb_percentile") is not None else (cons["pb_pct"] if cons else (0.35 if pb_val else None))
-
-            if cons:
-                r["pe"] = cons["raw_pe"]
-                r["raw_pe"] = cons["raw_pe"]
-                r["pe_dynamic"] = cons["forward_pe"]
-                r["pb"] = cons["pb"]
-                r["raw_pb"] = cons["pb"]
-                r["pe_percentile"] = cons["pe_pct"]
-                r["pb_percentile"] = cons["pb_pct"]
-                r["valuation"] = f"静态PE {cons['raw_pe']:.1f}x / 动态 Forward PE {cons['forward_pe']:.1f}x(富途/华尔街预估)（历史 {cons['pe_pct']:.0%} 分位，偏低）；PB {cons['pb']:.2f}x（历史 {cons['pb_pct']:.0%} 分位，偏低）"
+            r["pe_percentile"] = r.get("pe_percentile") if r.get("pe_percentile") is not None else (0.45 if pe_val else None)
+            r["pb_percentile"] = r.get("pb_percentile") if r.get("pb_percentile") is not None else (0.35 if pb_val else None)
         
         return JSONResponse(content=data, headers={"Cache-Control": "no-cache, no-store, must-revalidate"})
     except Exception as exc:  # noqa: BLE001

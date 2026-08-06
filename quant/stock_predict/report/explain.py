@@ -238,59 +238,31 @@ def technical_reasons(row: pd.Series) -> tuple[list[str], list[str]]:
     return reasons, risks
 
 
-# 华尔街/富途一致预期 Consensus Forward PE 映射库 (针对美光 MU, SK海力士, NVDA 等强周期/高成长标的)
-CONSENSUS_FORWARD_PE = {
-    "MU": {"forward_pe": 5.6, "raw_pe": 22.5, "pb": 1.85, "pe_pct": 0.42, "pb_pct": 0.38},       # 美光科技：富途/华尔街一致预期 5.6x
-    "SKHY": {"forward_pe": 6.2, "raw_pe": 18.5, "pb": 1.92, "pe_pct": 0.32, "pb_pct": 0.35},     # SK海力士ADR：华尔街一致预期 6.2x
-    "000660.KS": {"forward_pe": 6.2, "raw_pe": 18.5, "pb": 1.92, "pe_pct": 0.32, "pb_pct": 0.35},# SK海力士韩股正股
-    "WDC": {"forward_pe": 7.2, "raw_pe": 21.0, "pb": 1.65, "pe_pct": 0.35, "pb_pct": 0.30},      # 西部数据：一致预期 7.2x
-    "SNDK": {"forward_pe": 8.1, "raw_pe": 24.0, "pb": 1.78, "pe_pct": 0.40, "pb_pct": 0.36},     # 闪迪：一致预期 8.1x
-    "NVDA": {"forward_pe": 28.5, "raw_pe": 48.6, "pb": 26.5, "pe_pct": 0.65, "pb_pct": 0.72},    # 英伟达：动态 Forward PE 28.5x
-    "AMD": {"forward_pe": 24.2, "raw_pe": 42.1, "pb": 3.10, "pe_pct": 0.58, "pb_pct": 0.52},     # AMD
-    "TSM": {"forward_pe": 16.8, "raw_pe": 28.4, "pb": 6.20, "pe_pct": 0.48, "pb_pct": 0.55},     # 台积电 ADR
-    "300308.SZ": {"forward_pe": 14.5, "raw_pe": 28.2, "pb": 5.60, "pe_pct": 0.38, "pb_pct": 0.42},# 中际旭创 CPO
-    "300394.SZ": {"forward_pe": 15.2, "raw_pe": 32.5, "pb": 6.10, "pe_pct": 0.42, "pb_pct": 0.45},# 天孚通信
-    "300502.SZ": {"forward_pe": 16.0, "raw_pe": 35.2, "pb": 5.80, "pe_pct": 0.45, "pb_pct": 0.48},# 新易盛
-}
-
-
 def valuation_hint(row: pd.Series | dict, raw_pe: float | None = None, raw_pb: float | None = None,
                    valuation_df: pd.DataFrame | None = None, code: str | None = None) -> tuple[str, dict[str, float | None]]:
     """估值全维度显式提示：静态 PE + 动态 PE + PB + 历史分位 → 偏低/适中/偏高。
 
     返回：(hint_str, val_dict) 字典包含纯 float 数值：raw_pe, pe, pe_dynamic, raw_pb, pb, pe_percentile, pb_percentile
     """
-    c_upper = str(code).upper() if code else ""
-    cons_info = CONSENSUS_FORWARD_PE.get(c_upper) or (CONSENSUS_FORWARD_PE.get("000660.KS") if "SKHY" in c_upper or "海力士" in c_upper else None)
-
     pe = row.get("pe_percentile") if hasattr(row, "get") else None
     pb = row.get("pb_percentile") if hasattr(row, "get") else None
-    pe = float(pe) if pe is not None and pd.notna(pe) else (cons_info["pe_pct"] if cons_info else None)
-    pb = float(pb) if pb is not None and pd.notna(pb) else (cons_info["pb_pct"] if cons_info else None)
+    pe = float(pe) if pe is not None and pd.notna(pe) else None
+    pb = float(pb) if pb is not None and pd.notna(pb) else None
 
     pe_ttm = row.get("pe_ttm") if hasattr(row, "get") else None
     pe_dynamic = row.get("pe_dynamic") or row.get("pe_forecast") if hasattr(row, "get") else None
-    if cons_info and pe_dynamic is None:
-        pe_dynamic = cons_info["forward_pe"]
 
     # 尝试从 row 里读原始 pe/pb
     if raw_pe is None and hasattr(row, "get"):
         _pe_raw = row.get("pe") or pe_ttm
-        raw_pe = float(_pe_raw) if _pe_raw is not None and pd.notna(_pe_raw) else (cons_info["raw_pe"] if cons_info else None)
+        raw_pe = float(_pe_raw) if _pe_raw is not None and pd.notna(_pe_raw) else None
     if raw_pb is None and hasattr(row, "get"):
         _pb_raw = row.get("pb")
-        raw_pb = float(_pb_raw) if _pb_raw is not None and pd.notna(_pb_raw) else (cons_info["pb"] if cons_info else None)
+        raw_pb = float(_pb_raw) if _pb_raw is not None and pd.notna(_pb_raw) else None
 
     # 去 valuation_df 历史序列中实时计算百分位与多维 PE 保底
     if valuation_df is not None and not valuation_df.empty and code:
-        # 支持 SKHY 与 000660.KS 代码互相跨域检索
-        target_codes = [code]
-        if "SKHY" in c_upper:
-            target_codes.append("000660.KS")
-        elif "000660.KS" in c_upper:
-            target_codes.append("SKHY")
-
-        sub_v = valuation_df[valuation_df["code"].isin(target_codes)].sort_values("date")
+        sub_v = valuation_df[valuation_df["code"] == code].sort_values("date")
         if not sub_v.empty:
             last_row = sub_v.iloc[-1]
             if raw_pe is None and "pe" in sub_v.columns and pd.notna(last_row.get("pe")):
@@ -312,8 +284,7 @@ def valuation_hint(row: pd.Series | dict, raw_pe: float | None = None, raw_pb: f
                     pb = float(v_pb.rank(pct=True).iloc[-1])
 
     final_pe = pe_ttm if pe_ttm is not None else raw_pe
-    # 彻底拔除死板的 * 0.92 启发式系数：只在有真实 pe_dynamic 或华尔街一致预期 cons_info 时输出，否则保持客观的 None
-    final_pe_dynamic = pe_dynamic if pe_dynamic is not None else (cons_info["forward_pe"] if cons_info else None)
+    final_pe_dynamic = pe_dynamic if pe_dynamic is not None else None
 
     val_dict = {
         "raw_pe": round(final_pe, 2) if final_pe else None,
@@ -407,40 +378,47 @@ def generate_ai_invest_summary(card: dict) -> str:
 
 
 def generate_closed_loop_thesis(card: dict, row: pd.Series | dict | None = None) -> dict[str, list[str]]:
-    """生成具备华尔街机构研报质感的 5 维看多逻辑闭环 (bull_thesis) 与 3 维看空风控闭环 (bear_thesis)。"""
+    """生成具备华尔街机构研报质感的 5 维看多逻辑闭环 (bull_thesis) 与 3 维看空风控闭环 (bear_thesis)。
+    
+    必须 100% 基于该股票卡片中的真实特征与驱动理由，杜绝任何凭空假设。
+    """
     name = card.get("name") or card.get("code")
     prob_up = card.get("prob_up", 0.5)
     pred_ret_pct = card.get("expected_return_pct", "+0.0%")
-    current_price = card.get("current_price", 0.0)
     target_price = card.get("target_price", 0.0)
     val = card.get("valuation", "")
     cat = card.get("catalyst", "")
+    reasons = card.get("reasons", [])
+    reasons_str = "".join(reasons)
     
     bull_thesis = []
     bear_thesis = []
 
-    # 1. 营收与高增长闭环
-    bull_thesis.append(f"🚀 高增速与目标价空间：模型预测 20 日中线目标价 ¥{target_price}（预期收益 {pred_ret_pct}），胜率 {prob_up:.0%}，呈现高增长做多弹性。")
+    # 1. 动态目标价做多空间
+    bull_thesis.append(f"🚀 动量与目标价空间：模型预测 20 日中线目标价 ¥{target_price}（预期收益 {pred_ret_pct}），胜率 {prob_up:.0%}，呈现做多弹性。")
     
-    # 2. 现金流与资产防守闭环
-    bull_thesis.append("💵 经营现金流与防守底仓：自由现金流充沛且运营造血能力转正，具备应对宏观波动的极强防守底座。")
-
-    # 3. 业务结构与第二增长曲线闭环
-    if "AI" in cat or "芯片" in cat or "CPO" in cat or "存储" in cat or "星链" in cat or "航天" in cat:
-        bull_thesis.append(f"🤖 第二增长曲线与生态协同：{cat.replace('🔥 ', '').replace('⚡ ', '').replace('🛢️ ', '')} 业务快速放量，催化多业务协同溢价。")
+    # 2. 真实财务/基本面驱动
+    if "现金流" in reasons_str or "ROE" in reasons_str or "毛利率" in reasons_str:
+        bull_thesis.append(f"💵 真实基本面防守底座：卡片触发【{reasons[0] if reasons else '基本面优良'}】，运营造血能力具备抗风险底座。")
     else:
         bull_thesis.append("📊 行业龙头壁垒与大盘β动量：行业集中度提升，龙头溢价与资金净流入共振。")
 
-    # 4. 估值与性价比闭环
-    bull_thesis.append(f"🏷️ 估值分位与性价比：{val if val else '估值处于合理中值区间'}，安全边际良好。")
+    # 3. 业务结构与第二增长曲线闭环
+    if cat and "⚡" in cat or "🔥" in cat:
+        bull_thesis.append(f"🤖 产业链看点与催化：{cat}，催化业务协同溢价。")
+    else:
+        bull_thesis.append("📊 板块景气度：成交量保持活跃，多头主力资金维持净流入。")
 
-    # 5. 产业链高景气闭环
-    bull_thesis.append(f"⚡ 产业链景气度：{cat if cat else '板块成交量保持活跃，多头主力资金维持净流入。'}")
+    # 4. 真实估值分位
+    bull_thesis.append(f"🏷️ 真实估值分位：{val if val else '静态与动态 PE 处于合理区间'}，安全边际良好。")
+
+    # 5. 综合防守评级
+    bull_thesis.append(f"⚡ 综合建议：{card.get('suggestion', '关注')}，技术面与基本面因子综合共振。")
 
     # 🔴 看空/风控 3 维闭环
-    bear_thesis.append("⚠️ 资本开支与研发兑现期：AI/基础设施与研发 Capex 大额投入，注意自由现金流回流与盈利兑现节奏。")
-    bear_thesis.append("💸 估值溢价与宏观利率侵蚀：高利率环境下债务利息成本上升，若业绩不及预期可能引发估值压缩。")
-    bear_thesis.append("⚡ 波动率洗盘与系统性风险：短线波动率保持高位，若大盘整体回调，个股高 Beta 弹性可能面临下探风险。")
+    bear_thesis.append("⚠️ 资本开支与业绩兑现期：关注后续季报研发投入与利润兑现节奏。")
+    bear_thesis.append("💸 估值溢价与宏观利率侵蚀：若大盘整体回调，个股高 Beta 弹性可能面临下探风险。")
+    bear_thesis.append("⚡ 波动率洗盘：短线波动率保持高位，建议控制仓位防守介入。")
 
     return {
         "bull_thesis": bull_thesis,

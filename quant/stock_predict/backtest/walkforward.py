@@ -41,14 +41,20 @@ def walk_forward_oos(train_days: int = 756, step: int = 21) -> pd.DataFrame:
     test_dates = pd.to_datetime(pd.Series(dates))[pd.to_datetime(pd.Series(dates)) >= test_start].tolist()
     test_dates = sorted(set(test_dates))
 
+    # 接入与主流程一致的 embargo 隔离区，扣除训练右端 28 天的未来标签泄漏
+    horizon = int(cfg.feature.get("label_horizon", 20))
+    embargo_days = int(seg.get("embargo_days") or max(1, round(horizon * 1.4)))
+    emb = pd.Timedelta(days=embargo_days)
+
     preds = []
     n_refit = 0
     for i in range(0, len(test_dates), step):
         anchor = test_dates[i]
         win_end = anchor
         win_start = win_end - pd.Timedelta(days=int(train_days * 1.5))  # 日历日近似
+        # 扣除 embargo 隔离带：训练集有效截止于 (win_end - emb)，彻底隔离标签穿越
         train_idx = (pd.to_datetime(mat.index.get_level_values("date")) >= win_start) & \
-                    (pd.to_datetime(mat.index.get_level_values("date")) < win_end)
+                    (pd.to_datetime(mat.index.get_level_values("date")) <= (win_end - emb))
         train_df = mat[train_idx].dropna(subset=["label"])
         if train_df.empty or len(train_df) < 200:
             continue
