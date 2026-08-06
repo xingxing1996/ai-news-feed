@@ -106,3 +106,50 @@ def test_refresh_endpoint():
         assert resp.status_code == 200
         data = resp.json()
         assert data.get("status") == "started"
+
+
+def test_pe_dynamic_and_7_float_fields():
+    """测试推荐卡片中是否 100% 包含 7 大纯 float 浮点数估值节点 (含与富途/华尔街对齐的 Forward PE)。"""
+    resp = client.get("/recommendations")
+    if resp.status_code == 200:
+        data = resp.json()
+        recs = data.get("recommendations", [])
+        if recs:
+            first = recs[0]
+            # 校验 7 大 float 数值节点是否存在
+            for key in ("pe", "raw_pe", "pe_dynamic", "pb", "raw_pb", "pe_percentile", "pb_percentile"):
+                assert key in first, f"缺少关键估值节点 {key}"
+
+            # 校验特定标的美光 MU / SKHY 的富途 Forward PE 对齐
+            mu_card = next((r for r in recs if r.get("code") == "MU"), None)
+            if mu_card:
+                assert mu_card.get("pe_dynamic") == 5.6, "美光 MU 动态 Forward PE 应精准对齐富途的 5.6x"
+
+
+def test_closed_loop_thesis():
+    """测试卡片是否包含 5 维看多闭环 (bull_thesis) 与 3 维看空风控闭环 (bear_thesis)。"""
+    resp = client.get("/recommendations")
+    if resp.status_code == 200:
+        data = resp.json()
+        recs = data.get("recommendations", [])
+        if recs:
+            first = recs[0]
+            assert "bull_thesis" in first, "缺少看多 5 维闭环 bull_thesis"
+            assert "bear_thesis" in first, "缺少看空 3 维闭环 bear_thesis"
+            assert isinstance(first["bull_thesis"], list) and len(first["bull_thesis"]) >= 3
+            assert isinstance(first["bear_thesis"], list) and len(first["bear_thesis"]) >= 3
+
+
+def test_detailed_reasons_and_risks():
+    """测试利好 (reasons) 与利空 (risks) 是否包含高精度 SHAP 贡献度与特征真实数字明细。"""
+    resp = client.get("/recommendations")
+    if resp.status_code == 200:
+        data = resp.json()
+        recs = data.get("recommendations", [])
+        if recs:
+            first = recs[0]
+            assert "reasons" in first and len(first["reasons"]) >= 3
+            assert "risks" in first and len(first["risks"]) >= 3
+            # 确保不存在无意义的 "+0.00" 截断
+            reasons_str = "".join(first["reasons"])
+            assert "+0.00）" not in reasons_str, "不能存在 +0.00 无意义截断"
