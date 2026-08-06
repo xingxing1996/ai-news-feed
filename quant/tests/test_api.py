@@ -153,3 +153,19 @@ def test_detailed_reasons_and_risks():
             # 确保不存在无意义的 "+0.00" 截断
             reasons_str = "".join(first["reasons"])
             assert "+0.00）" not in reasons_str, "不能存在 +0.00 无意义截断"
+
+
+def test_anti_leakage_invariants():
+    """自动化架构级门禁测试：验证系统关键代码库中无全量 rank 与未来财报泄漏。"""
+    lgbm_py = (ROOT / "quant" / "stock_predict" / "model" / "lgbm.py").read_text(encoding="utf-8")
+    quality_py = (ROOT / "quant" / "stock_predict" / "features" / "quality.py").read_text(encoding="utf-8")
+    strategy_py = (ROOT / "quant" / "stock_predict" / "backtest" / "strategy.py").read_text(encoding="utf-8")
+
+    # 1. 验证 lgbm.py 必须使用按交易日 groupby("date") 的截面 rank
+    assert 'groupby("date")["p1"].rank(pct=True)' in lgbm_py, "lgbm.py 必须包含按 date 分组的截面 rank"
+    
+    # 2. 验证 quality.py 必须使用 direction="backward" 的 PIT 财报对齐
+    assert 'direction="backward"' in quality_py, "quality.py 必须使用 backward 方向的 merge_asof PIT 对齐"
+
+    # 3. 验证 strategy.py 必须使用 T+1 调仓 (d_exec = dates[i + 1])
+    assert 'd_exec = dates[i + 1]' in strategy_py, "strategy.py 必须包含严格 T+1 调仓时间轴"
