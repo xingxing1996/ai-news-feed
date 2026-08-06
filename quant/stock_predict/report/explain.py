@@ -312,7 +312,8 @@ def valuation_hint(row: pd.Series | dict, raw_pe: float | None = None, raw_pb: f
                     pb = float(v_pb.rank(pct=True).iloc[-1])
 
     final_pe = pe_ttm if pe_ttm is not None else raw_pe
-    final_pe_dynamic = pe_dynamic if pe_dynamic is not None else (cons_info["forward_pe"] if cons_info else (round(final_pe * 0.92, 2) if final_pe and final_pe > 0 else None))
+    # 彻底拔除死板的 * 0.92 启发式系数：只在有真实 pe_dynamic 或华尔街一致预期 cons_info 时输出，否则保持客观的 None
+    final_pe_dynamic = pe_dynamic if pe_dynamic is not None else (cons_info["forward_pe"] if cons_info else None)
 
     val_dict = {
         "raw_pe": round(final_pe, 2) if final_pe else None,
