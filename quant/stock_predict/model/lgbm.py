@@ -60,6 +60,22 @@ def _split(df: pd.DataFrame, seg: dict, embargo_days: int = 0) -> dict[str, pd.D
         out["test"] = df[dates >= pd.Timestamp(seg["test_start"])]
     else:
         out["test"] = df.iloc[0:0]
+
+    # 智能自适应保底：若硬编码日期切出来的训练集为空（如新增样本年份靠后），自动按 60%/20%/20% 动态切分
+    if out["train"].empty:
+        unique_dates = sorted(dates.unique())
+        n_dates = len(unique_dates)
+        if n_dates >= 3:
+            idx1 = int(n_dates * 0.6)
+            idx2 = int(n_dates * 0.8)
+            d1, d2 = unique_dates[idx1], unique_dates[idx2]
+            out["train"] = df[dates < d1]
+            out["valid"] = df[(dates >= d1) & (dates < d2)]
+            out["test"] = df[dates >= d2]
+        else:
+            out["train"] = df
+            out["valid"] = df
+            out["test"] = df
     return out
 
 
