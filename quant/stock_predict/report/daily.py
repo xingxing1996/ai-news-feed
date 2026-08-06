@@ -304,9 +304,13 @@ def generate_daily_report(as_of: str | None = None, pred_df=None, feats_df=None,
         # 概率温和校准（将原生逻辑斯蒂极值收缩在 40% ~ 75% 真实中线统计分布区间，避免 90%+ 盲目绝对化误导）
         calibrated_prob_up = round(0.5 + (prob_up - 0.5) * 0.5, 3)
         calibrated_prob = round(0.5 + (prob - 0.5) * 0.5, 3)
+        # 动态 20 日真实收益率波动率感知模型 (Normalized Volatility-Aware Expectations)
+        std20_val = float(row.get("STD20", 0.02)) if pd.notna(row.get("STD20")) else 0.02
+        std20_pct = std20_val / current_price if current_price > 1.0 and std20_val > 0 else 0.025
+        vol20 = max(min(std20_pct * (20 ** 0.5), 0.40), 0.08)  # 限制在 8% ~ 40% 真实月度收益波幅
+        prob_diff = calibrated_prob_up - 0.5
+        pred_ret = round(float(prob_diff * 2.0 * (vol20 / 0.15)), 4)
 
-        # 20 个交易日中线期望收益率与目标股价计算
-        pred_ret = float(row.get("pred_return", (calibrated_prob_up - 0.5) * 0.25))
         expected_return_pct = f"{pred_ret * 100:+.1f}%"
         target_price = round(current_price * (1.0 + pred_ret), 2) if current_price > 0 else 0.0
 
