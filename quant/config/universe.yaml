@@ -4,41 +4,45 @@
 # 覆盖：恒生科技、银行、存储/半导体、美国七巨头、科创50、QQQ/SPY 等。
 
 cn:
-  # —— 消费 / 白酒 ——
+  # —— 知名消费龙头 ——
   - {code: "600519.SH", name: "贵州茅台", industry: "食品饮料"}
   - {code: "000858.SZ", name: "五粮液",   industry: "食品饮料"}
+  - {code: "600809.SH", name: "山西汾酒", industry: "食品饮料"}
   - {code: "000568.SZ", name: "泸州老窖", industry: "食品饮料"}
   - {code: "600887.SH", name: "伊利股份", industry: "食品饮料"}
   - {code: "000333.SZ", name: "美的集团", industry: "家用电器"}
   - {code: "000651.SZ", name: "格力电器", industry: "家用电器"}
-  # —— 金融 / 银行 ——
-  - {code: "000001.SZ", name: "平安银行", industry: "银行"}
-  - {code: "601318.SH", name: "中国平安", industry: "非银金融"}
+  # —— 金融 / 券商 ETF / 保险 ——
+  - {code: "512880.SH", name: "证券ETF",   industry: "指数"}
   - {code: "600030.SH", name: "中信证券", industry: "非银金融"}
+  - {code: "300059.SZ", name: "东方财富", industry: "非银金融"}
+  - {code: "601688.SH", name: "华泰证券", industry: "非银金融"}
+  - {code: "601318.SH", name: "中国平安", industry: "非银金融"}
   - {code: "601628.SH", name: "中国人寿", industry: "非银金融"}
   - {code: "600036.SH", name: "招商银行", industry: "银行"}
   - {code: "601398.SH", name: "工商银行", industry: "银行"}
-  - {code: "601939.SH", name: "建设银行", industry: "银行"}
-  - {code: "601988.SH", name: "中国银行", industry: "银行"}
-  - {code: "601288.SH", name: "农业银行", industry: "银行"}
-  - {code: "601328.SH", name: "交通银行", industry: "银行"}
-  - {code: "600016.SH", name: "民生银行", industry: "银行"}
-  - {code: "601166.SH", name: "兴业银行", industry: "银行"}
-  - {code: "600000.SH", name: "浦发银行", industry: "银行"}
-  # —— 医药 ——
+  # —— 创新药 / 医药龙头 ——
+  - {code: "512480.SH", name: "创新药ETF", industry: "指数"}
   - {code: "600276.SH", name: "恒瑞医药", industry: "医药生物"}
+  - {code: "688235.SH", name: "百济神州", industry: "医药生物"}
   - {code: "603259.SH", name: "药明康德", industry: "医药生物"}
-  # —— 新能源 / 电力设备 / 汽车 ——
+  # —— 新能源 / 电池 / 汽车龙头 ——
+  - {code: "515700.SH", name: "新能源车ETF", industry: "指数"}
   - {code: "300750.SZ", name: "宁德时代", industry: "电力设备"}
-  - {code: "601012.SH", name: "隆基绿能", industry: "电力设备"}
-  - {code: "600406.SH", name: "国电南瑞", industry: "电力设备"}
   - {code: "002594.SZ", name: "比亚迪",   industry: "汽车"}
-  # —— 存储 / 半导体（含科创50权重）——
-  - {code: "000725.SZ", name: "京东方A",  industry: "电子"}
-  - {code: "000100.SZ", name: "TCL科技", industry: "电子"}
-  - {code: "002475.SZ", name: "立讯精密", industry: "电子"}
-  - {code: "688825.SH", name: "长鑫科技", industry: "半导体"}      # 长鑫存储/DRAM芯片龙头 (科创板: 688825.SH)
-  - {code: "603986.SH", name: "兆易创新", industry: "半导体"}      # 存储(MCU/DRAM/长鑫存储核心关联)
+  - {code: "601012.SH", name: "隆基绿能", industry: "电力设备"}
+  # —— 芯片算力 / CPO / 半导体 / 电子龙头 ——
+  - {code: "688256.SH", name: "寒武纪",   industry: "半导体"}      # AI芯片绝对龙头
+  - {code: "688041.SH", name: "海光信息", industry: "半导体"}      # 国产CPU/DCU算力
+  - {code: "688008.SH", name: "澜起科技", industry: "半导体"}      # 内存接口芯片龙头
+  - {code: "688012.SH", name: "中微公司", industry: "半导体"}      # 刻蚀设备龙头
+  - {code: "688037.SH", name: "芯源微",   industry: "半导体"}      # 涂胶显影设备
+  - {code: "300502.SZ", name: "新易盛",   industry: "通信"}        # 高速光模块龙头
+  - {code: "300308.SZ", name: "中际旭创", industry: "通信"}        # CPO光模块龙头
+  - {code: "002384.SZ", name: "东山精密", industry: "电子"}        # FPC柔性电路板
+  - {code: "002475.SZ", name: "立讯精密", industry: "电子"}        # 果链/电子制造龙头
+  - {code: "688825.SH", name: "长鑫科技", industry: "半导体"}      # 长鑫存储科创板正股
+  - {code: "603986.SH", name: "兆易创新", industry: "半导体"}      # 存储/MCU龙头
   - {code: "600641.SH", name: "万业企业", industry: "半导体"}      # 长鑫存储持股平台
   - {code: "688019.SH", name: "安集科技", industry: "半导体"}      # 存储抛光液/长鑫供应链
   - {code: "300223.SZ", name: "北京君正", industry: "半导体"}      # 存储(DRAM/SRAM)
