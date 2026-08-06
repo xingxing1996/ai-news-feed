@@ -1,0 +1,104 @@
+{
+  "update_time": "2026-08-06 09:43:13",
+  "horizon_days": 20,
+  "note": "概率含义：prob=跑赢行业概率, prob_up=未来上涨概率, prob_bench=跑赢大盘概率；非买卖建议",
+  "n": 3,
+  "recommendations": [
+    {
+      "code": "005930.KS",
+      "name": "三星电子",
+      "industry": "半导体",
+      "market": "kr",
+      "is_etf": false,
+      "current_price": 312.97,
+      "target_price": 314.77,
+      "expected_return_pct": "+0.6%",
+      "horizon_days": 20,
+      "prob": 0.496,
+      "prob_up": 0.523,
+      "prob_bench": 0.4466973886328725,
+      "score": 50,
+      "suggestion": "回避",
+      "breaking_event": null,
+      "valuation": "PE 29.4x（历史 36% 分位，中性）；PB 4.08x（历史 36% 分位，中性）",
+      "confidence": "高",
+      "data_completeness": 1.0,
+      "reasons": [
+        "价格波动收敛（截面 7% 分位）",
+        "财务质量综合排名靠前（截面 79% 分位）",
+        "价格波动收敛（截面 7% 分位）",
+        "RSI 超卖（0），或现反弹",
+        "短中期均线多头排列（趋多）",
+        "近一月强势（+29%）"
+      ],
+      "risks": [
+        "需关注个股与行业层面的突发风险"
+      ],
+      "ai_summary": "",
+      "recommended_weight": "20.0%"
+    },
+    {
+      "code": "GOOGL",
+      "name": "谷歌",
+      "industry": "科技",
+      "market": "us",
+      "is_etf": false,
+      "current_price": 81.7,
+      "target_price": 82.19,
+      "expected_return_pct": "+0.6%",
+      "horizon_days": 20,
+      "prob": 0.472,
+      "prob_up": 0.524,
+      "prob_bench": 0.4609902475618905,
+      "score": 47,
+      "suggestion": "回避",
+      "breaking_event": null,
+      "valuation": "PE 22.4x（历史 43% 分位，中性）；PB 1.83x（历史 43% 分位，中性）",
+      "confidence": "高",
+      "data_completeness": 1.0,
+      "reasons": [
+        "Beta 适中（截面 14% 分位）",
+        "RSI 超卖（1），或现反弹",
+        "近一月强势（+79%）"
+      ],
+      "risks": [
+        "价格波动放大（截面 86% 分位）",
+        "价格波动放大（截面 86% 分位）",
+        "短中期均线空头排列（趋空）"
+      ],
+      "ai_summary": "",
+      "recommended_weight": "8.6%"
+    },
+    {
+      "code": "3690.HK",
+      "name": "美团",
+      "industry": "互联网",
+      "market": "hk",
+      "is_etf": false,
+      "current_price": 202.19,
+      "target_price": 203.35,
+      "expected_return_pct": "+0.6%",
+      "horizon_days": 20,
+      "prob": 0.472,
+      "prob_up": 0.523,
+      "prob_bench": 0.49541956760718187,
+      "score": 47,
+      "suggestion": "回避",
+      "breaking_event": null,
+      "valuation": "PE 22.4x（历史 21% 分位，偏低）；PB 1.69x（历史 21% 分位，偏低）",
+      "confidence": "高",
+      "data_completeness": 1.0,
+      "reasons": [
+        "财务质量综合排名靠前（截面 93% 分位）",
+        "ROE 较高（盈利能力强）（截面 93% 分位）",
+        "RSI 超卖（1），或现反弹",
+        "近一月强势（+50%）"
+      ],
+      "risks": [
+        "对市场敏感度高（Beta 偏大）（截面 79% 分位）"
+      ],
+      "ai_summary": "",
+      "recommended_weight": "20.0%"
+    }
+  ]
+}

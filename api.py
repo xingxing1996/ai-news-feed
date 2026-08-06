@@ -205,17 +205,21 @@ def dashboard():
         return HTMLResponse("<h2>stock-predict</h2><p>首次训练进行中，稍后刷新（看 <a href='/health'>/health</a>）。</p>")
     data = json.loads(p.read_text(encoding="utf-8"))
     recs = data.get("recommendations", [])
-    cols = ["name", "code", "market", "industry", "prob_up", "prob_bench", "prob", "score", "confidence"]
+    cols = ["name", "code", "market", "industry", "current_price", "target_price", "expected_return_pct", "prob_up", "prob_bench", "prob", "score", "confidence"]
 
-    def cell(v):
-        if isinstance(v, float):
+    def cell(col, v):
+        if v is None or v == "":
+            return "—"
+        if col in ("current_price", "target_price"):
+            return f"¥{v:.2f}" if isinstance(v, (int, float)) and v > 0 else (f"{v}" if v else "—")
+        if col in ("prob_up", "prob_bench", "prob") and isinstance(v, float):
             return f"{v*100:.0f}%"
         return html.escape(str(v))
 
     head = "".join(f"<th>{c}</th>" for c in cols)
     rows = ""
     for r in recs:
-        rows += "<tr>" + "".join(f"<td>{cell(r.get(c, ''))}</td>" for c in cols) + "</tr>"
+        rows += "<tr>" + "".join(f"<td>{cell(c, r.get(c, ''))}</td>" for c in cols) + "</tr>"
 
     return f"""<!doctype html><html><head><meta charset='utf-8'>
 <title>A股+港股 AI 量化推荐</title>

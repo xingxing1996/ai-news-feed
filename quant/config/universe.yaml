@@ -12,6 +12,7 @@ cn:
   - {code: "000333.SZ", name: "美的集团", industry: "家用电器"}
   - {code: "000651.SZ", name: "格力电器", industry: "家用电器"}
   # —— 金融 / 银行 ——
+  - {code: "000001.SZ", name: "平安银行", industry: "银行"}
   - {code: "601318.SH", name: "中国平安", industry: "非银金融"}
   - {code: "600030.SH", name: "中信证券", industry: "非银金融"}
   - {code: "601628.SH", name: "中国人寿", industry: "非银金融"}
@@ -131,18 +132,25 @@ us:
   - {code: "AMZN",  name: "亚马逊",    industry: "互联网"}
   - {code: "META",  name: "Meta",      industry: "互联网"}
   - {code: "TSLA",  name: "特斯拉",    industry: "汽车"}
-  # —— 存储 / 半导体设备 ——
-  - {code: "MU",    name: "美光",      industry: "半导体"}        # 存储(DRAM/NAND)
-  - {code: "WDC",   name: "西部数据",  industry: "半导体"}        # 存储
+  # —— 存储 / 半导体设备 / 电子蓝筹 ——
+  - {code: "MU",    name: "美光科技",  industry: "半导体"}        # 存储(DRAM/HBM)
+  - {code: "WDC",   name: "西部数据(闪迪)", industry: "半导体"}   # 存储(NAND Flash)
   - {code: "AVGO",  name: "博通",      industry: "半导体"}
   - {code: "AMD",   name: "AMD",       industry: "半导体"}
   - {code: "TSM",   name: "台积电",    industry: "半导体"}        # 台积电 ADR
+  - {code: "UMC",   name: "联华电子",  industry: "半导体"}        # 联电 ADR
+  - {code: "ASX",   name: "日月光投控", industry: "半导体"}        # 芯片封测龙头 ADR
+  - {code: "STX",   name: "希捷科技",  industry: "计算机"}        # 硬盘/存储
+  - {code: "GLW",   name: "康宁",      industry: "电子"}          # 盖板玻璃/光纤
+  - {code: "NBIS",  name: "Nebius",   industry: "计算机"}        # AI云算力龙头
   - {code: "ASML",  name: "阿斯麦",    industry: "半导体"}        # 半导体设备
   - {code: "AMAT",  name: "应用材料",  industry: "半导体"}        # 半导体设备
   - {code: "LRCX",  name: "拉姆研究",  industry: "半导体"}        # 半导体设备
   - {code: "ARM",   name: "ARM",       industry: "半导体"}
   - {code: "QCOM",  name: "高通",      industry: "半导体"}
   - {code: "INTC",  name: "英特尔",    industry: "半导体"}
+  - {code: "RKLB",  name: "RocketLab(SpaceX概念)", industry: "商业航天"} # 商业航天
+  - {code: "COIN",  name: "Coinbase(Circle概念)",  industry: "金融科技"} # 数字货币/Circle概念
   # —— 金融 ——
   - {code: "JPM",   name: "摩根大通",  industry: "银行"}
   - {code: "BAC",   name: "美国银行",  industry: "银行"}
