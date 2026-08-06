@@ -16,7 +16,7 @@ universe:
 data:
   synthetic: false
   years_back: 6
-  sources: {cn: akshare, hk: akshare, us: yfinance}
+  sources: {cn: akshare, hk: yfinance, us: yfinance}
 
 feature:
   use_alpha158: true

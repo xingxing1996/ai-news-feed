@@ -37,10 +37,24 @@ def _get_loader(market: str, synthetic: bool):
     if synthetic:
         from . import synthetic_loader as L
         return L
-    if market in ("cn", "hk"):
-        from . import akshare_loader as L  # A股 + 港股都走 AKShare（国内稳定）
-    else:
-        from . import yfinance_loader as L  # 美股/韩股：yfinance（国内可能需代理）
+    try:
+        from ..config import get_settings
+        sources = get_settings().data.get("sources", {})
+        source_name = sources.get(market)
+        if source_name == "yfinance":
+            from . import yfinance_loader as L
+            return L
+        if source_name == "akshare":
+            from . import akshare_loader as L
+            return L
+    except Exception:  # noqa: BLE001
+        pass
+
+    # 默认路由：cn 走 akshare；hk / us / kr 均走 yfinance (极速直连)
+    if market == "cn":
+        from . import akshare_loader as L
+        return L
+    from . import yfinance_loader as L
     return L
 
 
