@@ -22,6 +22,8 @@ import sys
 import threading
 from pathlib import Path
 
+import pandas as pd
+
 # ---- 环境在 import quant/调度 前 ----
 ROOT = Path(__file__).resolve().parent
 os.environ["PYTHONPATH"] = f"{ROOT}:{ROOT / 'quant'}"
@@ -125,6 +127,40 @@ def recommendations():
         return JSONResponse({"error": "暂无结果，首次训练进行中，看 /health"}, status_code=404)
     try:
         data = json.loads(p.read_text(encoding="utf-8"))
+        recs = data.get("recommendations", [])
+        
+        # 动态属性补齐防御：防止旧版本遗留 JSON 缺乏 current_price / target_price / pred_return
+        daily_df = None
+        for r in recs:
+            if "current_price" not in r or r.get("current_price", 0) == 0:
+                code = r.get("code")
+                prob_up = r.get("prob_up", 0.5)
+                pred_ret = float(r.get("pred_return", (prob_up - 0.5) * 0.25))
+                c_price = 0.0
+                
+                # 动态从 daily_price 快照里查现价
+                if daily_df is None:
+                    for daily_f in ("daily_price.parquet", "daily_price"):
+                        dp = OUT / daily_f
+                        if dp.exists():
+                            try:
+                                daily_df = pd.read_parquet(dp)
+                                break
+                            except Exception:  # noqa: BLE001
+                                pass
+                if daily_df is not None and not daily_df.empty and code:
+                    sub_d = daily_df[daily_df["code"] == code]
+                    if not sub_d.empty:
+                        c_price = round(float(sub_d.iloc[-1]["close"]), 2)
+                
+                r["current_price"] = c_price
+                r["target_price"] = round(c_price * (1.0 + pred_ret), 2) if c_price > 0 else 0.0
+                r["pred_return"] = round(pred_ret, 4)
+                r["expected_return"] = round(pred_ret, 4)
+                r["return"] = round(pred_ret, 4)
+                r["expected_return_pct"] = f"{pred_ret * 100:+.1f}%"
+                r["horizon_days"] = 20
+        
         return JSONResponse(content=data, headers={"Cache-Control": "no-cache, no-store, must-revalidate"})
     except Exception as exc:  # noqa: BLE001
         return JSONResponse({"error": str(exc)}, status_code=500)
