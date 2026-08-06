@@ -38,13 +38,24 @@ def compute_quality_factors(daily: pd.DataFrame, financial: pd.DataFrame) -> pd.
         growth.append(gg)
     fin = pd.concat(growth, ignore_index=True) if growth else fin
 
-    # 取每只股票最近一期快照挂在日线上
-    snap = fin.sort_values("pub_date").groupby("code").tail(1)
-    avail = [c for c in ["roe", "gross_margin", "revenue_growth", "profit_growth", "revenue", "profit"]
-             if c in snap.columns]
+    # 严格 PIT (Point-in-Time) 时间对齐：交易日 (date) 只能匹配在该交易日之前 (pub_date <= date) 已经发布的最新财报
     d = daily[["date", "code"]].copy()
-    d = d.merge(snap[["code", *avail]], on="code", how="left")
+    d["date_dt"] = pd.to_datetime(d["date"])
+    fin["pub_date_dt"] = pd.to_datetime(fin["pub_date"])
 
+    d_sorted = d.sort_values(["code", "date_dt"]).reset_index(drop=True)
+    fin_sorted = fin.sort_values(["code", "pub_date_dt"]).reset_index(drop=True)
+
+    merged = pd.merge_asof(
+        d_sorted,
+        fin_sorted,
+        by="code",
+        left_on="date_dt",
+        right_on="pub_date_dt",
+        direction="backward"  # 严格只取发布日 <= 当日交易日的已公开财报
+    )
+
+    d = merged.copy()
     # 规模 / 利润率
     if "revenue" in d.columns:
         d["log_revenue"] = np.log(d["revenue"].clip(lower=1))
