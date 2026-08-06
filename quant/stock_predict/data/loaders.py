@@ -73,7 +73,7 @@ def fetch_all(universe_df: pd.DataFrame, start: str, end: str, synthetic: bool,
         fetch_delay = 0.5
     for r in tqdm(rows, desc="ingest", disable=len(rows) <= 3):
         L = _get_loader(r.market, synthetic)
-        is_ak = (not synthetic) and r.market in ("cn", "hk")
+        is_ak = (not synthetic) and hasattr(L, "__name__") and L.__name__.endswith("akshare_loader")
         s = (start_by_code or {}).get(r.code, start)  # 增量起始日
         d = L.fetch_daily(r.code, s, end, r.market) if is_ak else L.fetch_daily(r.code, s, end)
         if not d.empty:

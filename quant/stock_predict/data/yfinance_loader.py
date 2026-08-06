@@ -5,7 +5,12 @@
 """
 from __future__ import annotations
 
+import os
 import logging
+
+# 强行清理残留死代理环境变量 (127.0.0.1)，保证网络请求直连不被卡死
+for _k in ("HTTP_PROXY", "HTTPS_PROXY", "http_proxy", "https_proxy", "ALL_PROXY", "all_proxy"):
+    os.environ.pop(_k, None)
 
 import pandas as pd
 
@@ -22,7 +27,7 @@ def _yf():
     return _YF
 
 
-def fetch_daily(code: str, start: str, end: str) -> pd.DataFrame:
+def fetch_daily(code: str, start: str, end: str, market: str = "us") -> pd.DataFrame:
     try:
         yf = _yf()
         df = yf.download(code, start=start, end=end, progress=False, auto_adjust=True)
