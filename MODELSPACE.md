@@ -27,6 +27,23 @@
    - 每 2h 复用模型刷新日报。
 6. 看板：`推荐`（表格）/ `日报`（markdown）/ `回测` / `状态`（手动触发 + 日志）。
 
+## 自动化单元测试与前置门禁 (API Unit Testing & Pre-push SOP)
+系统内置全量 REST API 接口自动化单元测试套件（`quant/tests/test_api.py`），每次修改代码后自动运行单测：
+
+```bash
+# 本地运行全量 API 接口单元测试
+PYTHONPATH=quant pytest quant/tests/test_api.py -v
+```
+
+### 自动化测试覆盖端点
+1. `GET /` — 浏览器 HTML 看板（校验 200 响应与 Cache-Control 防死挂响应头）；
+2. `GET /recommendations` & `GET /api/recommendations` — 推荐 JSON 数据（校验 `update_time`, `current_price`, `target_price`, `pred_return` 核心字段 100% 存在性）；
+3. `GET /report` & `GET /api/report` — Markdown AI 投资日报；
+4. `GET /health` & `GET /api/health` — 系统健康与 APScheduler 调度器状态；
+5. `GET /backtest` / `GET /files` / `GET /log` / `GET /docs` — 历史回测、文件目录、日志与 Swagger 文档。
+
+---
+
 ## 注意
 - **数据累积在 `/mnt/workspace/data`**：增量采集，重启后只补最新日，不重拉全量。
 - **休眠**：免费 CPU 创空间空闲会休眠，休眠期间 APScheduler 不触发；有人访问/常驻才稳定跑。要 7×24 建议 CPU 常驻型或换云服务器（用根 `Dockerfile`+docker-compose）。
