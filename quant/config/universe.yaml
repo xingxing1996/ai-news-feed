@@ -97,6 +97,9 @@ hk:
   - {code: "1347.HK", name: "华虹半导体(港股)", industry: "半导体"}
   - {code: "9626.HK", name: "哔哩哔哩", industry: "互联网"}
   - {code: "1024.HK", name: "快手",     industry: "互联网"}
+  - {code: "9999.HK", name: "网易",     industry: "互联网"}        # 网易
+  - {code: "2269.HK", name: "药明生物", industry: "医药生物"}      # 港股CXO龙头
+  - {code: "2318.HK", name: "中国平安(港股)", industry: "非银金融"} # 港股金融
   - {code: "2382.HK", name: "舜宇光学", industry: "电子"}
   - {code: "2018.HK", name: "瑞声科技", industry: "电子"}
   - {code: "0285.HK", name: "比亚迪电子", industry: "电子"}
@@ -112,11 +115,14 @@ us:
   - {code: "GOOGL", name: "谷歌",      industry: "互联网/AI"}
   - {code: "META",  name: "Meta",      industry: "社交/AI"}
   - {code: "TSLA",  name: "特斯拉",    industry: "汽车"}
-  # —— 存储 / 半导体设备 / 电子蓝筹 ——
+  # —— 存储 / 半导体设备 / CPO光连接 / 蓝筹 ——
   - {code: "MU",    name: "美光科技",  industry: "半导体"}        # 存储(DRAM/HBM)
   - {code: "SKHY",  name: "SK海力士ADR",industry: "半导体"}        # SK海力士美股ADR (Nasdaq: SKHY)
   - {code: "WDC",   name: "西部数据(HDD龙头)", industry: "半导体"}  # 拆分后的HDD业务 (WDC)
   - {code: "SNDK",  name: "闪迪(Flash闪存)",   industry: "半导体"}  # 2025年2月独立拆分上市 (SNDK)
+  - {code: "LITE",  name: "Lumentum(CPO光芯片)", industry: "通信"}  # 美股CPO光芯片龙头
+  - {code: "CIEN",  name: "Ciena(光网络龙头)", industry: "通信"}    # 光通信网络龙头
+  - {code: "PLTR",  name: "Palantir(AI大数据)", industry: "计算机"} # AI应用与大数据
   - {code: "AVGO",  name: "博通",      industry: "半导体"}
   - {code: "AMD",   name: "AMD",       industry: "半导体"}
   - {code: "TSM",   name: "台积电",    industry: "半导体"}        # 台积电 ADR
@@ -157,7 +163,8 @@ us:
   - {code: "TQQQ",  name: "纳指3倍做多(TQQQ)", industry: "指数"}   # 纳指3倍做多
   - {code: "IBIT",  name: "现货比特币ETF(IBIT)", industry: "指数"}# 现货比特币
   - {code: "TLT",   name: "美债20年+ETF(TLT)", industry: "指数"}  # 宏观利率降息锚
-  # —— 大宗商品 / 原油能源 / 宏观对冲 ——
+  # —— 大宗商品 / 原油能源 / 黄金对冲 ——
+  - {code: "GLD",   name: "SPDR黄金ETF(GLD)", industry: "指数"}   # 大宗黄金ETF
   - {code: "USO",   name: "美国原油基金ETF(USO)", industry: "指数"} # 跟踪 WTI 原油期货现货 (美国原油ETF)
   - {code: "XLE",   name: "能源行业精选ETF(XLE)", industry: "指数"} # 埃克森美孚/雪佛龙能源巨头ETF
   - {code: "XOP",   name: "油气勘探开采ETF(XOP)", industry: "指数"} # 油气上游勘探开采ETF
