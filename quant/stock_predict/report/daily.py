@@ -410,8 +410,6 @@ def generate_daily_report(as_of: str | None = None, pred_df=None, feats_df=None,
             "risks": risks,
             "_inv_vol": inv_vol,
         }
-        # 生成 AI 机构级投研短评（基于 LLM）
-        card_item["ai_summary"] = explain.generate_ai_invest_summary(card_item)
         cards.append(card_item)
 
     # 归一化计算 Risk Parity 风险平坦持仓权重 (建议仓位)
@@ -420,6 +418,7 @@ def generate_daily_report(as_of: str | None = None, pred_df=None, feats_df=None,
         w = c.pop("_inv_vol", 50.0) / max(total_inv_vol, 1e-6)
         # 上限截断（单股最大仓位不超过 20%）
         c["recommended_weight"] = f"{min(w, 0.20):.1%}"
+        c["ai_summary"] = explain.generate_ai_invest_summary(c)
 
     # 回测指标（若已有）→ 原始 JSON + 一句句可读解读
     bt_path = Path(cfg.paths.output_dir) / "backtest_metrics.txt"
