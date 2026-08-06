@@ -127,10 +127,10 @@ def _rating(prob: float, prob_up: float, events: list[dict], completeness: float
     if hi_neg:
         return "回避", breaking
 
-    score = prob * 0.5 + prob_up * 0.3 + (0.08 if pos else 0) - (0.08 if neg else 0) - (0.08 if completeness < 0.6 else 0)
-    if score >= 0.6:
+    score = prob * 0.6 + prob_up * 0.4
+    if score >= 0.65:
         rating = "强推荐"
-    elif score >= 0.53:
+    elif score >= 0.55:
         rating = "关注"
     elif score >= 0.45:
         rating = "中性观望"
@@ -372,15 +372,14 @@ def generate_daily_report(as_of: str | None = None, pred_df=None, feats_df=None,
             except Exception:  # noqa: BLE001
                 pass
 
-        # 概率温和校准（将原生逻辑斯蒂极值收缩在 40% ~ 75% 真实中线统计分布区间，避免 90%+ 盲目绝对化误导）
-        calibrated_prob_up = round(0.5 + (prob_up - 0.5) * 0.5, 3)
-        calibrated_prob = round(0.5 + (prob - 0.5) * 0.5, 3)
-        # 动态 20 日真实收益率波动率感知模型 (Normalized Volatility-Aware Expectations)
-        std20_val = float(row.get("STD20", 0.02)) if pd.notna(row.get("STD20")) else 0.02
-        std20_pct = std20_val / current_price if current_price > 1.0 and std20_val > 0 else 0.025
-        vol20 = max(min(std20_pct * (20 ** 0.5), 0.40), 0.08)  # 限制在 8% ~ 40% 真实月度收益波幅
+        # 保持原生态模型预测概率（不使用死板的 * 0.5 硬平滑）
+        calibrated_prob_up = round(float(prob_up), 3)
+        calibrated_prob = round(float(prob), 3)
+        
+        # 预估收益率基于模型超额胜率与 20 日真实历史动量折算
+        roc20_val = float(row.get("ROC20", 0.0)) if pd.notna(row.get("ROC20")) else 0.0
         prob_diff = calibrated_prob_up - 0.5
-        pred_ret = round(float(prob_diff * 2.0 * (vol20 / 0.15)), 4)
+        pred_ret = round(float(prob_diff * 0.40 + roc20_val * 0.50), 4)
 
         expected_return_pct = f"{pred_ret * 100:+.1f}%"
         target_price = round(current_price * (1.0 + pred_ret), 2) if current_price > 0 else 0.0
