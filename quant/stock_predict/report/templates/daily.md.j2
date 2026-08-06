@@ -28,6 +28,7 @@
 {% for c in cards %}
 ### {{ loop.index }}. {{ c.name }}（{{ c.code }}） · {{ c.industry }} / {{ c.market|upper }} · **【{{ c.suggestion }}】**
 
+- **最新现价**：`{% if c.current_price > 0 %}¥{{ c.current_price }}{% else %}—{% endif %}` ｜ **20日中线目标价**：`{% if c.target_price > 0 %}¥{{ c.target_price }}{% else %}—{% endif %}`（`{{ c.expected_return_pct }}`）
 - **未来上涨概率**：`{{ "%.0f"|format(c.prob_up * 100) }}%`
 - **跑赢大盘概率**：`{{ "%.0f"|format(c.prob_bench * 100) }}%`
 - **跑赢行业概率**：`{{ "%.0f"|format(c.prob * 100) }}%`

@@ -105,9 +105,12 @@ def build_feature_matrix() -> tuple[pd.DataFrame, dict]:
         mat = mat.join(_d, how="left")
         mat["bench_excess"] = mat["future_return"] - mat["bench_future"]
 
-    # 挂 industry / market 元信息（供截面分组与日报解释）
+    # 挂 industry / market / close_raw 元信息（供截面分组与日报解释）
     meta = universe.set_index("code")[["industry", "market", "name"]]
     mat = mat.join(meta, how="left")
+    if "close" in daily.columns:
+        c_raw = daily.set_index(["date", "code"])[["close"]].rename(columns={"close": "close_raw"})
+        mat = mat.join(c_raw, how="left")
 
     # 挂 market_cap（用于市值中性化；非特征）
     if "market_cap" in daily.columns:
@@ -116,8 +119,8 @@ def build_feature_matrix() -> tuple[pd.DataFrame, dict]:
 
     # —— 机构级预处理（无未来函数：全部按日截面操作）——
     fcfg = cfg.feature
-    # pe/pb 原值只供日报展示，不进模型（分位数 pe_percentile/pb_percentile 才进）
-    _DISPLAY_ONLY = {"pe", "pb"}
+    # pe/pb/close_raw 原值只供日报展示，不进模型（分位数 pe_percentile/pb_percentile 才进）
+    _DISPLAY_ONLY = {"pe", "pb", "close_raw"}
     feat_cols_now = [c for c in mat.columns if c not in ("future_return", "industry_excess", "industry_excess_neu",
                                                           "label", "abs_label", "bench_label", "bench_excess", "bench_future",
                                                           "industry", "market", "name", "market_cap") and c not in _DISPLAY_ONLY]

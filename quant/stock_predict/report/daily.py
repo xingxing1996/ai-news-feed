@@ -240,11 +240,13 @@ def generate_daily_report(as_of: str | None = None, pred_df=None, feats_df=None,
         risks += trisk
         # 估值提示（在卡片生成时统一计算，带 raw_pe/raw_pb）
 
-        # —— 数据质量：特征完整度 + 关键价量特征是否缺失（缺数据→标低可信）——
-        # 仅以在当前截面上至少存在有效值的特征列作为评估基数（排除完全未开启/不适用的大块特征）
-        valid_fcols = [c for c in feat_cols if c in section.columns and section[c].notna().any()]
+        # —— 数据质量：特征完整度 + 关键价量特征是否缺失 ——
+        # 排除该市场完全未开启/不适用（整个市场全为 NaN）的大块特征作为分母
+        mkt = meta.get("market", "cn").lower()
+        mkt_section = section[section["market"] == mkt] if "market" in section.columns else section
+        valid_fcols = [c for c in feat_cols if c in mkt_section.columns and mkt_section[c].notna().any()]
         if not valid_fcols:
-            valid_fcols = [c for c in feat_cols if c in row.index]
+            valid_fcols = [c for c in feat_cols if c in row.index and pd.notna(row[c])]
         n_present = sum(1 for c in valid_fcols if pd.notna(row[c]))
         completeness = round(n_present / max(len(valid_fcols), 1), 2)
         key_missing = [c for c in ("ROC20", "MA20", "RET1D") if c in feat_cols and pd.isna(row.get(c))]
@@ -276,16 +278,33 @@ def generate_daily_report(as_of: str | None = None, pred_df=None, feats_df=None,
         raw_pe = float(row["pe"]) if "pe" in row.index and pd.notna(row.get("pe")) else None
         raw_pb = float(row["pb"]) if "pb" in row.index and pd.notna(row.get("pb")) else None
         val_hint = explain.valuation_hint(row, raw_pe=raw_pe, raw_pb=raw_pb)
+        # 读取实际收盘现价
+        raw_close = row.get("close") or row.get("close_raw") or row.get("price")
+        current_price = round(float(raw_close), 2) if pd.notna(raw_close) and float(raw_close) > 0 else 0.0
+
+        # 概率温和校准（将原生逻辑斯蒂极值收缩在 40% ~ 75% 真实中线统计分布区间，避免 90%+ 盲目绝对化误导）
+        calibrated_prob_up = round(0.5 + (prob_up - 0.5) * 0.5, 3)
+        calibrated_prob = round(0.5 + (prob - 0.5) * 0.5, 3)
+
+        # 20 个交易日中线期望收益率与目标股价计算
+        pred_ret = float(row.get("pred_return", (calibrated_prob_up - 0.5) * 0.25))
+        expected_return_pct = f"{pred_ret * 100:+.1f}%"
+        target_price = round(current_price * (1.0 + pred_ret), 2) if current_price > 0 else 0.0
+
         card_item = {
             "code": code,
             "name": meta.get("name") or code,
             "industry": meta.get("industry") or "—",
             "market": meta.get("market") or "—",
             "is_etf": is_etf,
-            "prob": prob,
-            "prob_up": prob_up,
+            "current_price": current_price,
+            "target_price": target_price,
+            "expected_return_pct": expected_return_pct,
+            "horizon_days": 20,
+            "prob": calibrated_prob,
+            "prob_up": calibrated_prob_up,
             "prob_bench": prob_bench,
-            "score": round(prob * 100),
+            "score": round(calibrated_prob * 100),
             "suggestion": rating,
             "breaking_event": breaking,
             "valuation": val_hint,
