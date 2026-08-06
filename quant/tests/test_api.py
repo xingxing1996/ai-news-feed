@@ -156,8 +156,8 @@ def test_anti_leakage_invariants():
     quality_py = (ROOT / "quant" / "stock_predict" / "features" / "quality.py").read_text(encoding="utf-8")
     strategy_py = (ROOT / "quant" / "stock_predict" / "backtest" / "strategy.py").read_text(encoding="utf-8")
 
-    # 1. 验证 lgbm.py 必须使用按交易日 groupby("date") 的截面 rank
-    assert 'groupby("date")["p1"].rank(pct=True)' in lgbm_py, "lgbm.py 必须包含按 date 分组的截面 rank"
+    # 1. 验证 lgbm.py 必须使用按交易日 groupby(level="date") 的截面 rank
+    assert 'groupby(level="date")["p1"].rank(pct=True)' in lgbm_py, "lgbm.py 必须包含按 date level 分组的截面 rank"
     
     # 2. 验证 quality.py 必须使用 direction="backward" 的 PIT 财报对齐
     assert 'direction="backward"' in quality_py, "quality.py 必须使用 backward 方向的 merge_asof PIT 对齐"

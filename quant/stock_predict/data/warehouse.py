@@ -83,12 +83,35 @@ def upsert_dataframe(df: pd.DataFrame, model) -> int:
 
 # ---------------------------- Parquet 读写 ---------------------------- #
 
-def warehouse_path(name: str) -> Path:
-    return Path(get_settings().paths.warehouse_dir) / f"{name}.parquet"
+def assert_not_synthetic(df: pd.DataFrame, name: str = "warehouse") -> None:
+    """合成假数据防呆指纹断言检验：当配置为 synthetic: false 时，绝对不允许包含合成假数据指纹。"""
+    if df.empty:
+        return
+    try:
+        cfg = get_settings()
+        if bool(cfg.data.get("synthetic", False)):
+            return
+    except Exception:  # noqa: BLE001
+        pass
+
+    # 指纹 1：检查是否存在 high < open 等合成逻辑盲区
+    if "high" in df.columns and "open" in df.columns:
+        invalid_mask = df["high"] < df["open"]
+        if invalid_mask.any():
+            raise RuntimeError(f"[防呆拦截] {name} 检测到合成假数据指纹(high < open)，已阻断运行，请先重新执行 stock-predict ingest 采集真实数据！")
+
+    # 指纹 2：检查 pb/pe 比值是否异常落入 uniform(0.05, 0.4) 随机合成区间
+    if "pe" in df.columns and "pb" in df.columns:
+        valid_pe_pb = df[(df["pe"] > 0) & (df["pb"] > 0)]
+        if not valid_pe_pb.empty and len(valid_pe_pb) >= 100:
+            ratios = valid_pe_pb["pb"] / valid_pe_pb["pe"]
+            if float(ratios.min()) >= 0.049 and float(ratios.max()) <= 0.401 and ratios.std() < 0.12:
+                raise RuntimeError(f"[防呆拦截] {name} 估值匹配到 synthetic_loader 的 rng.uniform 随机生成区，已阻断运行，请先 ingest 真实数据！")
 
 
 def write_parquet(df: pd.DataFrame, name: str, partition: str | None = None) -> Path:
     """落盘到 warehouse。同名覆盖（按日期分区写则追加由调用方处理）。"""
+    assert_not_synthetic(df, name)
     path = warehouse_path(name)
     path.parent.mkdir(parents=True, exist_ok=True)
     df.to_parquet(path, index=False)
@@ -99,7 +122,9 @@ def read_parquet(name: str) -> pd.DataFrame:
     path = warehouse_path(name)
     if not path.exists():
         return pd.DataFrame()
-    return pd.read_parquet(path)
+    df = pd.read_parquet(path)
+    assert_not_synthetic(df, name)
+    return df
 
 
 # ---------------------------- DuckDB 查询 ---------------------------- #

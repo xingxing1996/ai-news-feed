@@ -16,10 +16,7 @@ _PCT_WINDOW = 252 * 3  # 3 年滚动分位窗口
 
 
 def _rolling_pct_rank(s: pd.Series, w: int) -> pd.Series:
-    res = s.rolling(w, min_periods=1).rank(pct=True)
-    if res.isna().any():
-        res = res.ffill().bfill()
-    return res
+    return s.rolling(w, min_periods=1).rank(pct=True).ffill()
 
 
 def compute_valuation_factors(
