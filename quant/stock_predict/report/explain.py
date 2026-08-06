@@ -174,8 +174,8 @@ def _fmt_feat_val(f: str, val: float) -> str:
     return ""
 
 
-def explain_shap_row(shap_vec, feat_cols: list[str], k: int = 3, row: pd.Series | None = None) -> tuple[list[str], list[str]]:
-    """把单只股票的 SHAP 向量映射成人话理由/风险，包含特征真实数值与高精度 SHAP 贡献度。"""
+def explain_shap_row(shap_vec, feat_cols: list[str], k: int = 5, row: pd.Series | None = None) -> tuple[list[str], list[str]]:
+    """把单只股票的 SHAP 向量映射成人话理由/风险，生成极度详尽、带图标与具体数据驱动的买方机构研报明细。"""
     s = pd.Series(shap_vec, index=list(feat_cols))
     pos = s[s > 0].sort_values(ascending=False)
     neg = s[s < 0].sort_values()
@@ -187,7 +187,7 @@ def explain_shap_row(shap_vec, feat_cols: list[str], k: int = 3, row: pd.Series 
         val_str = ""
         if row is not None and f in row.index:
             val_str = _fmt_feat_val(f, float(row[f])) if pd.notna(row[f]) else ""
-        reasons.append(f"{info[0]}{val_str}（SHAP {_fmt_shap(v)}）")
+        reasons.append(f"🟢 {info[0]}{val_str}（SHAP 贡献 {_fmt_shap(v)}）")
         if len(reasons) >= k:
             break
     for f, v in neg.head(k * 2).items():
@@ -197,14 +197,14 @@ def explain_shap_row(shap_vec, feat_cols: list[str], k: int = 3, row: pd.Series 
         val_str = ""
         if row is not None and f in row.index:
             val_str = _fmt_feat_val(f, float(row[f])) if pd.notna(row[f]) else ""
-        risks.append(f"{info[1]}{val_str}（SHAP {_fmt_shap(v)}）")
+        risks.append(f"🔴 {info[1]}{val_str}（SHAP 扣分 {_fmt_shap(v)}）")
         if len(risks) >= k:
             break
     return reasons, risks
 
 
 def technical_reasons(row: pd.Series) -> tuple[list[str], list[str]]:
-    """从已有技术特征（RSI/MA/ROC）派生技术面理由（金叉近似/超买超卖/动量）。"""
+    """从技术特征（RSI/MA/ROC/VOL）派生极其详尽的技术面利好与风控提示。"""
     reasons: list[str] = []
     risks: list[str] = []
 
@@ -215,21 +215,26 @@ def technical_reasons(row: pd.Series) -> tuple[list[str], list[str]]:
     rsi = next((g(c) for c in ("RSI6", "RSI12", "RSI24") if g(c) is not None), None)
     if rsi is not None and rsi > 0:
         if rsi >= 75:
-            risks.append(f"RSI 超买（{rsi:.0f}），短期注意回调风险")
+            risks.append(f"🚨 RSI 高位超买（RSI={rsi:.0f}）：处于重度超买高位，短期警惕获利盘抛压与冲高回撤")
         elif rsi <= 25:
-            reasons.append(f"RSI 超卖（{rsi:.0f}），关注超跌反弹")
+            reasons.append(f"🔄 RSI 触底超卖（RSI={rsi:.0f}）：处于超跌底部超卖区，技术面呈现较强反弹修整动能")
 
     ma5, ma20, roc20 = g("MA5"), g("MA20"), g("ROC20")
     if ma5 is not None and ma20 is not None:
         if ma5 > 0 and ma20 > 0 and ma5 > ma20:
-            reasons.append("短中期均线多头排列（趋多）")
+            reasons.append("📈 均线多头格局：短中期均线 MA5 > MA20 多头排列，短期趋势平稳向上")
         elif ma5 < ma20:
-            risks.append("短中期均线空头排列（趋空）")
+            risks.append("📉 均线空头排列：短中期均线 MA5 < MA20 呈弱势下行排列，注意下探寻找支撑")
     if roc20 is not None:
         if roc20 > 0.10:
-            reasons.append(f"近一月强势（+{roc20:.0%}）")
+            reasons.append(f"🚀 近一月动量强劲（+{roc20:.1%}）：中线多头资金活跃，处于相对强势上涨通道")
         elif roc20 < -0.10:
-            risks.append(f"近一月下跌（{roc20:.0%}）")
+            risks.append(f"⚠️ 近一月动量回调（{roc20:.1%}）：中线资金流出，阶段性承压整理")
+
+    std20 = g("STD20")
+    if std20 is not None and std20 > 0.05:
+        risks.append("⚡ 波动率剧烈放大：20日实际波动率处于高位，短线振幅剧烈洗盘")
+
     return reasons, risks
 
 
