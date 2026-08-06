@@ -249,7 +249,8 @@ def generate_daily_report(as_of: str | None = None, pred_df=None, feats_df=None,
 
         # —— 数据质量：特征完整度 + 关键价量特征是否缺失 ——
         # 排除非该市场适用的 A 股独有因子列 (北向资金 / 筹码分布 / 主力资金流)
-        mkt = meta.get("market", "cn").lower()
+        raw_mkt = meta.get("market") if isinstance(meta, dict) else None
+        mkt = str(raw_mkt).lower() if pd.notna(raw_mkt) and raw_mkt else "cn"
         cn_only_kws = ("north_", "cyq_", "flow_", "fund_")
         if mkt in ("hk", "us", "kr"):
             valid_fcols = [c for c in feat_cols if c in row.index and not any(kw in c for kw in cn_only_kws)]
