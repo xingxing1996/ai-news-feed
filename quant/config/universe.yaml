@@ -194,13 +194,17 @@ us:
   - {code: "CSCO",  name: "思科",      industry: "科技"}
   - {code: "ORCL",  name: "甲骨文",    industry: "科技"}
   - {code: "WFC",   name: "富国银行",  industry: "银行"}
-  # —— 半导体 / DRAM ETF ——
-  - {code: "SOXX",  name: "半导体ETF(SOXX)", industry: "指数"}    # 半导体ETF
-  - {code: "SMH",   name: "半导体ETF(SMH)",  industry: "指数"}    # 半导体ETF
-  - {code: "SOXL",  name: "半导体杠杆ETF",   industry: "指数"}    # 半导体杠杆ETF
-  # —— ETF / 指数 ——
+  # —— 核心 ETF / 指数 / 杠杆 / 宏观对冲 ——
   - {code: "QQQ",   name: "纳斯达克100ETF", industry: "指数"}     # 纳斯达克100
   - {code: "SPY",   name: "标普500ETF",     industry: "指数"}     # 标普500
+  - {code: "XLK",   name: "科技龙头ETF(XLK)", industry: "指数"}   # 科技全貌
+  - {code: "BOTZ",  name: "AI机器人ETF(BOTZ)", industry: "指数"}  # AI应用与机器人
+  - {code: "SOXX",  name: "半导体ETF(SOXX)", industry: "指数"}    # 半导体ETF
+  - {code: "SMH",   name: "半导体龙头(SMH)", industry: "指数"}    # 半导体核心龙头
+  - {code: "SOXL",  name: "半导体3倍做多(SOXL)", industry: "指数"} # 半导体杠杆
+  - {code: "TQQQ",  name: "纳指3倍做多(TQQQ)", industry: "指数"}   # 纳指3倍做多
+  - {code: "IBIT",  name: "现货比特币ETF(IBIT)", industry: "指数"}# 现货比特币
+  - {code: "TLT",   name: "美债20年+ETF(TLT)", industry: "指数"}  # 宏观利率降息锚
 
 kr:
   # —— 存储 / 半导体（韩国；yfinance 路径，国内可能需代理）——
