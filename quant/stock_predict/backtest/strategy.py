@@ -160,10 +160,11 @@ def _run_core(signal: pd.DataFrame, daily: pd.DataFrame, cfg) -> dict:
     return report, port, bench
 
 
-def run_backtest(ranking: str | None = None) -> dict:
-    """按指定/默认排序信号回测。ranking: label|abs|bench|blend（默认 blend）。"""
+def run_backtest(ranking: str | None = None, pred_name: str = "predictions") -> dict:
+    """按指定/默认排序信号回测。ranking: label|abs|bench|blend（默认 blend）。
+    pred_name: 读哪份预测(默认 predictions；walk-forward OOS 用 predictions_oos)。"""
     cfg = get_settings()
-    pred = read_parquet("predictions")
+    pred = read_parquet(pred_name)
     daily = read_parquet("daily_price")
     if pred.empty or daily.empty:
         raise RuntimeError("predictions/daily_price 为空，请先 train。")

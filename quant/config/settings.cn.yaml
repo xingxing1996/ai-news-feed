@@ -12,6 +12,7 @@ universe:
   config_file: config/universe.yaml
   markets: [cn, hk]                       # ★只跑 A股+港股（AKShare 在中国可用）
   demo_mode: false
+  cn_benchmark: csi300                    # cn 段用沪深300成分股(akshare 动态生成,~288只)；抓不到回退精选
 
 data:
   synthetic: false

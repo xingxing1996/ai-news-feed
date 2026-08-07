@@ -86,7 +86,7 @@ def walk_forward_oos(train_days: int = 756, step: int = 21) -> pd.DataFrame:
         raise RuntimeError("walk-forward 未产出预测，检查 train_days/test_start。")
     pred = pd.concat(preds, ignore_index=True).dropna(subset=["prob"])
     pred["split"] = "test"
-    write_parquet(pred, "predictions")  # 用 OOS 预测覆盖，供 backtest
+    write_parquet(pred, "predictions_oos")  # OOS 预测单独存(不覆盖 predictions，避免破坏日报 recs)
     log.info("[walkforward] 重训 %d 次, OOS 预测 %d 行", n_refit, len(pred))
     return pred
 
@@ -96,7 +96,7 @@ def run_walkforward(train_days: int = 756, step: int = 21) -> dict:
     walk_forward_oos(train_days=train_days, step=step)
     from .strategy import run_backtest
 
-    report = run_backtest()
+    report = run_backtest(pred_name="predictions_oos")
     report["mode"] = "walk_forward"
     report["train_days"] = train_days
     report["step"] = step

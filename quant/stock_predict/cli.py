@@ -230,17 +230,10 @@ def run_all():
 
     console.print_json(data=train_and_predict())
 
-    console.rule("[bold]4/5 backtest")
-    from pathlib import Path
+    console.rule("[bold]4/5 backtest (walk-forward OOS，诚实样本外)")
+    from .backtest.walkforward import run_walkforward
 
-    from .config import get_settings
-
-    from .backtest.strategy import run_backtest
-
-    bt = run_backtest()
-    Path(get_settings().paths.output_dir, "backtest_metrics.txt").write_text(
-        json.dumps(bt, ensure_ascii=False, indent=2, default=str), encoding="utf-8"
-    )
+    bt = run_walkforward()
     console.print_json(data=bt)
 
     console.rule("[bold]4.5/6 news（best-effort，需网络 + LLM）")
