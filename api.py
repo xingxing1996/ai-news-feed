@@ -192,6 +192,23 @@ def recommendations():
         return JSONResponse({"error": str(exc)}, status_code=500)
 
 
+@app.get("/recommendations_us")
+@app.get("/api/recommendations_us")
+def recommendations_us():
+    """美股(+港韩)推荐：读仓库根 recommendations_us.json（GitHub Actions 训练后经
+    sync-modelscope 同步过来）。纯文件服务，不调 yfinance、不富化——避免在 ModelScope(CN) 卡死。"""
+    p = ROOT / "recommendations_us.json"
+    if not p.exists():
+        return JSONResponse({"error": "暂无美股结果（GitHub 训练后同步）"}, status_code=404,
+                            headers={"Cache-Control": "no-cache, no-store, must-revalidate"})
+    try:
+        data = json.loads(p.read_text(encoding="utf-8"))
+        return JSONResponse(content=data, headers={"Cache-Control": "no-cache, no-store, must-revalidate"})
+    except Exception as exc:  # noqa: BLE001
+        return JSONResponse({"error": str(exc)}, status_code=500,
+                            headers={"Cache-Control": "no-cache, no-store, must-revalidate"})
+
+
 @app.get("/report")
 @app.get("/api/report")
 def report():
