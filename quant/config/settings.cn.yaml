@@ -53,6 +53,10 @@ backtest:
   max_industry: 0.40
   n_drop: 5
   benchmark: "^HS300"
+  walkforward:
+    enabled: true
+    step: 63          # A股 walk-forward 步长加大(默认21)，重训次数降到约1/3、提速；模型短期不会剧变，精度几乎无损。想完全跳过设 enabled:false
+    train_days: 756
 
 report:
   top_k: 0                              # 0=全部股票都列出

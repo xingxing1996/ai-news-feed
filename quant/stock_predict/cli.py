@@ -231,10 +231,19 @@ def run_all():
     console.print_json(data=train_and_predict())
 
     console.rule("[bold]4/5 backtest (walk-forward OOS，诚实样本外)")
+    from .config import get_settings as _gs
     from .backtest.walkforward import run_walkforward
 
-    bt = run_walkforward()
-    console.print_json(data=bt)
+    _wf = (_gs().backtest.get("walkforward") or {})
+    if str(_wf.get("enabled", True)).lower() in ("false", "0", "no"):
+        console.print("[yellow]walk-forward 已在配置中关闭，跳过[/yellow]")
+        bt = {}
+    else:
+        bt = run_walkforward(
+            train_days=int(_wf.get("train_days", 756)),
+            step=int(_wf.get("step", 21)),
+        )
+        console.print_json(data=bt)
 
     console.rule("[bold]4.5/6 news（best-effort，需网络 + LLM）")
     try:
