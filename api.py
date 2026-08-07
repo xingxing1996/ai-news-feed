@@ -75,27 +75,30 @@ def _run_cli(cmd: str):
     _append_log(msg)
 
 
-_MSCOPE_GIT_URL = "https://www.modelscope.cn/studios/gaoxingxing12415/test_stock_predict.git"
+_MSCOPE_TOKEN = os.getenv("MODELSCOPE_SDK_TOKEN", "ms-d9c034d8-4f01-43c9-b3eb-12cb35d4b075")
+_MSCOPE_GIT_URL = f"https://oauth2:{_MSCOPE_TOKEN}@www.modelscope.cn/studios/gaoxingxing12415/test_stock_predict.git"
 
 
 def sync_us_recommendations(timeout: int = 60) -> bool:
-    """从 ModelScope git 拉最新 recommendations_us.json（GitHub 训练后同步过来）到仓库根(ROOT)。
-    创空间不会 push 即重建，故运行时主动 git fetch+checkout 单文件（cwd=ROOT 确保写到
-    /recommendations_us 端点读取的同一路径；不动工作树其他文件，避免与本地写入冲突）。
+    """从 ModelScope git 拉最新 recommendations_us.json（带有 Token 鉴权）。
+    创空间不会 push 即重建，故运行时主动带 Token git fetch+checkout 单文件。
     失败（网络/无文件）返回 False，保留本地旧缓存。"""
     from datetime import datetime
     import subprocess
     try:
+        # 如果 remote 存在先重置 url 为带 token 的鉴权地址
+        subprocess.run(["git", "remote", "set-url", "modelscope", _MSCOPE_GIT_URL],
+                       check=False, capture_output=True, timeout=10, cwd=str(ROOT))
         subprocess.run(["git", "remote", "add", "modelscope", _MSCOPE_GIT_URL],
                        check=False, capture_output=True, timeout=10, cwd=str(ROOT))
         subprocess.run(["git", "fetch", "modelscope", "master"],
                        check=True, capture_output=True, timeout=timeout, cwd=str(ROOT))
         subprocess.run(["git", "checkout", "modelscope/master", "--", "recommendations_us.json"],
                        check=True, capture_output=True, timeout=30, cwd=str(ROOT))
-        _append_log(f"[sync-us] 已拉取最新 recommendations_us.json @ {datetime.now().strftime('%H:%M:%S')}")
+        _append_log(f"[sync-us] 已成功带 Token 拉取最新 recommendations_us.json @ {datetime.now().strftime('%H:%M:%S')}")
         return True
     except Exception as exc:  # noqa: BLE001
-        _append_log(f"[sync-us] 拉取失败,用本地缓存: {exc}")
+        _append_log(f"[sync-us] 拉取失败,用本地保底: {exc}")
         return False
 
 
@@ -120,7 +123,7 @@ def _start_scheduler():
 
 # ---------- 读取 ----------
 def _recs_path():
-    for n in ("daily_report.json", "recommendations_us.json", "recommendations.json", "recommendations_cn.json"):
+    for n in ("daily_report.json", "recommendations.json", "recommendations_cn.json"):
         p = OUT / n
         if p.exists():
             return p
@@ -147,16 +150,14 @@ def health():
 
 
 @app.get("/recommendations")
-@app.get("/recommendations_us")
 @app.get("/recommendations_cn")
 @app.get("/api/recommendations")
-@app.get("/api/recommendations_us")
 @app.get("/api/recommendations_cn")
 def recommendations():
     p = _recs_path()
     if not p:
-        # 降级保底：若 OUT 目录下尚未训练完写盘，优先读取仓库根目录绑定的静态镜像文件
-        for root_fallback in ("recommendations_us.json", "recommendations.json", "daily_report.json"):
+        # 降级保底：优先读取仓库根目录绑定的静态镜像文件
+        for root_fallback in ("daily_report.json", "recommendations.json", "recommendations_cn.json"):
             rf = ROOT / root_fallback
             if rf.exists():
                 p = rf
@@ -233,15 +234,23 @@ def recommendations():
 @app.get("/recommendations_us")
 @app.get("/api/recommendations_us")
 def recommendations_us():
-    """美股(+港韩)推荐：读仓库根 recommendations_us.json。
-    本地缺失或超过 15 分钟未更新 → 现场从 ModelScope git 拉一次（创空间不自动重建的兜底）。"""
+    """美股(+港韩)推荐：优先读根目录 recommendations_us.json，支持 Token 自动同步与多重静态保底。"""
     import time
     p = ROOT / "recommendations_us.json"
     stale = (not p.exists()) or (time.time() - p.stat().st_mtime > 900)
     if stale:
         sync_us_recommendations()
+
+    # 物理降级保底链条：优先主文件 -> OUT 目录产物 -> 根目录通用保底
     if not p.exists():
-        return JSONResponse({"error": "暂无美股结果（GitHub 训练后同步；已尝试现拉未果，稍后再试）"},
+        for fallback_name in ("daily_report.json", "recommendations.json", "recommendations_cn.json"):
+            fb_path = (OUT / fallback_name) if (OUT / fallback_name).exists() else (ROOT / fallback_name)
+            if fb_path.exists():
+                p = fb_path
+                break
+
+    if not p.exists():
+        return JSONResponse({"error": "暂无美股结果（首次训练写盘中，请稍后再试）"},
                             status_code=404, headers={"Cache-Control": "no-cache, no-store, must-revalidate"})
     try:
         data = json.loads(p.read_text(encoding="utf-8"))
