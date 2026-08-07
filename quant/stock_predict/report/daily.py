@@ -378,9 +378,11 @@ def generate_daily_report(as_of: str | None = None, pred_df=None, feats_df=None,
         calibrated_prob = round(float(prob), 3)
 
         # 目标价：抓 yfinance「分析师一致目标价」(street consensus)。
-        # 关键：用线程池 + 硬超时 4s，防止 yfinance 在某些网络(如 ModelScope CN)挂死整个日报。
+        # 仅美股查(cn/hk 在 ModelScope=CN网络 调 yfinance 会卡死/不通，直接跳过，目标价留空)；
+        # 并用 daemon 线程 + 4s 硬超时兜底，即便 us 在慢网络也不会挂死日报。
+        _mkt = str(meta.get("market") or "").lower()
         analyst_target = None
-        if current_price > 0:
+        if current_price > 0 and _mkt == "us":
             def _fetch_analyst_target(_c=code):
                 try:
                     import yfinance as _yf
