@@ -83,6 +83,11 @@ def upsert_dataframe(df: pd.DataFrame, model) -> int:
 
 # ---------------------------- Parquet 读写 ---------------------------- #
 
+def warehouse_path(name: str) -> Path:
+    """warehouse 下某张 parquet 的完整路径。"""
+    return Path(get_settings().paths.warehouse_dir) / f"{name}.parquet"
+
+
 def assert_not_synthetic(df: pd.DataFrame, name: str = "warehouse") -> None:
     """合成假数据防呆指纹断言检验：当配置为 synthetic: false 时，绝对不允许包含合成假数据指纹。"""
     if df.empty:
