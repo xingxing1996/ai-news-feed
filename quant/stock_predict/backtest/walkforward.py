@@ -59,10 +59,12 @@ def walk_forward_oos(train_days: int = 756, step: int = 21) -> pd.DataFrame:
         train_df = mat[train_idx].dropna(subset=["label"])
         if train_df.empty or len(train_df) < 200:
             continue
-        model = lgb.LGBMClassifier(
-            **{k: v for k, v in params.items() if k != "objective"}, objective="binary", verbose=-1
+        model = lgb.LGBMRanker(
+            **{k: v for k, v in params.items() if k != "objective"}, objective="lambdarank", verbose=-1
         )
-        model.fit(train_df[feats], train_df["label"].astype(int))
+        tr = train_df.sort_index()  # 按 (date,code) 排序 → date 连续，供 lambdarank group
+        group_tr = tr.groupby(level="date", sort=False).size().to_numpy()
+        model.fit(tr[feats], tr["label"].astype(int), group=group_tr)
 
         # 预测 [anchor, anchor+step) 的样本外区间
         oos_end = test_dates[min(i + step, len(test_dates)) - 1] + pd.Timedelta(days=1)
@@ -71,7 +73,8 @@ def walk_forward_oos(train_days: int = 756, step: int = 21) -> pd.DataFrame:
         oos = mat[oos_idx]
         if oos.empty:
             continue
-        proba = model.predict_proba(oos[feats])[:, 1]
+        raw = model.predict(oos[feats])
+        proba = pd.Series(raw, index=oos.index).groupby(level="date", sort=False).rank(pct=True).values
         p = oos[["label"]].copy() if "label" in oos else pd.DataFrame(index=oos.index)
         p["prob"] = proba
         p = p.reset_index()
