@@ -93,8 +93,10 @@ def sync_us_recommendations(timeout: int = 60) -> bool:
                        check=False, capture_output=True, timeout=10, cwd=str(ROOT))
         subprocess.run(["git", "fetch", "modelscope", "master"],
                        check=True, capture_output=True, timeout=timeout, cwd=str(ROOT))
-        subprocess.run(["git", "checkout", "modelscope/master", "--", "recommendations_us.json"],
-                       check=True, capture_output=True, timeout=30, cwd=str(ROOT))
+        subprocess.run(["git", "checkout", "-f", "modelscope/master", "--", "recommendations_us.json"],
+                       check=False, capture_output=True, timeout=30, cwd=str(ROOT))
+        subprocess.run(["git", "checkout", "-f", "modelscope/master", "--", "data/output/recommendations_us.json"],
+                       check=False, capture_output=True, timeout=30, cwd=str(ROOT))
         _append_log(f"[sync-us] 已成功带 Token 拉取最新 recommendations_us.json @ {datetime.now().strftime('%H:%M:%S')}")
         return True
     except Exception as exc:  # noqa: BLE001
@@ -234,22 +236,26 @@ def recommendations():
 @app.get("/recommendations_us")
 @app.get("/api/recommendations_us")
 def recommendations_us():
-    """美股(+港韩)推荐：优先读根目录 recommendations_us.json，支持 Token 自动同步与多重静态保底。"""
+    """美股(+港韩)推荐：读根目录/OUT 目录 recommendations_us.json，支持自动强制同步与降级。"""
     import time
-    p = ROOT / "recommendations_us.json"
-    stale = (not p.exists()) or (time.time() - p.stat().st_mtime > 900)
+    p1 = ROOT / "recommendations_us.json"
+    p2 = OUT / "recommendations_us.json"
+    p = p1 if p1.exists() else (p2 if p2.exists() else None)
+
+    stale = (p is None) or (time.time() - p.stat().st_mtime > 900)
     if stale:
         sync_us_recommendations()
+        p = p1 if p1.exists() else (p2 if p2.exists() else None)
 
-    # 物理降级保底链条：优先主文件 -> OUT 目录产物 -> 根目录通用保底
-    if not p.exists():
+    # 物理降级保底链条：优先美股专件 -> 其它 JSON 产物
+    if p is None or not p.exists():
         for fallback_name in ("daily_report.json", "recommendations.json", "recommendations_cn.json"):
             fb_path = (OUT / fallback_name) if (OUT / fallback_name).exists() else (ROOT / fallback_name)
             if fb_path.exists():
                 p = fb_path
                 break
 
-    if not p.exists():
+    if p is None or not p.exists():
         return JSONResponse({"error": "暂无美股结果（首次训练写盘中，请稍后再试）"},
                             status_code=404, headers={"Cache-Control": "no-cache, no-store, must-revalidate"})
     try:
