@@ -15,13 +15,9 @@ import pandas as pd
 
 from ..config import get_settings
 from ..data.warehouse import read_parquet, write_parquet
+from ..model.lgbm import _feature_cols  # 复用主流程完整特征排除集(含 abs_label/bench_label/bench_excess 等未来列)，杜绝泄漏
 
 log = logging.getLogger(__name__)
-
-
-def _feat_cols(df: pd.DataFrame) -> list[str]:
-    meta = {"future_return", "industry_excess", "label", "industry", "market", "name", "market_cap"}
-    return [c for c in df.columns if c not in meta and pd.api.types.is_numeric_dtype(df[c])]
 
 
 def walk_forward_oos(train_days: int = 756, step: int = 21) -> pd.DataFrame:
@@ -32,7 +28,7 @@ def walk_forward_oos(train_days: int = 756, step: int = 21) -> pd.DataFrame:
     mat = read_parquet("features").set_index(["date", "code"]).sort_index()
     if mat.empty:
         raise RuntimeError("features 为空。")
-    feats = _feat_cols(mat)
+    feats = _feature_cols(mat)
     params = dict(cfg.model.lightgbm)
 
     dates = pd.to_datetime(mat.index.get_level_values("date")).unique().sort_values()
