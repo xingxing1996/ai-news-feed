@@ -79,29 +79,35 @@ _MSCOPE_TOKEN = os.getenv("MODELSCOPE_SDK_TOKEN", "ms-d9c034d8-4f01-43c9-b3eb-12
 _MSCOPE_GIT_URL = f"https://oauth2:{_MSCOPE_TOKEN}@www.modelscope.cn/studios/gaoxingxing12415/test_stock_predict.git"
 
 
-def sync_us_recommendations(timeout: int = 60) -> bool:
-    """从 ModelScope git 拉最新 recommendations_us.json（带有 Token 鉴权）。
-    创空间不会 push 即重建，故运行时主动带 Token git fetch+checkout 单文件。
-    失败（网络/无文件）返回 False，保留本地旧缓存。"""
+def sync_us_recommendations(timeout: int = 15) -> bool:
+    """从 GitHub / ModelScope 极速直拉最新 recommendations_us.json。
+    纯 Python urllib 实现，无需依赖容器系统的 git 命令行，支持多节点抗灾保底。"""
     from datetime import datetime
-    import subprocess
-    try:
-        # 如果 remote 存在先重置 url 为带 token 的鉴权地址
-        subprocess.run(["git", "remote", "set-url", "modelscope", _MSCOPE_GIT_URL],
-                       check=False, capture_output=True, timeout=10, cwd=str(ROOT))
-        subprocess.run(["git", "remote", "add", "modelscope", _MSCOPE_GIT_URL],
-                       check=False, capture_output=True, timeout=10, cwd=str(ROOT))
-        subprocess.run(["git", "fetch", "modelscope", "master"],
-                       check=True, capture_output=True, timeout=timeout, cwd=str(ROOT))
-        subprocess.run(["git", "checkout", "-f", "modelscope/master", "--", "recommendations_us.json"],
-                       check=False, capture_output=True, timeout=30, cwd=str(ROOT))
-        subprocess.run(["git", "checkout", "-f", "modelscope/master", "--", "data/output/recommendations_us.json"],
-                       check=False, capture_output=True, timeout=30, cwd=str(ROOT))
-        _append_log(f"[sync-us] 已成功带 Token 拉取最新 recommendations_us.json @ {datetime.now().strftime('%H:%M:%S')}")
-        return True
-    except Exception as exc:  # noqa: BLE001
-        _append_log(f"[sync-us] 拉取失败,用本地保底: {exc}")
-        return False
+    import urllib.request
+
+    urls = [
+        "https://raw.githubusercontent.com/xingxing1996/ai-news-feed/main/recommendations_us.json",
+        "https://cdn.jsdelivr.net/gh/xingxing1996/ai-news-feed@main/recommendations_us.json",
+    ]
+
+    for u in urls:
+        try:
+            req = urllib.request.Request(u, headers={"User-Agent": "Mozilla/5.0 (quant-agent)"})
+            with urllib.request.urlopen(req, timeout=timeout) as resp:
+                if resp.status == 200:
+                    body = resp.read()
+                    data = json.loads(body.decode("utf-8"))
+                    if "recommendations" in data:
+                        # 双向写入根目录与 OUT 目录，保障 100% 检出
+                        OUT.mkdir(parents=True, exist_ok=True)
+                        (ROOT / "recommendations_us.json").write_bytes(body)
+                        (OUT / "recommendations_us.json").write_bytes(body)
+                        _append_log(f"[sync-us] 成功从 HTTP 源极速同步美股 {len(data['recommendations'])} 只标的 @ {datetime.now().strftime('%H:%M:%S')}")
+                        return True
+        except Exception as exc:  # noqa: BLE001
+            _append_log(f"[sync-us] 源 {u} 拉取失败: {exc}")
+
+    return False
 
 
 @app.on_event("startup")
