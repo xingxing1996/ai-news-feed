@@ -227,16 +227,46 @@ def train_and_predict() -> dict:
                     sub[f"prob_{target}"], sub[target].astype(int), sub["date"]
                 )
 
-    # 分位多空（机构标准因子评估）：test 段按主标签概率分 5 组，看多空年化/Sharpe/单调性
+    # 分位多空（机构标准因子评估）：test 段对【三个预测目标】分别按其概率分 5 组，
+    # 看各目标的选股能力（跑赢行业 label / 上涨 abs_label / 跑赢大盘 bench_label）。
     test_df = pred[pred["split"] == "test"]
-    if not test_df.empty and "prob_label" in test_df.columns and "future_return" in test_df.columns:
-        qa_df = test_df.rename(columns={"prob_label": "prob"})[["date", "code", "prob", "future_return"]]
-        qa = evaluate.quantile_analysis(qa_df, n_quantiles=5)
-        if qa:
-            metrics.setdefault("test", {}).setdefault("label", {})["quantile"] = qa
-            log.info("[model] test 分位多空: 多空年化=%.3f Sharpe=%.2f 单调性=%.2f",
-                     qa.get("long_short_ann", float("nan")), qa.get("long_short_sharpe", float("nan")),
-                     qa.get("monotonicity", float("nan")))
+    if not test_df.empty and "future_return" in test_df.columns:
+        for target in _TARGETS:
+            pcol = f"prob_{target}"
+            if pcol not in test_df.columns:
+                continue
+            qa_df = test_df.rename(columns={pcol: "prob"})[["date", "code", "prob", "future_return"]]
+            qa = evaluate.quantile_analysis(qa_df, n_quantiles=5)
+            if qa:
+                metrics.setdefault("test", {}).setdefault(target, {})["quantile"] = qa
+                log.info("[model] test 分位多空[%s]: 多空年化=%.3f Sharpe=%.2f 单调性=%.2f",
+                         target, qa.get("long_short_ann", float("nan")),
+                         qa.get("long_short_sharpe", float("nan")), qa.get("monotonicity", float("nan")))
+
+    # 目标价/预期收益率预测质量：复刻日报 pred_ret 公式(prob_label+ROC20_raw)，与真实 future_return 对比
+    if not test_df.empty and "prob_label" in test_df.columns:
+        try:
+            roc = mat["ROC20_raw"] if "ROC20_raw" in mat.columns else (mat["ROC20"] if "ROC20" in mat.columns else None)
+            if roc is not None:
+                aligned = test_df.set_index(["date", "code"])[["prob_label", "future_return"]].join(
+                    roc.rename("roc20"), how="inner")
+                valid_mask = aligned["prob_label"].notna() & aligned["future_return"].notna()
+                p = (aligned["prob_label"][valid_mask] - 0.5) * 0.40 + aligned["roc20"][valid_mask].fillna(0.0) * 0.50
+                r = aligned["future_return"][valid_mask]
+                if len(p) > 20:
+                    from scipy.stats import spearmanr
+                    metrics.setdefault("test", {})["target_price"] = {
+                        "spearman_corr": float(spearmanr(p, r)[0]),
+                        "direction_hit_rate": float(((p > 0) == (r > 0)).mean()),
+                        "mae": float((p - r).abs().mean()),
+                        "n": int(len(p)),
+                    }
+                    log.info("[model] test 目标价预测: Spearman=%.3f 方向命中率=%.3f MAE=%.4f n=%d",
+                             metrics["test"]["target_price"]["spearman_corr"],
+                             metrics["test"]["target_price"]["direction_hit_rate"],
+                             metrics["test"]["target_price"]["mae"], len(p))
+        except Exception as exc:  # noqa: BLE001
+            log.warning("[model] 目标价预测评估失败: %s", exc)
 
     log.info("[model] 评估: %s", {k: v for k, v in metrics.items() if k in ("valid", "test")})
 
