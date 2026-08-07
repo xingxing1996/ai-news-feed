@@ -136,10 +136,14 @@ def _start_scheduler():
 
 # ---------- 读取 ----------
 def _recs_path():
-    for n in ("daily_report.json", "recommendations.json", "recommendations_cn.json"):
-        p = OUT / n
-        if p.exists():
-            return p
+    # 优先读取随 Git 代码 commit/push 入库的 ROOT (/app/) 物理文件，突破 /mnt/workspace 挂载路径隔离
+    for n in ("recommendations_us.json", "daily_report.json", "recommendations.json", "recommendations_cn.json"):
+        p_root = ROOT / n
+        if p_root.exists() and p_root.stat().st_size > 100:
+            return p_root
+        p_out = OUT / n
+        if p_out.exists() and p_out.stat().st_size > 100:
+            return p_out
     return None
 
 
@@ -247,26 +251,27 @@ def recommendations():
 @app.get("/recommendations_us")
 @app.get("/api/recommendations_us")
 def recommendations_us():
-    """美股(+港韩)推荐：读根目录/OUT 目录 recommendations_us.json，支持自动强制同步与降级。"""
-    import time
+    """美股(+港韩)推荐：优先直接读取跟随 Git 提交入库的 ROOT (/app/) recommendations_us.json。"""
     p1 = ROOT / "recommendations_us.json"
     p2 = OUT / "recommendations_us.json"
-    p = p1 if p1.exists() else (p2 if p2.exists() else None)
+    
+    # 只要 git push 上去的文件物理存在，直接拿该文件返回，不再无谓拦截
+    p = p1 if (p1.exists() and p1.stat().st_size > 100) else (p2 if (p2.exists() and p2.stat().st_size > 100) else None)
 
-    stale = (p is None) or (time.time() - p.stat().st_mtime > 900)
-    if stale:
+    if p is None:
+        # 本地找不到文件时，才当场尝试一次拉取
         sync_us_recommendations()
-        p = p1 if p1.exists() else (p2 if p2.exists() else None)
+        p = p1 if (p1.exists() and p1.stat().st_size > 100) else (p2 if (p2.exists() and p2.stat().st_size > 100) else None)
 
-    # 物理降级保底链条：优先美股专件 -> 其它 JSON 产物
-    if p is None or not p.exists():
+    # 降级检索链
+    if p is None:
         for fallback_name in ("daily_report.json", "recommendations.json", "recommendations_cn.json"):
-            fb_path = (OUT / fallback_name) if (OUT / fallback_name).exists() else (ROOT / fallback_name)
-            if fb_path.exists():
+            fb_path = (ROOT / fallback_name) if (ROOT / fallback_name).exists() else (OUT / fallback_name)
+            if fb_path.exists() and fb_path.stat().st_size > 100:
                 p = fb_path
                 break
 
-    if p is None or not p.exists():
+    if p is None:
         return JSONResponse({"error": "暂无美股结果（首次训练写盘中，请稍后再试）"},
                             status_code=404, headers={"Cache-Control": "no-cache, no-store, must-revalidate"})
     try:

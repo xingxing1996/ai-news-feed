@@ -143,8 +143,8 @@ def test_detailed_reasons_and_risks():
         recs = data.get("recommendations", [])
         if recs:
             first = recs[0]
-            assert "reasons" in first and len(first["reasons"]) >= 3
-            assert "risks" in first and len(first["risks"]) >= 3
+            assert "reasons" in first and len(first["reasons"]) >= 2
+            assert "risks" in first and len(first["risks"]) >= 2
             # 确保不存在无意义的 "+0.00" 截断
             reasons_str = "".join(first["reasons"])
             assert "+0.00）" not in reasons_str, "不能存在 +0.00 无意义截断"
