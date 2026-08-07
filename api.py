@@ -86,9 +86,10 @@ def sync_us_recommendations(timeout: int = 15) -> bool:
     import urllib.request
 
     url_sources = [
-        ("https://www.modelscope.cn/api/v1/studios/gaoxingxing12415/test_stock_predict/repo/files?Revision=master&FilePath=recommendations_us.json", "ModelScope Studio Repo (master branch)"),
+        ("https://ghproxy.net/https://raw.githubusercontent.com/xingxing1996/ai-news-feed/main/recommendations_us.json", "Domestic GHProxy Node"),
+        ("https://raw.gitmirror.com/xingxing1996/ai-news-feed/main/recommendations_us.json", "GitMirror China Node"),
+        ("https://fastly.jsdelivr.net/gh/xingxing1996/ai-news-feed@main/recommendations_us.json", "jsDelivr Fastly Global Node"),
         ("https://raw.githubusercontent.com/xingxing1996/ai-news-feed/main/recommendations_us.json", "GitHub Raw (main branch)"),
-        ("https://cdn.jsdelivr.net/gh/xingxing1996/ai-news-feed@main/recommendations_us.json", "jsDelivr Global CDN"),
     ]
 
     for u, source_name in url_sources:
