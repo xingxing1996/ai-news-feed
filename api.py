@@ -85,27 +85,31 @@ def sync_us_recommendations(timeout: int = 15) -> bool:
     from datetime import datetime
     import urllib.request
 
-    urls = [
-        "https://raw.githubusercontent.com/xingxing1996/ai-news-feed/main/recommendations_us.json",
-        "https://cdn.jsdelivr.net/gh/xingxing1996/ai-news-feed@main/recommendations_us.json",
+    url_sources = [
+        ("https://www.modelscope.cn/api/v1/studios/gaoxingxing12415/test_stock_predict/repo/files?Revision=master&FilePath=recommendations_us.json", "ModelScope Studio Repo (master branch)"),
+        ("https://raw.githubusercontent.com/xingxing1996/ai-news-feed/main/recommendations_us.json", "GitHub Raw (main branch)"),
+        ("https://cdn.jsdelivr.net/gh/xingxing1996/ai-news-feed@main/recommendations_us.json", "jsDelivr Global CDN"),
     ]
 
-    for u in urls:
+    for u, source_name in url_sources:
         try:
             req = urllib.request.Request(u, headers={"User-Agent": "Mozilla/5.0 (quant-agent)"})
             with urllib.request.urlopen(req, timeout=timeout) as resp:
                 if resp.status == 200:
                     body = resp.read()
                     data = json.loads(body.decode("utf-8"))
-                    if "recommendations" in data:
+                    if isinstance(data, dict) and "recommendations" in data:
+                        data["data_source"] = source_name
+                        data["sync_time"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                        new_body = json.dumps(data, ensure_ascii=False, indent=2).encode("utf-8")
                         # 双向写入根目录与 OUT 目录，保障 100% 检出
                         OUT.mkdir(parents=True, exist_ok=True)
-                        (ROOT / "recommendations_us.json").write_bytes(body)
-                        (OUT / "recommendations_us.json").write_bytes(body)
-                        _append_log(f"[sync-us] 成功从 HTTP 源极速同步美股 {len(data['recommendations'])} 只标的 @ {datetime.now().strftime('%H:%M:%S')}")
+                        (ROOT / "recommendations_us.json").write_bytes(new_body)
+                        (OUT / "recommendations_us.json").write_bytes(new_body)
+                        _append_log(f"[sync-us] 成功从 [{source_name}] 极速同步美股 {len(data['recommendations'])} 只标的 @ {datetime.now().strftime('%H:%M:%S')}")
                         return True
         except Exception as exc:  # noqa: BLE001
-            _append_log(f"[sync-us] 源 {u} 拉取失败: {exc}")
+            _append_log(f"[sync-us] 源 [{source_name}] 拉取失败: {exc}")
 
     return False
 
@@ -266,7 +270,15 @@ def recommendations_us():
                             status_code=404, headers={"Cache-Control": "no-cache, no-store, must-revalidate"})
     try:
         data = json.loads(p.read_text(encoding="utf-8"))
-        return JSONResponse(content=data, headers={"Cache-Control": "no-cache, no-store, must-revalidate"})
+        if isinstance(data, dict):
+            ds = data.get("data_source", "Local Cache / Image Bundled")
+        else:
+            ds = "Local Cache"
+        headers = {
+            "Cache-Control": "no-cache, no-store, must-revalidate",
+            "X-Data-Source": str(ds)
+        }
+        return JSONResponse(content=data, headers=headers)
     except Exception as exc:  # noqa: BLE001
         return JSONResponse({"error": str(exc)}, status_code=500,
                             headers={"Cache-Control": "no-cache, no-store, must-revalidate"})
