@@ -50,9 +50,14 @@ def sp500_constituents(force_refresh: bool = False, max_age_days: int = 30) -> p
                     return df
             except Exception:  # noqa: BLE001
                 pass
-    # 抓 Wikipedia
+    # 抓 Wikipedia（须带正规 User-Agent，否则 GHA/默认 urllib UA 被 403）
     try:
-        tables = pd.read_html("https://en.wikipedia.org/wiki/List_of_S%26P_500_companies")
+        import requests
+        url = "https://en.wikipedia.org/wiki/List_of_S%26P_500_companies"
+        ua = {"User-Agent": "quant-stock-predict/1.0 (+https://github.com/xingxing1996/ai-news-feed; equity research)"}
+        resp = requests.get(url, headers=ua, timeout=25)
+        resp.raise_for_status()
+        tables = pd.read_html(resp.text)
         tbl = tables[0]
         sym_col = next(c for c in tbl.columns if str(c).lower().startswith("symbol"))
         name_col = next((c for c in tbl.columns if "security" in str(c).lower()), sym_col)
