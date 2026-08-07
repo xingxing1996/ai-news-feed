@@ -75,6 +75,29 @@ def _run_cli(cmd: str):
     _append_log(msg)
 
 
+_MSCOPE_GIT_URL = "https://www.modelscope.cn/studios/gaoxingxing12415/test_stock_predict.git"
+
+
+def sync_us_recommendations(timeout: int = 60) -> bool:
+    """从 ModelScope git 拉最新 recommendations_us.json（GitHub 训练后同步过来）到仓库根。
+    创空间不会 push 即重建，故运行时每 10 分钟主动 git fetch+checkout 单文件（不动工作树其他文件，
+    避免与本地写入冲突）。失败（网络/无文件）返回 False，保留本地旧缓存。"""
+    from datetime import datetime
+    import subprocess
+    try:
+        subprocess.run(["git", "remote", "add", "modelscope", _MSCOPE_GIT_URL],
+                       check=False, capture_output=True, timeout=10)
+        subprocess.run(["git", "fetch", "modelscope", "master"],
+                       check=True, capture_output=True, timeout=timeout)
+        subprocess.run(["git", "checkout", "modelscope/master", "--", "recommendations_us.json"],
+                       check=True, capture_output=True, timeout=30)
+        _append_log(f"[sync-us] 已拉取最新 recommendations_us.json @ {datetime.now().strftime('%H:%M:%S')}")
+        return True
+    except Exception as exc:  # noqa: BLE001
+        _append_log(f"[sync-us] 拉取失败,用本地缓存: {exc}")
+        return False
+
+
 @app.on_event("startup")
 def _start_scheduler():
     # 仅当装了 apscheduler 且未禁用时启动进程内调度（否则依赖外部 cron）
@@ -86,9 +109,12 @@ def _start_scheduler():
                   CronTrigger(hour=17, minute=0, day_of_week="mon-fri", timezone="Asia/Shanghai"),
                   id="train", replace_existing=True)
     sched.add_job(lambda: _run_cli("refresh"), IntervalTrigger(hours=2), id="refresh", replace_existing=True)
+    # 每 10 分钟从 ModelScope git 同步美股 recommendations_us.json（创空间不自动重建，需运行时拉）
+    sched.add_job(sync_us_recommendations, IntervalTrigger(minutes=10), id="sync-us", replace_existing=True)
     sched.start()
     app.state.scheduler = sched
     threading.Thread(target=_run_cli, args=("run",), daemon=True).start()  # 启动先跑一次
+    threading.Thread(target=sync_us_recommendations, daemon=True).start()  # 启动先拉一次 us
 
 
 # ---------- 读取 ----------
