@@ -71,7 +71,28 @@ def fetch_all(universe_df: pd.DataFrame, start: str, end: str, synthetic: bool,
         fetch_delay = float(_gs().data.get("fetch_delay", 0.5))
     except Exception:  # noqa: BLE001
         fetch_delay = 0.5
+    # 批量下载：yfinance 市场超过阈值(宽基 S&P500)时一次拉一批，绕开逐只 YFRateLimitError
+    batched_codes: set[str] = set()
+    batch_daily_parts: list[pd.DataFrame] = []
+    if not synthetic:
+        from collections import defaultdict
+        threshold = 50
+        yf_by_market: dict[str, list[str]] = defaultdict(list)
+        for r in rows:
+            L = _get_loader(r.market, synthetic)
+            if hasattr(L, "__name__") and L.__name__.endswith("yfinance_loader"):
+                yf_by_market[r.market].append(r.code)
+        for mkt, codes in yf_by_market.items():
+            if len(codes) > threshold:
+                log.info("[ingest] %s 走批量下载 %d 只(>阈值%d)", mkt, len(codes), threshold)
+                from . import yfinance_loader as YL
+                bdf = YL.fetch_daily_batch(codes, start, end)
+                if not bdf.empty:
+                    batch_daily_parts.append(bdf)
+                    batched_codes.update(codes)  # 有数据才跳过逐只；批量彻底失败则回退逐只(慢但保数据)
     for r in tqdm(rows, desc="ingest", disable=len(rows) <= 3):
+        if r.code in batched_codes:
+            continue  # 批量已处理 daily；宽基跳过逐只估值/财务(价量为主干)
         L = _get_loader(r.market, synthetic)
         is_ak = (not synthetic) and hasattr(L, "__name__") and L.__name__.endswith("akshare_loader")
         s = (start_by_code or {}).get(r.code, start)  # 增量起始日
@@ -100,7 +121,7 @@ def fetch_all(universe_df: pd.DataFrame, start: str, end: str, synthetic: bool,
         if fetch_delay and not synthetic:
             time.sleep(fetch_delay)
 
-    daily_parts = [df for df in daily_parts if not df.empty]
+    daily_parts = batch_daily_parts + [df for df in daily_parts if not df.empty]
     val_parts = [df for df in val_parts if not df.empty]
     fin_parts = [df for df in fin_parts if not df.empty]
     nb_parts = [df for df in nb_parts if not df.empty]

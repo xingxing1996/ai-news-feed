@@ -12,11 +12,13 @@ universe:
   config_file: config/universe.yaml
   markets: [us, hk, kr]                       # ★美股+港股+韩股（在 GitHub Actions 中全量高品质抓取）
   demo_mode: false
+  us_benchmark: sp500                         # us 段用 S&P500 宽基成分股(Wikipedia 抓取)；抓不到回退精选
 
 data:
   synthetic: false
   years_back: 6
   sources: {cn: akshare, hk: yfinance, us: yfinance}
+  incremental: true                           # 宽基首次全量后，日常只拉最新日追加
 
 feature:
   use_alpha158: true

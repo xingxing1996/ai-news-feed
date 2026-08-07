@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import os
 import logging
+import time
 
 # 强行清理残留死代理环境变量 (127.0.0.1)，保证网络请求直连不被卡死
 for _k in ("HTTP_PROXY", "HTTPS_PROXY", "http_proxy", "https_proxy", "ALL_PROXY", "all_proxy"):
@@ -60,6 +61,68 @@ def fetch_daily(code: str, start: str, end: str, market: str = "us") -> pd.DataF
     except Exception as exc:  # noqa: BLE001
         log.warning("[yfinance] %s 行情下载失败: %s", code, exc)
         return _empty_daily()
+
+
+def _melt_yf_batch(df: pd.DataFrame) -> pd.DataFrame:
+    """把 yf.download(多 code) 返回的 MultiIndex 宽表 ((field, ticker)) 融成长表(date, code, ohlcv)。"""
+    if df is None or df.empty:
+        return pd.DataFrame()
+    df = df.reset_index()
+    if not isinstance(df.columns, pd.MultiIndex):
+        return pd.DataFrame()  # 单 code 或非预期结构，交给逐只路径
+    # 列形如 ("Date","") / ("Close","AAPL") → 拍成字符串列名
+    df.columns = ["__date__" if (len(c) > 1 and c[1] == "") else f"{c[0]}__{c[1]}" for c in df.columns]
+    codes = sorted({c.split("__", 1)[1] for c in df.columns if "__" in c})
+    field_map = {"Open": "open", "High": "high", "Low": "low", "Close": "close", "Volume": "volume"}
+    frames = []
+    for code in codes:
+        sub = {"date": df["__date__"]}
+        ok = all(f"{f}__{code}" in df.columns for f in field_map)
+        if not ok:
+            continue
+        for f, outf in field_map.items():
+            sub[outf] = df[f"{f}__{code}"]
+        sub["code"] = code
+        frames.append(pd.DataFrame(sub))
+    if not frames:
+        return pd.DataFrame()
+    out = pd.concat(frames, ignore_index=True).dropna(subset=["close"])
+    out["date"] = pd.to_datetime(out["date"]).dt.strftime("%Y-%m-%d")
+    out["market_cap"] = pd.NA  # 批量无法取 per-Ticker 市值，宽基以价量为主干可接受
+    return out[["date", "code", "open", "high", "low", "close", "volume", "market_cap"]]
+
+
+def fetch_daily_batch(codes: list[str], start: str, end: str,
+                      batch_size: int = 100, retries: int = 2) -> pd.DataFrame:
+    """批量下载多只票日线：每 batch_size 只一次 yf.download，绕开逐只 YFRateLimitError。
+
+    返回与 fetch_daily 同 schema（无 market_cap）。失败批次重试 retries 次、批间礼让。
+    宽基(几百只)首选此路径，把 yfinance 请求从 N 次降到 N/batch_size 次。
+    """
+    yf = _yf()
+    codes = [c for c in codes if c]
+    parts = []
+    for i in range(0, len(codes), batch_size):
+        batch = codes[i:i + batch_size]
+        for attempt in range(retries + 1):
+            try:
+                df = yf.download(batch, start=start, end=end, progress=False,
+                                 auto_adjust=True, group_by="column", threads=True)
+                melted = _melt_yf_batch(df)
+                if not melted.empty:
+                    parts.append(melted)
+                    log.info("[yfinance] 批量下载第%d批 %d 只 → %d 行",
+                             i // batch_size + 1, len(batch), len(melted))
+                break
+            except Exception as exc:  # noqa: BLE001
+                log.warning("[yfinance] 批量下载第%d批失败(attempt %d/%d): %s",
+                            i // batch_size + 1, attempt + 1, retries + 1, exc)
+                if attempt < retries:
+                    time.sleep(3)
+        time.sleep(0.5)  # 批间礼让
+    if not parts:
+        return _empty_daily()
+    return pd.concat(parts, ignore_index=True)
 
 
 def fetch_valuation(code: str, start: str, end: str, market: str = "us") -> pd.DataFrame:
