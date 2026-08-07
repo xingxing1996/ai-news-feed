@@ -1,12 +1,17 @@
 """标签（设计文档第 8 节）。
 
 输出三个维度的二分类 label，对应日报三列概率：
-  1. label          未来 horizon 日**相对行业**超额收益是否 > 0（跑赢同行）
-  2. abs_label      未来 horizon 日**绝对收益**是否 > 0（会不会涨）
-  3. bench_label    未来 horizon 日**相对大盘（同市场等权）**超额收益是否 > 0（跑赢大盘）
+  1. label          未来 horizon 日**相对行业**超额收益的截面分位区间（跑赢同行的程度）
+  2. abs_label      未来 horizon 日**绝对收益**的截面分位区间（上涨幅度）
+  3. bench_label    未来 horizon 日**相对大盘**超额收益的截面分位区间（跑赢大盘的程度）
+
+采用【截面分位区间分类】而非"收益>0"符号分类：
+  每日把股票按对应指标排序，top 40% → 1、bottom 40% → 0、中间 20% → NA(不参与训练)。
+  这样只学"显著跑赢/跑输同行"的极端组（信噪比远高于">0"，后者把涨0.1%与涨20%等同），
+  且保持二分类→概率→日报兼容。无未来收益(最后 horizon 天)→NA。
 
   future_return   = close[t+H] / close[t] - 1
-  industry_future = 同行业所有股票 future_return 的截面均值（同一 t）
+  industry_future = 同行业所有股票 future_return 的截面均值（同一 t, 按市场分组）
   bench_future    = 同市场（cn/hk/us...）所有股票 future_return 的截面均值（同一 t）
 
 注意：label 用到未来数据，仅用于训练/评估，不能进特征。
@@ -18,6 +23,20 @@ import logging
 import pandas as pd
 
 log = logging.getLogger(__name__)
+
+# 截面分位区间阈值：rank>=ZONE_HI → 1(强者)，rank<=ZONE_LO → 0(弱者)，中间 → NA
+ZONE_HI = 0.6
+ZONE_LO = 0.4
+
+
+def zone_label(s: pd.Series, hi: float = ZONE_HI, lo: float = ZONE_LO) -> pd.Series:
+    """截面分位区间分类：每日 top(hi 以上)→1、bottom(lo 以下)→0、中间→NA。
+    s: (date, code) 索引的连续值 Series。返回 nullable Int64（0/1/NA）。"""
+    rank = s.groupby(level="date").rank(pct=True)
+    out = pd.Series(pd.NA, index=s.index, dtype="Float64")
+    out[rank >= hi] = 1
+    out[rank <= lo] = 0
+    return out.astype("Int64")
 
 
 def compute_labels(daily: pd.DataFrame, universe: pd.DataFrame, horizon: int) -> pd.DataFrame:
@@ -51,10 +70,10 @@ def compute_labels(daily: pd.DataFrame, universe: pd.DataFrame, horizon: int) ->
 
     d["industry_excess"] = d["future_return"] - d["industry_future"]
     d["bench_excess"] = d["future_return"] - d["bench_future"]
-    # 用 nullable Float64 比较，保证 NaN（无未来收益）→ label 为 NA，不被误判为 0
-    d["label"] = (d["industry_excess"].astype("Float64") > 0).astype("Int64")
-    d["abs_label"] = (d["future_return"].astype("Float64") > 0).astype("Int64")
-    d["bench_label"] = (d["bench_excess"].astype("Float64") > 0).astype("Int64")
+    # 截面分位区间分类（top/bottom 40%，中间 20% → NA）：高信噪比，保持二分类→概率→日报兼容
+    d["label"] = zone_label(d["industry_excess"].astype("Float64"))
+    d["abs_label"] = zone_label(d["future_return"].astype("Float64"))
+    d["bench_label"] = zone_label(d["bench_excess"].astype("Float64"))
 
     for name in ("label", "abs_label", "bench_label"):
         log.info(

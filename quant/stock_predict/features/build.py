@@ -150,7 +150,7 @@ def build_feature_matrix() -> tuple[pd.DataFrame, dict]:
             style = add_size_style(mat)
             neu = neutralize(mat["industry_excess"], style)  # 连续超额的中性化残差
             mat["industry_excess_neu"] = neu
-            mat["label"] = (neu.astype("Float64") > 0).astype("Int64")  # 残差符号重新二分类
+            mat["label"] = labels.zone_label(neu.astype("Float64"))  # 残差的截面分位区间分类
         except Exception as exc:  # noqa: BLE001
             log.warning("[features] label 中性化失败，用原始值：%s", exc)
 
