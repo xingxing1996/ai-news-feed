@@ -37,12 +37,13 @@ def compute_labels(daily: pd.DataFrame, universe: pd.DataFrame, horizon: int) ->
         lambda c: c.shift(-horizon) / c - 1
     )
 
-    # 行业未来收益截面均值
-    ind_fut = d.dropna(subset=["future_return"]).groupby(["date", "industry"])["future_return"].mean()
+    # 行业未来收益截面均值（按 [date, market, industry] 分组：CN/HK/US/KR 各自算行业基准，
+    # 避免一个市场的行业被另一个市场同名字的股票稀释）
+    ind_fut = d.dropna(subset=["future_return"]).groupby(["date", "market", "industry"])["future_return"].mean()
     # 大盘（同市场等权）未来收益截面均值
     mkt_fut = d.dropna(subset=["future_return"]).groupby(["date", "market"])["future_return"].mean()
 
-    d = d.set_index(["date", "industry"])
+    d = d.set_index(["date", "market", "industry"])
     d["industry_future"] = ind_fut
     d = d.reset_index().set_index(["date", "market"])
     d["bench_future"] = mkt_fut

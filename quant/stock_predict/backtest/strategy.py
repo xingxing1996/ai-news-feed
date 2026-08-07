@@ -79,7 +79,16 @@ def _run_core(signal: pd.DataFrame, daily: pd.DataFrame, cfg) -> dict:
     mkt_ret = ret.mean(axis=1)
     vol = ret.rolling(60, min_periods=20).std().fillna(0.02)
     from ..data.universe import resolve_universe
-    ind_map = resolve_universe().set_index("code")["industry"].to_dict()
+    _uni = resolve_universe()
+    ind_map = _uni.set_index("code")["industry"].to_dict()
+    mkt_map = _uni.set_index("code")["market"].to_dict()
+    # 印花税按市场区分（卖方bp）：A 股 10、港股 13、美股/韩股 0；可用 backtest.stamp_duty_bps 覆盖
+    _stamp_cfg = cfg.backtest.get("stamp_duty_bps") or {"cn": 10, "hk": 13, "us": 0, "kr": 0, "other": 0}
+
+    def _stamp_frac(code: str) -> float:
+        if isinstance(_stamp_cfg, dict):
+            return float(_stamp_cfg.get(mkt_map.get(code, "other"), _stamp_cfg.get("other", 0))) / 1e4
+        return float(_stamp_cfg or 0) / 1e4  # 单值兜底
 
     def _make_weights(codes, d):
         if not codes:
@@ -112,8 +121,9 @@ def _run_core(signal: pd.DataFrame, daily: pd.DataFrame, cfg) -> dict:
             new_holdings = row.nlargest(top_n).index.tolist() if len(row) >= top_n else row.index.tolist()
             new_weights = _make_weights(new_holdings, d_signal)
             churn = _weight_churn(prev_weights, new_weights)
-            # 包含双边印花税、佣金、滑点与冲击成本
-            next_cost = (comm + slip + 0.001) * churn + impact_coef * (churn ** 0.5) / 1e4
+            # 成本：佣金 + 滑点 + 市场感知印花税(按新持仓市场构成加权) + √换手冲击
+            stamp = float((new_weights.index.to_series().map(_stamp_frac) * new_weights).sum()) if not new_weights.empty else 0.0
+            next_cost = (comm + slip + stamp) * churn + impact_coef * (churn ** 0.5) / 1e4
             current_weights = new_weights
             prev_weights = current_weights
             n_rebal += 1
