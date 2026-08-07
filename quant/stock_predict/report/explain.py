@@ -65,6 +65,18 @@ def _lookup(feat: str) -> tuple[str, str, bool] | None:
     return None
 
 
+def _lookup_full(feat: str) -> tuple[str, str, str, bool] | None:
+    """返回 (tag, good, bad, bullish)，tag 用于同义因子去重。"""
+    for prefix, tag, good, bad, bullish in _FEATURE_LABELS:
+        if feat.startswith(prefix):
+            return tag, good, bad, bullish
+    return None
+
+
+# SHAP 贡献绝对值低于此阈值视为噪声，不写入理由/风险（避免「-0.000 也写成利空」）
+_SHAP_FLOOR = 5e-4
+
+
 def _row_val_raw(row, f):
     """展示用原始值：优先 *_raw（process:rank 后原列已被覆盖成截面分位，直接展示会误导）。"""
     if row is None:
@@ -190,34 +202,37 @@ def _fmt_feat_val(f: str, val: float) -> str:
 
 
 def explain_shap_row(shap_vec, feat_cols: list[str], k: int = 5, row: pd.Series | None = None) -> tuple[list[str], list[str]]:
-    """把单只股票的 SHAP 向量映射成人话理由/风险，生成极度详尽、带图标与具体数据驱动的买方机构研报明细。"""
-    s = pd.Series(shap_vec, index=list(feat_cols))
-    pos = s[s > 0].sort_values(ascending=False)
-    neg = s[s < 0].sort_values()
+    """把单只股票的 SHAP 向量映射成人话理由/风险。
+
+    规则（解决「-0.000 写成利空」「波动收敛/放大自相矛盾重复」）：
+    1. 过滤 |SHAP| < _SHAP_FLOOR 的噪声贡献；
+    2. 按 tag 聚合（同义因子如 STD20/STD60/VOLAT20 都属「波动」），每个 tag 只取 |SHAP|
+       最大的代表因子，按其正负分类为理由/风险——同一维度不会既利好又利空。
+    """
+    s = pd.Series(shap_vec, index=list(feat_cols)).dropna()
+    by_tag: dict[str, tuple] = {}  # tag -> (abs_v, f, v, good, bad)
+    for f, v in s.items():
+        if abs(v) < _SHAP_FLOOR:
+            continue
+        full = _lookup_full(f)
+        if not full:
+            continue
+        tag, good, bad, _bull = full
+        if tag not in by_tag or abs(v) > by_tag[tag][0]:
+            by_tag[tag] = (abs(v), f, v, good, bad)
+
+    items = sorted(by_tag.values(), key=lambda t: t[0], reverse=True)  # 按 |SHAP| 降序
     reasons, risks = [], []
-    for f, v in pos.head(k * 2).items():
-        info = _lookup(f)
-        if not info:
-            continue
+    for _abs_v, f, v, good, bad in items:
         val_str = ""
         _rv = _row_val_raw(row, f)
         if _rv is not None:
             val_str = _fmt_feat_val(f, _rv)
-        reasons.append(f"🟢 {info[0]}{val_str}（SHAP 贡献 {_fmt_shap(v)}）")
-        if len(reasons) >= k:
-            break
-    for f, v in neg.head(k * 2).items():
-        info = _lookup(f)
-        if not info:
-            continue
-        val_str = ""
-        _rv = _row_val_raw(row, f)
-        if _rv is not None:
-            val_str = _fmt_feat_val(f, _rv)
-        risks.append(f"🔴 {info[1]}{val_str}（SHAP 扣分 {_fmt_shap(v)}）")
-        if len(risks) >= k:
-            break
-    return reasons, risks
+        if v > 0:
+            reasons.append(f"🟢 {good}{val_str}（SHAP 贡献 {_fmt_shap(v)}）")
+        else:
+            risks.append(f"🔴 {bad}{val_str}（SHAP 扣分 {_fmt_shap(v)}）")
+    return reasons[:k], risks[:k]
 
 
 def technical_reasons(row: pd.Series) -> tuple[list[str], list[str]]:

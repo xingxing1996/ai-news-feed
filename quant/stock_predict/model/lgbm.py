@@ -163,6 +163,10 @@ def train_and_predict() -> dict:
     if mat.empty:
         raise RuntimeError("features 为空，请先 `stock-predict features`。")
     mat = mat.set_index(["date", "code"]).sort_index()
+    # 防御：清洗 inf→NaN（兜底，即使上游 features 已清洗），防止 XGBoost 报错 / LightGBM 受 inf 污染
+    _num = mat.select_dtypes(include="number").columns
+    if len(_num):
+        mat[_num] = mat[_num].replace([np.inf, -np.inf], np.nan)
 
     feat_cols = _feature_cols(mat)
     log.info("[model] 特征数=%d", len(feat_cols))

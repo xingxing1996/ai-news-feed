@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import logging
 
+import numpy as np
 import pandas as pd
 
 from ..config import get_settings
@@ -89,6 +90,10 @@ def build_feature_matrix() -> tuple[pd.DataFrame, dict]:
     mat = pd.concat(blocks, axis=1).sort_index()
     # 去重列名（不同模块可能重名）
     mat = mat.loc[:, ~mat.columns.duplicated()]
+    # 清洗 inf→NaN：除法/对数可能产生 inf，会污染截面 rank（inf 被当最大值）并让 XGBoost 直接报错
+    _num = mat.select_dtypes(include="number").columns
+    if len(_num):
+        mat[_num] = mat[_num].replace([np.inf, -np.inf], np.nan)
 
     # 标签
     lab = labels.compute_labels(daily, universe, horizon)
