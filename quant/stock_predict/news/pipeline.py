@@ -39,8 +39,11 @@ def run_news_pipeline(universe: pd.DataFrame | None = None, max_codes: int | Non
         if n_top > 0:
             try:
                 from ..data.warehouse import read_parquet
-                pred = read_parquet("predictions_latest")
-                if not pred.empty and "prob_label" in pred.columns:
+                # 读 warehouse 的 predictions(非 predictions_latest——后者在 state 目录,read_parquet 找不到),
+                # 取最新日的 top N 作新闻关注名单
+                pred = read_parquet("predictions")
+                if not pred.empty and "prob_label" in pred.columns and "date" in pred.columns:
+                    pred = pred[pred["date"] == pred["date"].max()]
                     want.update(pred.nlargest(min(n_top, len(pred)), "prob_label")["code"].astype(str).tolist())
             except Exception:  # noqa: BLE001
                 pass

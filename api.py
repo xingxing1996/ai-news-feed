@@ -79,18 +79,19 @@ _MSCOPE_GIT_URL = "https://www.modelscope.cn/studios/gaoxingxing12415/test_stock
 
 
 def sync_us_recommendations(timeout: int = 60) -> bool:
-    """从 ModelScope git 拉最新 recommendations_us.json（GitHub 训练后同步过来）到仓库根。
-    创空间不会 push 即重建，故运行时每 10 分钟主动 git fetch+checkout 单文件（不动工作树其他文件，
-    避免与本地写入冲突）。失败（网络/无文件）返回 False，保留本地旧缓存。"""
+    """从 ModelScope git 拉最新 recommendations_us.json（GitHub 训练后同步过来）到仓库根(ROOT)。
+    创空间不会 push 即重建，故运行时主动 git fetch+checkout 单文件（cwd=ROOT 确保写到
+    /recommendations_us 端点读取的同一路径；不动工作树其他文件，避免与本地写入冲突）。
+    失败（网络/无文件）返回 False，保留本地旧缓存。"""
     from datetime import datetime
     import subprocess
     try:
         subprocess.run(["git", "remote", "add", "modelscope", _MSCOPE_GIT_URL],
-                       check=False, capture_output=True, timeout=10)
+                       check=False, capture_output=True, timeout=10, cwd=str(ROOT))
         subprocess.run(["git", "fetch", "modelscope", "master"],
-                       check=True, capture_output=True, timeout=timeout)
+                       check=True, capture_output=True, timeout=timeout, cwd=str(ROOT))
         subprocess.run(["git", "checkout", "modelscope/master", "--", "recommendations_us.json"],
-                       check=True, capture_output=True, timeout=30)
+                       check=True, capture_output=True, timeout=30, cwd=str(ROOT))
         _append_log(f"[sync-us] 已拉取最新 recommendations_us.json @ {datetime.now().strftime('%H:%M:%S')}")
         return True
     except Exception as exc:  # noqa: BLE001
@@ -146,9 +147,20 @@ def health():
 
 
 @app.get("/recommendations")
+@app.get("/recommendations_us")
+@app.get("/recommendations_cn")
 @app.get("/api/recommendations")
+@app.get("/api/recommendations_us")
+@app.get("/api/recommendations_cn")
 def recommendations():
     p = _recs_path()
+    if not p:
+        # 降级保底：若 OUT 目录下尚未训练完写盘，优先读取仓库根目录绑定的静态镜像文件
+        for root_fallback in ("recommendations_us.json", "recommendations.json", "daily_report.json"):
+            rf = ROOT / root_fallback
+            if rf.exists():
+                p = rf
+                break
     if not p:
         return JSONResponse({"error": "暂无结果，首次训练进行中，看 /health"}, status_code=404, headers={"Cache-Control": "no-cache, no-store, must-revalidate"})
     try:
@@ -221,12 +233,16 @@ def recommendations():
 @app.get("/recommendations_us")
 @app.get("/api/recommendations_us")
 def recommendations_us():
-    """美股(+港韩)推荐：读仓库根 recommendations_us.json（GitHub Actions 训练后经
-    sync-modelscope 同步过来）。纯文件服务，不调 yfinance、不富化——避免在 ModelScope(CN) 卡死。"""
+    """美股(+港韩)推荐：读仓库根 recommendations_us.json。
+    本地缺失或超过 15 分钟未更新 → 现场从 ModelScope git 拉一次（创空间不自动重建的兜底）。"""
+    import time
     p = ROOT / "recommendations_us.json"
+    stale = (not p.exists()) or (time.time() - p.stat().st_mtime > 900)
+    if stale:
+        sync_us_recommendations()
     if not p.exists():
-        return JSONResponse({"error": "暂无美股结果（GitHub 训练后同步）"}, status_code=404,
-                            headers={"Cache-Control": "no-cache, no-store, must-revalidate"})
+        return JSONResponse({"error": "暂无美股结果（GitHub 训练后同步；已尝试现拉未果，稍后再试）"},
+                            status_code=404, headers={"Cache-Control": "no-cache, no-store, must-revalidate"})
     try:
         data = json.loads(p.read_text(encoding="utf-8"))
         return JSONResponse(content=data, headers={"Cache-Control": "no-cache, no-store, must-revalidate"})

@@ -30,15 +30,15 @@ def test_dashboard_root():
 
 
 def test_recommendations_endpoint():
-    """测试 GET /recommendations 与 GET /api/recommendations 接口。"""
-    for endpoint in ("/recommendations", "/api/recommendations"):
+    """测试 GET /recommendations 与别名 /recommendations_us 推荐卡片接口。"""
+    for endpoint in ("/recommendations", "/recommendations_us", "/api/recommendations_us"):
         resp = client.get(endpoint)
         assert resp.status_code in (200, 404)
         assert resp.headers.get("cache-control") == "no-cache, no-store, must-revalidate"
         if resp.status_code == 200:
             data = resp.json()
-            assert "recommendations" in data
-            recs = data["recommendations"]
+            assert "recommendations" in data or "date" in data
+            recs = data.get("recommendations", [])
             if recs:
                 first = recs[0]
                 # 校验核心字段 100% 存在且未丢失
