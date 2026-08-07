@@ -41,9 +41,10 @@ def walk_forward_oos(train_days: int = 756, step: int = 21) -> pd.DataFrame:
     test_dates = pd.to_datetime(pd.Series(dates))[pd.to_datetime(pd.Series(dates)) >= test_start].tolist()
     test_dates = sorted(set(test_dates))
 
-    # 接入与主流程一致的 embargo 隔离区，扣除训练右端 28 天的未来标签泄漏
+    # embargo 隔离带（同主流程，系数 2.2 → 约 1.55× 交易日 horizon），扣除训练右端的未来标签泄漏；
+    # 同时起到 purge 作用：训练集截止于 (win_end - emb)，确保其标签窗口不进入 OOS 区间。
     horizon = int(cfg.feature.get("label_horizon", 20))
-    embargo_days = int(seg.get("embargo_days") or max(1, round(horizon * 1.4)))
+    embargo_days = int(seg.get("embargo_days") or max(1, round(horizon * 2.2)))
     emb = pd.Timedelta(days=embargo_days)
 
     preds = []

@@ -59,16 +59,17 @@ def explain(m: dict) -> list[str]:
     if m.get("excess_ann") is not None and m.get("bench_ann_return") is not None:
         sign = "跑赢" if m["excess_ann"] >= 0 else "跑输"
         lines.append(f"相对基准年化超额 {abs(m['excess_ann']):.1%}（{sign}）")
+    # alpha 优先：以信息比率(IR) 作为选股能力核心评级；绝对夏普含市场 beta 仅作参考
+    if m.get("information_ratio") is not None:
+        ir = m["information_ratio"]
+        ir_grade = "优秀（>1）" if ir >= 1 else "良好（0.5~1）" if ir >= 0.5 else "一般（0~0.5）" if ir >= 0 else "为负（跑输基准）"
+        lines.append(f"信息比率(IR) {ir:.2f}（{ir_grade}：相对基准的超额稳定性，衡量 alpha 的核心）")
     if m.get("sharpe") is not None:
-        s = m["sharpe"]
-        grade = "优秀（>2）" if s >= 2 else "良好（1~2）" if s >= 1 else "一般（0~1）" if s >= 0 else "为负"
-        lines.append(f"夏普比率 {s:.2f}（{grade}：每承担1份波动换来的超额收益）")
+        lines.append(f"绝对夏普 {m['sharpe']:.2f}（含市场 beta，牛市偏高；选股能力请以 IR/超额为准）")
     if m.get("max_drawdown") is not None:
         lines.append(f"历史最大回撤 {m['max_drawdown']:.1%}（从峰值到谷底最深跌幅）")
     if m.get("win_rate") is not None:
         lines.append(f"持仓日胜率 {m['win_rate']:.1%}")
-    if m.get("information_ratio") is not None:
-        lines.append(f"信息比率 {m['information_ratio']:.2f}（超额收益的稳定性，>0 说明稳定跑赢）")
     if m.get("n_days"):
         lines.append(f"回测区间 {m['n_days']} 个交易日")
     return lines

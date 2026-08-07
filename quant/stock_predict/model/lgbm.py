@@ -168,9 +168,11 @@ def train_and_predict() -> dict:
     log.info("[model] 特征数=%d", len(feat_cols))
 
     seg = dict(cfg.model.split)
-    # embargo：按 label horizon 隔离段间重叠（防标签穿越泄漏）
+    # embargo：按 label horizon 隔离段间重叠（防标签穿越泄漏）。
+    # 注意 horizon 是交易日(≈1.4日历日/天)，embargo_days 是日历日；系数 2.2 → 约 1.55× 交易日 horizon，
+    # 留足缓冲（机构标准要求 embargo > label 窗口，López de Prado）。
     horizon = int(cfg.feature.get("label_horizon", 20))
-    embargo_days = int(seg.get("embargo_days") or max(1, round(horizon * 1.4)))
+    embargo_days = int(seg.get("embargo_days") or max(1, round(horizon * 2.2)))
     splits = _split(mat, seg, embargo_days=embargo_days)
     splits["_seg"] = seg
     splits["_all"] = mat
@@ -224,6 +226,18 @@ def train_and_predict() -> dict:
                 metrics.setdefault(name, {})[target] = evaluate.summarize(
                     sub[f"prob_{target}"], sub[target].astype(int), sub["date"]
                 )
+
+    # 分位多空（机构标准因子评估）：test 段按主标签概率分 5 组，看多空年化/Sharpe/单调性
+    test_df = pred[pred["split"] == "test"]
+    if not test_df.empty and "prob_label" in test_df.columns and "future_return" in test_df.columns:
+        qa_df = test_df.rename(columns={"prob_label": "prob"})[["date", "code", "prob", "future_return"]]
+        qa = evaluate.quantile_analysis(qa_df, n_quantiles=5)
+        if qa:
+            metrics.setdefault("test", {}).setdefault("label", {})["quantile"] = qa
+            log.info("[model] test 分位多空: 多空年化=%.3f Sharpe=%.2f 单调性=%.2f",
+                     qa.get("long_short_ann", float("nan")), qa.get("long_short_sharpe", float("nan")),
+                     qa.get("monotonicity", float("nan")))
+
     log.info("[model] 评估: %s", {k: v for k, v in metrics.items() if k in ("valid", "test")})
 
     # 持久化「最新一天」快照到 quant/state/（小文件、入库），供每 2h 的 report 复用模型、免重训
