@@ -78,6 +78,10 @@ def _run_core(signal: pd.DataFrame, daily: pd.DataFrame, cfg) -> dict:
     ret = close.pct_change(fill_method=None)
     mkt_ret = ret.mean(axis=1)
     vol = ret.rolling(60, min_periods=20).std().fillna(0.02)
+    # 成交量透视：用于停牌/零成交过滤（选股剔除信号日零成交的票，模拟"买不进"）
+    volume_pivot = daily.pivot(index="date", columns="code", values="volume").sort_index() if "volume" in daily.columns else pd.DataFrame()
+    if not volume_pivot.empty:
+        volume_pivot.index = pd.to_datetime(volume_pivot.index)
     from ..data.universe import resolve_universe
     _uni = resolve_universe()
     ind_map = _uni.set_index("code")["industry"].to_dict()
@@ -118,6 +122,10 @@ def _run_core(signal: pd.DataFrame, daily: pd.DataFrame, cfg) -> dict:
         # 是否触发调仓
         if i % hold == 0:
             row = signal.loc[d_signal, common_codes].dropna()
+            # 真实性：剔除信号日停牌/零成交的票（买不进）
+            if d_signal in volume_pivot.index:
+                vols = volume_pivot.loc[d_signal, row.index]
+                row = row[vols.fillna(0).gt(0)]
             new_holdings = row.nlargest(top_n).index.tolist() if len(row) >= top_n else row.index.tolist()
             new_weights = _make_weights(new_holdings, d_signal)
             churn = _weight_churn(prev_weights, new_weights)
