@@ -430,8 +430,8 @@ def generate_closed_loop_thesis(card: dict, row: pd.Series | dict | None = None)
     bull_thesis = []
     bear_thesis = []
 
-    # 1. 动态目标价做多空间
-    bull_thesis.append(f"🚀 动量与目标价空间：模型预测 20 日中线目标价 ¥{target_price}（预期收益 {pred_ret_pct}），胜率 {prob_up:.0%}，呈现做多弹性。")
+    # 1. 相对强弱 + 情景参考（明示非方向预测）
+    bull_thesis.append(f"📊 相对强弱：跑赢同行排名分位较高，动量+排名推算的 20 日情景参考位 ¥{target_price}（{pred_ret_pct}，非精准预测）。注意：相对强不等于必涨，跌市中仍可能回落。")
     
     # 2. 真实财务/基本面驱动
     if "现金流" in reasons_str or "ROE" in reasons_str or "毛利率" in reasons_str:

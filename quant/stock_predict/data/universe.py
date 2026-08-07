@@ -94,6 +94,48 @@ def sp500_constituents(force_refresh: bool = False, max_age_days: int = 30) -> p
         return pd.DataFrame()
 
 
+_CN_IND_MAP_CACHE: dict | None = None
+
+
+def _cn_industry_map(force_refresh: bool = False, max_age_days: int = 30) -> dict:
+    """A 股 code(带后缀) → 行业(东财行业板块名)。akshare 板块接口批量构建，缓存 30 天，失败返回 {}。"""
+    global _CN_IND_MAP_CACHE
+    if _CN_IND_MAP_CACHE is not None and not force_refresh:
+        return _CN_IND_MAP_CACHE
+    cache_path = PROJECT_ROOT / "data" / "cache" / "cn_industry_map.csv"
+    if not force_refresh and cache_path.exists():
+        age = (time.time() - cache_path.stat().st_mtime) / 86400
+        if age < max_age_days:
+            try:
+                m = pd.read_csv(cache_path)
+                _CN_IND_MAP_CACHE = dict(zip(m["code"].astype(str), m["industry"].astype(str)))
+                return _CN_IND_MAP_CACHE
+            except Exception:  # noqa: BLE001
+                pass
+    try:
+        import akshare as ak
+        boards = ak.stock_board_industry_name_em()
+        out: dict[str, str] = {}
+        for b in boards["板块名称"].tolist():
+            try:
+                cons = ak.stock_board_industry_cons_em(symbol=b)
+                ccol = next(c for c in cons.columns if "代码" in str(c))
+                for code in cons[ccol].astype(str).str.zfill(6):
+                    out[code + _cn_exchange_suffix(code)] = str(b)
+            except Exception:  # noqa: BLE001
+                continue
+        if out:
+            cache_path.parent.mkdir(parents=True, exist_ok=True)
+            pd.DataFrame([{"code": k, "industry": v} for k, v in out.items()]).to_csv(cache_path, index=False)
+            _CN_IND_MAP_CACHE = out
+            log.info("[universe] A股行业映射 %d 只（东财板块）", len(out))
+            return out
+    except Exception as exc:  # noqa: BLE001
+        log.warning("[universe] A股行业映射抓取失败，回退粗分：%s", exc)
+    _CN_IND_MAP_CACHE = {}
+    return {}
+
+
 def csi300_constituents(force_refresh: bool = False, max_age_days: int = 30) -> pd.DataFrame:
     """沪深 300 成分股：akshare index_stock_cons + 本地缓存。返回列 code/name/market/industry/country。
 
@@ -127,6 +169,10 @@ def csi300_constituents(force_refresh: bool = False, max_age_days: int = 30) -> 
             "country": _COUNTRY.get("cn"),
         })
         out = out[out["code"].str.len() > 0].drop_duplicates("code").reset_index(drop=True)
+        # 用东财行业板块给真实行业(失败/未匹配回退"沪深300")，让 label 回归真行业中性化
+        ind_map = _cn_industry_map()
+        if ind_map:
+            out["industry"] = out["code"].map(ind_map).fillna("沪深300")
         cache_path.parent.mkdir(parents=True, exist_ok=True)
         out.to_csv(cache_path, index=False)
         _CSI300_CACHE = out
