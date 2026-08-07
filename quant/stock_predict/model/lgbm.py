@@ -81,11 +81,16 @@ _TARGETS = ["label", "abs_label", "bench_label"]  # 三个维度：跑赢行业 
 
 
 def _train_one(feat_cols, params, splits, target, use_ensemble=True, calibrate=False):
-    """为单个 target 训练 LightGBM(+XGBoost 可选) + 概率校准，返回 (model, proba, blob, n_train)。"""
+    """为单个 target 训练 LightGBM Ranker(lambdarank)，输出按日截面 rank 归一化的伪概率。
+
+    ranker 输出 raw score → 按 date 截面 rank(pct=True) ∈(0,1] 作"伪概率"，日报所有概率阈值
+    语义零改动保留（0.5=截面中位、0.65=前35%强推荐、目标价公式不变）。target 的 0/1(zone 标签)
+    作 lambdarank 的 relevance，每个交易日为一个 query group。
+    """
     import lightgbm as lgb  # 延迟导入
 
     def _xy(df: pd.DataFrame):
-        df = df.dropna(subset=[target])
+        df = df.dropna(subset=[target]).sort_index()  # 确保按 (date,code) 排序 → date 连续
         return df[feat_cols], df[target].astype(int)
 
     Xtr, ytr = _xy(splits["train"])
@@ -93,67 +98,29 @@ def _train_one(feat_cols, params, splits, target, use_ensemble=True, calibrate=F
     if Xtr.empty:
         raise RuntimeError(f"训练集为空（{target}，train_end={splits['_seg'].get('train_end')}）")
 
-    model = lgb.LGBMClassifier(**{k: v for k, v in params.items() if k != "objective"}, objective="binary")
-    fit_kwargs = {}
+    ranker_params = {k: v for k, v in params.items() if k != "objective"}
+    model = lgb.LGBMRanker(**ranker_params, objective="lambdarank", verbose=-1)
+    # group：每个交易日连续计数为一个 query group（Xtr 已按 date 排序）
+    group_tr = Xtr.groupby(level="date", sort=False).size().to_numpy()
+    fit_kwargs: dict = {"group": group_tr}
     if not Xva.empty:
-        fit_kwargs = {"eval_set": [(Xva, yva)], "callbacks": [lgb.early_stopping(50, verbose=False)]}
+        group_va = Xva.groupby(level="date", sort=False).size().to_numpy()
+        fit_kwargs.update({"eval_set": [(Xva, yva)], "eval_group": [group_va],
+                           "callbacks": [lgb.early_stopping(50, verbose=False)]})
     import warnings
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
         model.fit(Xtr, ytr, **fit_kwargs)
 
-    xgbm = None
-    if use_ensemble:
-        try:
-            import xgboost as xgb
-
-            xgbm = xgb.XGBClassifier(
-                n_estimators=400, learning_rate=0.05, max_depth=6,
-                subsample=0.8, colsample_bytree=0.8, reg_lambda=1.0,
-                n_jobs=-1, random_state=42, eval_metric="logloss", verbosity=0,
-                early_stopping_rounds=50,
-            )
-            # 有 valid 集则早停（与 LightGBM 对称，防过拟合）；无 valid 则全量训练
-            if not Xva.empty:
-                xgbm.fit(Xtr, ytr, eval_set=[(Xva, yva)], verbose=False)
-            else:
-                xgbm.fit(Xtr, ytr)
-        except Exception as exc:  # noqa: BLE001
-            log.info("[model] XGBoost 不可用（%s）：%s", target, exc)
-            xgbm = None
-
     def _proba(df_sub: pd.DataFrame):
         X = df_sub[feat_cols]
-        p1 = model.predict_proba(X)[:, 1]
-        if xgbm is None:
-            return p1
-        p2 = xgbm.predict_proba(X)[:, 1]
-
-        # 核心防泄漏重构：必须按 MultiIndex 的 "date" level 逐日进行截面 rank 融合！
-        temp = pd.DataFrame({"p1": p1, "p2": p2}, index=df_sub.index)
-        r1 = temp.groupby(level="date")["p1"].rank(pct=True)
-        r2 = temp.groupby(level="date")["p2"].rank(pct=True)
-        return ((r1 + r2) / 2.0).values
+        raw = model.predict(X)
+        # 截面 rank 归一化（伪概率）：日报概率阈值语义保留
+        return pd.Series(raw, index=X.index).groupby(level="date", sort=False).rank(pct=True).values
 
     proba = _proba(splits["_all"])
-
-    # 概率校准（isotonic，valid 拟合）：默认【关】。
-    # 原因：模型偏弱时 isotonic 会把所有概率压回基准率(~0.5)，区分度全无、毫无意义。
-    # 想要"真概率"可设 model.calibrate: true；默认用原始 GBDM 概率（0.3~0.7 有区分度）。
-    calib = False
-    if calibrate and not Xva.empty:
-        try:
-            from sklearn.isotonic import IsotonicRegression
-
-            iso = IsotonicRegression(out_of_bounds="clip").fit(_proba(splits["valid"]), yva.values)
-            proba = iso.transform(proba)
-            calib = True
-        except Exception as exc:  # noqa: BLE001
-            log.debug("[model] 校准失败（%s）：%s", target, exc)
-
-    blob = {"model": model, "used_ensemble": xgbm is not None, "calibrated": calib}
-    if xgbm is not None:
-        blob["model_xgb"] = xgbm
+    blob = {"model": model, "feat_cols": list(feat_cols), "kind": "ranker",
+            "used_ensemble": False, "calibrated": False}
     return model, proba, blob, len(Xtr)
 
 
