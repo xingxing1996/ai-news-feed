@@ -430,8 +430,8 @@ def generate_closed_loop_thesis(card: dict, row: pd.Series | dict | None = None)
     bull_thesis = []
     bear_thesis = []
 
-    # 1. 相对强弱 + 情景参考（明示非方向预测）
-    bull_thesis.append(f"📊 相对强弱：跑赢同行排名分位较高，动量+排名推算的 20 日情景参考位 ¥{target_price}（{pred_ret_pct}，非精准预测）。注意：相对强不等于必涨，跌市中仍可能回落。")
+    # 1. 相对强弱 + 分析师一致目标价（街共识，非模型瞎算）
+    bull_thesis.append(f"📊 相对强弱：跑赢同行排名分位较高；分析师一致目标价 ¥{target_price}（隐含 {pred_ret_pct}，街共识非精准预测）。注意：相对强不等于必涨，跌市中仍可能回落。")
     
     # 2. 真实财务/基本面驱动
     if "现金流" in reasons_str or "ROE" in reasons_str or "毛利率" in reasons_str:

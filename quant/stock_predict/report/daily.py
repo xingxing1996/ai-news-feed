@@ -376,15 +376,40 @@ def generate_daily_report(as_of: str | None = None, pred_df=None, feats_df=None,
         # 保持原生态模型预测概率（不使用死板的 * 0.5 硬平滑）
         calibrated_prob_up = round(float(prob_up), 3)
         calibrated_prob = round(float(prob), 3)
-        
-        # 预估收益率基于模型超额胜率与 20 日真实历史动量折算（必须用 ROC20 原始值，非截面分位）
-        _roc20_raw = row.get("ROC20_raw") if "ROC20_raw" in row.index else row.get("ROC20")
-        roc20_val = float(_roc20_raw) if _roc20_raw is not None and pd.notna(_roc20_raw) else 0.0
-        prob_diff = calibrated_prob_up - 0.5
-        pred_ret = round(float(prob_diff * 0.40 + roc20_val * 0.50), 4)
 
-        expected_return_pct = f"{pred_ret * 100:+.1f}%"
-        target_price = round(current_price * (1.0 + pred_ret), 2) if current_price > 0 else 0.0
+        # 目标价：抓 yfinance「分析师一致目标价」(street consensus)——比模型瞎算的启发式诚实。
+        # 隐含空间 = (分析师目标 - 现价)/现价；无分析师覆盖则 target_price=0、不显示。
+        analyst_target = None
+        if current_price > 0:
+            try:
+                import yfinance as _yf_at
+                _tk = _yf_at.Ticker(code)
+                try:
+                    apt = _tk.get_analyst_price_targets()
+                    for _k in ("mean", "median"):
+                        _v = apt.get(_k) if isinstance(apt, dict) else None
+                        if _v and float(_v) > 0:
+                            analyst_target = float(_v)
+                            break
+                except Exception:  # noqa: BLE001
+                    pass
+                if analyst_target is None:
+                    _info = _tk.info or {}
+                    for _k in ("targetMeanPrice", "targetMedianPrice"):
+                        _v = _info.get(_k)
+                        if _v and float(_v) > 0:
+                            analyst_target = float(_v)
+                            break
+            except Exception:  # noqa: BLE001
+                pass
+        if analyst_target and current_price > 0:
+            target_price = round(analyst_target, 2)
+            pred_ret = round((analyst_target - current_price) / current_price, 4)
+            expected_return_pct = f"{pred_ret * 100:+.1f}%"
+        else:
+            target_price = 0.0
+            pred_ret = 0.0
+            expected_return_pct = "—（无分析师覆盖）"
 
         card_item = {
             "code": code,
