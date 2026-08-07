@@ -415,6 +415,104 @@ def _empty_fin() -> pd.DataFrame:
     )
 
 
+def _ak_suffix(code: str) -> str:
+    """A 股裸代码 → 交易所后缀(与 universe._cn_exchange_suffix 一致，避免跨模块循环引用)。"""
+    c = str(code).strip().zfill(6)
+    if c[:2] in ("60", "68"):
+        return ".SH"
+    if c[:2] in ("00", "30"):
+        return ".SZ"
+    if c[0] in ("8", "4") or c[:2] == "92":
+        return ".BJ"
+    return ".SH"
+
+
+def _recent_quarter_ends(n: int = 8) -> list[str]:
+    """最近 n 个已结束季度末日期字符串 YYYYMMDD（如 20240331）。"""
+    from datetime import datetime
+    today = datetime.today()
+    qm = (3, 6, 9, 12)
+    day_for = {3: 31, 6: 30, 9: 30, 12: 31}
+    cy, cm = today.year, today.month
+    out = []
+    while len(out) < n:
+        cand = [m for m in qm if m < cm] or [12]
+        cq = max(cand)
+        if not [m for m in qm if m < cm]:
+            cy -= 1
+        out.append(f"{cy}{cq:02d}{day_for[cq]}")
+        cm = cq
+    return out
+
+
+def fetch_financial_batch_ak(report_periods: list[str] | None = None) -> pd.DataFrame:
+    """批量 A 股财报：stock_yjbb_em 一次返回全 A 某季度的营收/净利/同比/ROE/毛利率。
+
+    多季度拼接，pub_date 取「最新公告日期」(严格 PIT)，覆盖几百只宽基成分股的财报，
+    解决宽基逐只财报拉不动 → 质量因子全 NaN 的问题。cashflow 留 NA(每股经营现金流是
+    per-share，与市值口径不符)。返回多行/股，与 fetch_financial 同 schema。
+    """
+    ak = _ak()
+    periods = report_periods or _recent_quarter_ends(8)
+    rows = []
+
+    def _pick(cols, names):
+        for n in names:
+            for c in cols:
+                if n in str(c):
+                    return c
+        return None
+
+    for period in periods:
+        try:
+            df = ak.stock_yjbb_em(date=period)
+        except Exception:  # noqa: BLE001
+            continue
+        if df is None or df.empty:
+            continue
+        cols = list(df.columns)
+        c_code = _pick(cols, ["股票代码"])
+        if not c_code:
+            continue
+        c_rev, c_revg = _pick(cols, ["营业总收入-营业总收入"]), _pick(cols, ["营业总收入-同比增长"])
+        c_prof, c_profg = _pick(cols, ["净利润-净利润"]), _pick(cols, ["净利润-同比增长"])
+        c_roe, c_gm = _pick(cols, ["净资产收益率"]), _pick(cols, ["销售毛利率"])
+        rp = f"{period[:4]}-{period[4:6]}-{period[6:]}"
+        for col in (c_rev, c_prof, c_roe, c_gm, c_revg, c_profg):
+            if col:
+                df[col] = pd.to_numeric(df[col], errors="coerce")
+        for _, r in df.iterrows():
+            code = str(r[c_code]).strip().zfill(6)
+            if len(code) != 6 or code == "000000":
+                continue
+
+            def _g(c):
+                return float(r[c]) if c and pd.notna(r[c]) else pd.NA
+
+            def _growth(c):
+                v = _g(c)
+                if pd.notna(v) and abs(v) > 5.0:  # 百分数 → 小数
+                    return v / 100.0
+                return v
+
+            # pub_date 用法定披露截止日(report_period+窗口)：stock_yjbb_em 的「最新公告日期」是
+            # 近期更新日(~今天)，若用它当 pub_date 会令所有财报"今天才发布"→历史训练全匹配不到。
+            pub = _ak_disclosure_deadline(pd.Timestamp(rp)).strftime("%Y-%m-%d")
+            rows.append({
+                "code": code + _ak_suffix(code),
+                "report_period": rp,
+                "pub_date": pub,
+                "revenue": _g(c_rev), "profit": _g(c_prof),
+                "roe": _g(c_roe), "gross_margin": _g(c_gm),
+                "cashflow": pd.NA, "pe": pd.NA, "pb": pd.NA,
+                "profit_growth": _growth(c_profg), "revenue_growth": _growth(c_revg),
+            })
+        log.info("[akshare] 批量财报 %s: %d 行", period, len(df))
+    if not rows:
+        return _empty_fin()
+    return pd.DataFrame(rows)
+
+
 def fetch_fund_flow(code: str, start: str, end: str, market: str = "cn") -> pd.DataFrame:
     """A股个股主力资金流向（stock_individual_fund_flow）。港股/美股退化返回空。"""
     if market != "cn" or _is_etf(code):

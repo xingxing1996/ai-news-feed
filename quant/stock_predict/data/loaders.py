@@ -90,6 +90,22 @@ def fetch_all(universe_df: pd.DataFrame, start: str, end: str, synthetic: bool,
                 if not bdf.empty:
                     batch_daily_parts.append(bdf)
                     batched_codes.update(codes)  # 有数据才跳过逐只；批量彻底失败则回退逐只(慢但保数据)
+        # cn 宽基批量财报(stock_yjbb_em 一次全 A)：补基本面质量因子(ROE/增长/毛利率)，跳过逐只财报
+        batched_fin_codes: set[str] = set()
+        batch_fin_parts: list[pd.DataFrame] = []
+        cn_codes = [r.code for r in rows if r.market == "cn"]
+        if len(cn_codes) > threshold:
+            try:
+                from . import akshare_loader as AK
+                bf = AK.fetch_financial_batch_ak()
+                if not bf.empty:
+                    bf = bf[bf["code"].astype(str).isin(set(map(str, cn_codes)))]
+                    if not bf.empty:
+                        batch_fin_parts.append(bf)
+                        batched_fin_codes.update(cn_codes)
+                        log.info("[ingest] cn 批量财报 %d 行(覆盖 %d 只，补基本面)", len(bf), len(cn_codes))
+            except Exception as exc:  # noqa: BLE001
+                log.warning("[ingest] cn 批量财报失败，回退逐只：%s", exc)
     for r in tqdm(rows, desc="ingest", disable=len(rows) <= 3):
         if r.code in batched_codes:
             continue  # 批量已处理 daily；宽基跳过逐只估值/财务(价量为主干)
@@ -115,15 +131,16 @@ def fetch_all(universe_df: pd.DataFrame, start: str, end: str, synthetic: bool,
             cq = L.fetch_cyq(r.code, s, end, r.market)
             if not cq.empty:
                 cyq_parts.append(cq)
-        f = L.fetch_financial(r.code, r.market) if is_ak else L.fetch_financial(r.code)
-        if not f.empty:
-            fin_parts.append(f)
+        if r.code not in batched_fin_codes:
+            f = L.fetch_financial(r.code, r.market) if is_ak else L.fetch_financial(r.code)
+            if not f.empty:
+                fin_parts.append(f)
         if fetch_delay and not synthetic:
             time.sleep(fetch_delay)
 
     daily_parts = batch_daily_parts + [df for df in daily_parts if not df.empty]
     val_parts = [df for df in val_parts if not df.empty]
-    fin_parts = [df for df in fin_parts if not df.empty]
+    fin_parts = batch_fin_parts + [df for df in fin_parts if not df.empty]
     nb_parts = [df for df in nb_parts if not df.empty]
     flow_parts = [df for df in flow_parts if not df.empty]
     cyq_parts = [df for df in cyq_parts if not df.empty]
