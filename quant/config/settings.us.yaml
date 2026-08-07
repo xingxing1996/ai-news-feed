@@ -69,6 +69,8 @@ news:
   dedup: true
   max_codes: 20
   per_stock: 3
+  top_picks_for_news: 15                 # 新闻只采当日模型 top15 推荐(+下方 watchlist)，不采全宇宙503只
+  watchlist_codes: []                    # 额外关注的美股代码(如 Mag7)，新闻也会采
 
 embedding: {model_path: "", dim: 1024, index_path: data/output/news.faiss}
 llm:

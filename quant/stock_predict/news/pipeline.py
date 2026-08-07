@@ -29,6 +29,31 @@ def run_news_pipeline(universe: pd.DataFrame | None = None, max_codes: int | Non
     cfg = get_settings()
     ncfg = cfg.get("news", {})
     universe = resolve_universe() if universe is None else universe
+
+    # 关注名单模式：只采「显式 watchlist_codes ∪ 今日模型 top picks」的新闻，而非全宇宙(宽基503只)。
+    # 避免 1260 条新闻/4000+ SEC 的噪声，聚焦用户关心 + 当日推荐的标的。
+    watch_codes = [str(c) for c in (ncfg.get("watchlist_codes") or [])]
+    n_top = int(ncfg.get("top_picks_for_news", 0) or 0)
+    if watch_codes or n_top > 0:
+        want = set(watch_codes)
+        if n_top > 0:
+            try:
+                from ..data.warehouse import read_parquet
+                pred = read_parquet("predictions_latest")
+                if not pred.empty and "prob_label" in pred.columns:
+                    want.update(pred.nlargest(min(n_top, len(pred)), "prob_label")["code"].astype(str).tolist())
+            except Exception:  # noqa: BLE001
+                pass
+        sub = universe[universe["code"].astype(str).isin(want)].copy()
+        have = set(sub["code"].astype(str)) if not sub.empty else set()
+        missing = [{"code": c, "name": c, "market": "us", "industry": None} for c in want - have]
+        if missing:
+            sub = pd.concat([sub, pd.DataFrame(missing)], ignore_index=True)
+        if not sub.empty:
+            universe = sub
+            log.info("[news] 关注名单模式：采集 %d 只(watchlist %d + top picks %d)，非全宇宙",
+                     len(universe), len(watch_codes), n_top)
+
     max_codes = max_codes or int(ncfg.get("max_codes", 20))
     per_stock = per_stock or int(ncfg.get("per_stock", 3))
 
