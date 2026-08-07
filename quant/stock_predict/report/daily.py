@@ -377,31 +377,41 @@ def generate_daily_report(as_of: str | None = None, pred_df=None, feats_df=None,
         calibrated_prob_up = round(float(prob_up), 3)
         calibrated_prob = round(float(prob), 3)
 
-        # 目标价：抓 yfinance「分析师一致目标价」(street consensus)——比模型瞎算的启发式诚实。
-        # 隐含空间 = (分析师目标 - 现价)/现价；无分析师覆盖则 target_price=0、不显示。
+        # 目标价：抓 yfinance「分析师一致目标价」(street consensus)。
+        # 关键：用线程池 + 硬超时 4s，防止 yfinance 在某些网络(如 ModelScope CN)挂死整个日报。
         analyst_target = None
         if current_price > 0:
-            try:
-                import yfinance as _yf_at
-                _tk = _yf_at.Ticker(code)
+            def _fetch_analyst_target(_c=code):
                 try:
-                    apt = _tk.get_analyst_price_targets()
-                    for _k in ("mean", "median"):
-                        _v = apt.get(_k) if isinstance(apt, dict) else None
-                        if _v and float(_v) > 0:
-                            analyst_target = float(_v)
-                            break
-                except Exception:  # noqa: BLE001
-                    pass
-                if analyst_target is None:
+                    import yfinance as _yf
+                    _tk = _yf.Ticker(_c)
+                    try:
+                        _apt = _tk.get_analyst_price_targets()
+                        for _k in ("mean", "median"):
+                            _v = _apt.get(_k) if isinstance(_apt, dict) else None
+                            if _v and float(_v) > 0:
+                                return float(_v)
+                    except Exception:  # noqa: BLE001
+                        pass
                     _info = _tk.info or {}
                     for _k in ("targetMeanPrice", "targetMedianPrice"):
                         _v = _info.get(_k)
                         if _v and float(_v) > 0:
-                            analyst_target = float(_v)
-                            break
+                            return float(_v)
+                except Exception:  # noqa: BLE001
+                    pass
+                return None
+            try:
+                import threading as _th
+                _box: dict = {}
+                def _runner(_b=_box):
+                    _b["v"] = _fetch_analyst_target()
+                _t = _th.Thread(target=_runner, daemon=True)  # daemon: 即便 yfinance 仍挂着也不阻塞进程退出
+                _t.start()
+                _t.join(timeout=4)  # 硬超时 4s，主线程最多等 4s，绝不卡死日报
+                analyst_target = _box.get("v")
             except Exception:  # noqa: BLE001
-                pass
+                analyst_target = None
         if analyst_target and current_price > 0:
             target_price = round(analyst_target, 2)
             pred_ret = round((analyst_target - current_price) / current_price, 4)
