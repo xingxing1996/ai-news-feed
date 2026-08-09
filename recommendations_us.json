@@ -1,5 +1,5 @@
 {
-  "update_time": "2026-08-09 23:08:46",
+  "update_time": "2026-08-10 01:09:43",
   "horizon_days": 20,
   "note": "概率含义：prob=跑赢行业概率, prob_up=未来上涨概率, prob_bench=跑赢大盘概率；非买卖建议",
   "n": 527,
@@ -2694,11 +2694,11 @@
       "market": "us",
       "is_etf": false,
       "current_price": 9.19,
-      "target_price": 10.12,
-      "pred_return": 0.1007,
-      "expected_return": 0.1007,
-      "return": 0.1007,
-      "expected_return_pct": "+10.1%",
+      "target_price": 9.81,
+      "pred_return": 0.0672,
+      "expected_return": 0.0672,
+      "return": 0.0672,
+      "expected_return_pct": "+6.7%",
       "horizon_days": 20,
       "prob": 0.911,
       "prob_up": 0.768,
@@ -2731,9 +2731,9 @@
         "📉 均线空头排列：短中期均线 MA5 < MA20 呈弱势下行排列，注意下探寻找支撑"
       ],
       "recommended_weight": "0.1%",
-      "ai_summary": "【Paramount Skydance Corporation】AI 量化综合打分 91 分，评估建议【强推荐】。模型测算未来 20 个交易日上涨概率为 77%，预期收益率 +10.1%。估值层面表现为。驱动因素：🟢 量能平稳 0.58（SHAP 贡献 +0.03）、🟢 价格波动收敛 0.04（SHAP 贡献 +0.01）。⚡ 行业大动量：近期资金面关注度高，板块整体成交量活跃，多头趋势保持平稳。建议投资者控制仓位防守介入。",
+      "ai_summary": "【Paramount Skydance Corporation】AI 量化综合打分 91 分，评估建议【强推荐】。模型测算未来 20 个交易日上涨概率为 77%，预期收益率 +6.7%。估值层面表现为。驱动因素：🟢 量能平稳 0.58（SHAP 贡献 +0.03）、🟢 价格波动收敛 0.04（SHAP 贡献 +0.01）。⚡ 行业大动量：近期资金面关注度高，板块整体成交量活跃，多头趋势保持平稳。建议投资者控制仓位防守介入。",
       "bull_thesis": [
-        "📊 相对强弱：跑赢同行排名分位较高；分析师一致目标价 ¥10.12（隐含 +10.1%，街共识非精准预测）。注意：相对强不等于必涨，跌市中仍可能回落。",
+        "📊 相对强弱：跑赢同行排名分位较高；分析师一致目标价 ¥9.81（隐含 +6.7%，街共识非精准预测）。注意：相对强不等于必涨，跌市中仍可能回落。",
         "📊 行业龙头壁垒与大盘β动量：行业集中度提升，龙头溢价与资金净流入共振。",
         "🤖 产业链看点与催化：⚡ 行业大动量：近期资金面关注度高，板块整体成交量活跃，多头趋势保持平稳。，催化业务协同溢价。",
         "🏷️ 真实估值分位：静态与动态 PE 处于合理区间，安全边际良好。",
@@ -10403,7 +10403,7 @@
       "prob_bench": 0.452561669829222,
       "score": 67,
       "suggestion": "中性观望",
-      "breaking_event": "[08-09 实时] Chesky says Airbnb will spend ‘a lot more’ on AI as earnings（影响 0.7）",
+      "breaking_event": "[08-10 实时] Chesky says Airbnb will spend ‘a lot more’ on AI as earnings（影响 0.7）",
       "raw_pe": null,
       "pe": null,
       "pe_dynamic": null,
@@ -10416,8 +10416,8 @@
       "confidence": "高",
       "data_completeness": 0.86,
       "reasons": [
-        "⚠️ 突发：[08-09 实时] Chesky says Airbnb will spend ‘a lot more’ on AI as earnings（影响 0.7）",
-        "新闻·[08-09 实时] Chesky says Airbnb will spend ‘a lot more’ on AI as earnings（影响 +0.7）",
+        "⚠️ 突发：[08-10 实时] Chesky says Airbnb will spend ‘a lot more’ on AI as earnings（影响 0.7）",
+        "新闻·[08-10 实时] Chesky says Airbnb will spend ‘a lot more’ on AI as earnings（影响 +0.7）",
         "🟢 Beta 适中 2.11（SHAP 贡献 +0.004）",
         "🟢 价格波动收敛 0.03（SHAP 贡献 +0.002）",
         "🟢 股价站上 60 日均线 0.26（SHAP 贡献 +0.001）",
@@ -10431,7 +10431,7 @@
         "📉 均线空头排列：短中期均线 MA5 < MA20 呈弱势下行排列，注意下探寻找支撑"
       ],
       "recommended_weight": "0.1%",
-      "ai_summary": "【Airbnb】AI 量化综合打分 67 分，评估建议【中性观望】。模型测算未来 20 个交易日上涨概率为 34%，预期收益率 -3.3%。估值层面表现为。驱动因素：⚠️ 突发：[08-09 实时] Chesky says Airbnb will spend ‘a lot more’ on AI as earnings（影响 0.7）、新闻·[08-09 实时] Chesky says Airbnb will spend ‘a lot more’ on AI as earnings（影响 +0.7）。⚡ 行业大动量：近期资金面关注度高，板块整体成交量活跃，多头趋势保持平稳。建议投资者控制仓位防守介入。",
+      "ai_summary": "【Airbnb】AI 量化综合打分 67 分，评估建议【中性观望】。模型测算未来 20 个交易日上涨概率为 34%，预期收益率 -3.3%。估值层面表现为。驱动因素：⚠️ 突发：[08-10 实时] Chesky says Airbnb will spend ‘a lot more’ on AI as earnings（影响 0.7）、新闻·[08-10 实时] Chesky says Airbnb will spend ‘a lot more’ on AI as earnings（影响 +0.7）。⚡ 行业大动量：近期资金面关注度高，板块整体成交量活跃，多头趋势保持平稳。建议投资者控制仓位防守介入。",
       "bull_thesis": [
         "📊 相对强弱：跑赢同行排名分位较高；分析师一致目标价 ¥172.17（隐含 -3.3%，街共识非精准预测）。注意：相对强不等于必涨，跌市中仍可能回落。",
         "📊 行业龙头壁垒与大盘β动量：行业集中度提升，龙头溢价与资金净流入共振。",
@@ -21800,7 +21800,7 @@
       "confidence": "高",
       "data_completeness": 0.86,
       "reasons": [
-        "新闻·[08-09 实时] S&P 500 sales growth is at a nearly 5-year high. Here’s what（影响 +0.6）",
+        "新闻·[08-10 实时] ‘My wife and I are both retired’: Do we dip into our $2.3 mi（影响 +0.6）",
         "🟢 价格波动收敛 0.02（SHAP 贡献 +0.001）"
       ],
       "risks": [
@@ -21813,7 +21813,7 @@
         "📉 均线空头排列：短中期均线 MA5 < MA20 呈弱势下行排列，注意下探寻找支撑"
       ],
       "recommended_weight": "0.2%",
-      "ai_summary": "【Agilent Technologies】AI 量化综合打分 33 分，评估建议【关注】。模型测算未来 20 个交易日上涨概率为 89%，预期收益率 +9.1%。估值层面表现为。驱动因素：新闻·[08-09 实时] S&P 500 sales growth is at a nearly 5-year high. Here’s what（影响 +0.6）、🟢 价格波动收敛 0.02（SHAP 贡献 +0.001）。⚡ 行业大动量：近期资金面关注度高，板块整体成交量活跃，多头趋势保持平稳。建议投资者控制仓位防守介入。",
+      "ai_summary": "【Agilent Technologies】AI 量化综合打分 33 分，评估建议【关注】。模型测算未来 20 个交易日上涨概率为 89%，预期收益率 +9.1%。估值层面表现为。驱动因素：新闻·[08-10 实时] ‘My wife and I are both retired’: Do we dip into our $2.3 mi（影响 +0.6）、🟢 价格波动收敛 0.02（SHAP 贡献 +0.001）。⚡ 行业大动量：近期资金面关注度高，板块整体成交量活跃，多头趋势保持平稳。建议投资者控制仓位防守介入。",
       "bull_thesis": [
         "📊 相对强弱：跑赢同行排名分位较高；分析师一致目标价 ¥159.32（隐含 +9.1%，街共识非精准预测）。注意：相对强不等于必涨，跌市中仍可能回落。",
         "📊 行业龙头壁垒与大盘β动量：行业集中度提升，龙头溢价与资金净流入共振。",
@@ -23180,6 +23180,7 @@
       "confidence": "高",
       "data_completeness": 0.86,
       "reasons": [
+        "新闻·[08-10 实时] ‘My wife and I are both retired’: Do we dip into our $2.3 mi（影响 +0.6）",
         "🟢 价格波动收敛 0.03（SHAP 贡献 +0.002）",
         "🟢 Beta 适中 1.83（SHAP 贡献 +0.001）",
         "🟢 股价处于近期高位区间 0.40（SHAP 贡献 +0.001）"
@@ -23189,7 +23190,7 @@
         "🔴 与市场相关性上升 0.43（SHAP 扣分 -0.01）"
       ],
       "recommended_weight": "0.1%",
-      "ai_summary": "【Alexandria Real Estate Equities】AI 量化综合打分 33 分，评估建议【中性观望】。模型测算未来 20 个交易日上涨概率为 72%，预期收益率 +5.3%。估值层面表现为。驱动因素：🟢 价格波动收敛 0.03（SHAP 贡献 +0.002）、🟢 Beta 适中 1.83（SHAP 贡献 +0.001）。⚡ 行业大动量：近期资金面关注度高，板块整体成交量活跃，多头趋势保持平稳。建议投资者控制仓位防守介入。",
+      "ai_summary": "【Alexandria Real Estate Equities】AI 量化综合打分 33 分，评估建议【中性观望】。模型测算未来 20 个交易日上涨概率为 72%，预期收益率 +5.3%。估值层面表现为。驱动因素：新闻·[08-10 实时] ‘My wife and I are both retired’: Do we dip into our $2.3 mi（影响 +0.6）、🟢 价格波动收敛 0.03（SHAP 贡献 +0.002）。⚡ 行业大动量：近期资金面关注度高，板块整体成交量活跃，多头趋势保持平稳。建议投资者控制仓位防守介入。",
       "bull_thesis": [
         "📊 相对强弱：跑赢同行排名分位较高；分析师一致目标价 ¥52.36（隐含 +5.3%，街共识非精准预测）。注意：相对强不等于必涨，跌市中仍可能回落。",
         "📊 行业龙头壁垒与大盘β动量：行业集中度提升，龙头溢价与资金净流入共振。",
