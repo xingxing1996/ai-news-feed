@@ -1,5 +1,5 @@
 {
-  "update_time": "2026-08-10 01:09:43",
+  "update_time": "2026-08-10 03:12:33",
   "horizon_days": 20,
   "note": "概率含义：prob=跑赢行业概率, prob_up=未来上涨概率, prob_bench=跑赢大盘概率；非买卖建议",
   "n": 527,
@@ -21137,6 +21137,7 @@
       "confidence": "高",
       "data_completeness": 0.86,
       "reasons": [
+        "新闻·[08-10 实时] Max Miller stays in Ohio House race as GOP ballot deadline p（影响 +0.6）",
         "🟢 Beta 适中 -0.26（SHAP 贡献 +0.003）"
       ],
       "risks": [
@@ -21146,7 +21147,7 @@
         "📉 均线空头排列：短中期均线 MA5 < MA20 呈弱势下行排列，注意下探寻找支撑"
       ],
       "recommended_weight": "0.2%",
-      "ai_summary": "【Allstate】AI 量化综合打分 33 分，评估建议【回避】。模型测算未来 20 个交易日上涨概率为 54%，预期收益率 +0.3%。估值层面表现为。驱动因素：🟢 Beta 适中 -0.26（SHAP 贡献 +0.003）。⚡ 行业大动量：近期资金面关注度高，板块整体成交量活跃，多头趋势保持平稳。建议投资者控制仓位防守介入。",
+      "ai_summary": "【Allstate】AI 量化综合打分 33 分，评估建议【回避】。模型测算未来 20 个交易日上涨概率为 54%，预期收益率 +0.3%。估值层面表现为。驱动因素：新闻·[08-10 实时] Max Miller stays in Ohio House race as GOP ballot deadline p（影响 +0.6）、🟢 Beta 适中 -0.26（SHAP 贡献 +0.003）。⚡ 行业大动量：近期资金面关注度高，板块整体成交量活跃，多头趋势保持平稳。建议投资者控制仓位防守介入。",
       "bull_thesis": [
         "📊 相对强弱：跑赢同行排名分位较高；分析师一致目标价 ¥267.77（隐含 +0.3%，街共识非精准预测）。注意：相对强不等于必涨，跌市中仍可能回落。",
         "📊 行业龙头壁垒与大盘β动量：行业集中度提升，龙头溢价与资金净流入共振。",
@@ -21800,7 +21801,7 @@
       "confidence": "高",
       "data_completeness": 0.86,
       "reasons": [
-        "新闻·[08-10 实时] ‘My wife and I are both retired’: Do we dip into our $2.3 mi（影响 +0.6）",
+        "新闻·[08-10 实时] Max Miller stays in Ohio House race as GOP ballot deadline p（影响 +0.6）",
         "🟢 价格波动收敛 0.02（SHAP 贡献 +0.001）"
       ],
       "risks": [
@@ -21813,7 +21814,7 @@
         "📉 均线空头排列：短中期均线 MA5 < MA20 呈弱势下行排列，注意下探寻找支撑"
       ],
       "recommended_weight": "0.2%",
-      "ai_summary": "【Agilent Technologies】AI 量化综合打分 33 分，评估建议【关注】。模型测算未来 20 个交易日上涨概率为 89%，预期收益率 +9.1%。估值层面表现为。驱动因素：新闻·[08-10 实时] ‘My wife and I are both retired’: Do we dip into our $2.3 mi（影响 +0.6）、🟢 价格波动收敛 0.02（SHAP 贡献 +0.001）。⚡ 行业大动量：近期资金面关注度高，板块整体成交量活跃，多头趋势保持平稳。建议投资者控制仓位防守介入。",
+      "ai_summary": "【Agilent Technologies】AI 量化综合打分 33 分，评估建议【关注】。模型测算未来 20 个交易日上涨概率为 89%，预期收益率 +9.1%。估值层面表现为。驱动因素：新闻·[08-10 实时] Max Miller stays in Ohio House race as GOP ballot deadline p（影响 +0.6）、🟢 价格波动收敛 0.02（SHAP 贡献 +0.001）。⚡ 行业大动量：近期资金面关注度高，板块整体成交量活跃，多头趋势保持平稳。建议投资者控制仓位防守介入。",
       "bull_thesis": [
         "📊 相对强弱：跑赢同行排名分位较高；分析师一致目标价 ¥159.32（隐含 +9.1%，街共识非精准预测）。注意：相对强不等于必涨，跌市中仍可能回落。",
         "📊 行业龙头壁垒与大盘β动量：行业集中度提升，龙头溢价与资金净流入共振。",
