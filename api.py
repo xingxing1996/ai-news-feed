@@ -93,24 +93,32 @@ def sync_us_recommendations(timeout: int = 15) -> bool:
     ]
 
     for u, source_name in url_sources:
-        try:
-            req = urllib.request.Request(u, headers={"User-Agent": "Mozilla/5.0 (quant-agent)"})
-            with urllib.request.urlopen(req, timeout=timeout) as resp:
-                if resp.status == 200:
-                    body = resp.read()
-                    data = json.loads(body.decode("utf-8"))
-                    if isinstance(data, dict) and "recommendations" in data:
-                        data["data_source"] = source_name
-                        data["sync_time"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                        new_body = json.dumps(data, ensure_ascii=False, indent=2).encode("utf-8")
-                        # 双向写入根目录与 OUT 目录，保障 100% 检出
-                        OUT.mkdir(parents=True, exist_ok=True)
-                        (ROOT / "recommendations_us.json").write_bytes(new_body)
-                        (OUT / "recommendations_us.json").write_bytes(new_body)
-                        _append_log(f"[sync-us] 成功从 [{source_name}] 极速同步美股 {len(data['recommendations'])} 只标的 @ {datetime.now().strftime('%H:%M:%S')}")
-                        return True
-        except Exception as exc:  # noqa: BLE001
-            _append_log(f"[sync-us] 源 [{source_name}] 拉取失败: {exc}")
+        for attempt in range(3):
+            try:
+                req = urllib.request.Request(u, headers={"User-Agent": "Mozilla/5.0 (quant-agent)"})
+                with urllib.request.urlopen(req, timeout=timeout) as resp:
+                    if resp.status == 200:
+                        chunks = []
+                        while True:
+                            chunk = resp.read(65536)
+                            if not chunk:
+                                break
+                            chunks.append(chunk)
+                        body = b"".join(chunks)
+                        data = json.loads(body.decode("utf-8"))
+                        if isinstance(data, dict) and "recommendations" in data:
+                            data["data_source"] = source_name
+                            data["sync_time"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                            new_body = json.dumps(data, ensure_ascii=False, indent=2).encode("utf-8")
+                            # 双向写入根目录与 OUT 目录，保障 100% 检出
+                            OUT.mkdir(parents=True, exist_ok=True)
+                            (ROOT / "recommendations_us.json").write_bytes(new_body)
+                            (OUT / "recommendations_us.json").write_bytes(new_body)
+                            _append_log(f"[sync-us] 成功从 [{source_name}] 极速同步美股 {len(data['recommendations'])} 只标的 @ {datetime.now().strftime('%H:%M:%S')}")
+                            return True
+            except Exception as exc:  # noqa: BLE001
+                if attempt == 2:
+                    _append_log(f"[sync-us] 源 [{source_name}] 拉取失败(重试3次): {exc}")
 
     return False
 
@@ -136,8 +144,8 @@ def _start_scheduler():
 
 # ---------- 读取 ----------
 def _recs_path():
-    # 优先读取随 Git 代码 commit/push 入库的 ROOT (/app/) 物理文件，突破 /mnt/workspace 挂载路径隔离
-    for n in ("recommendations_us.json", "daily_report.json", "recommendations.json", "recommendations_cn.json"):
+    # A股/CN 推荐接口专属路径检索，避免被美股文件混淆错乱
+    for n in ("recommendations_cn.json", "daily_report.json", "recommendations.json"):
         p_root = ROOT / n
         if p_root.exists() and p_root.stat().st_size > 100:
             return p_root
