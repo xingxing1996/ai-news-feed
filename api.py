@@ -120,6 +120,46 @@ def sync_us_recommendations(timeout: int = 15) -> bool:
                 if attempt == 2:
                     _append_log(f"[sync-us] 源 [{source_name}] 拉取失败(重试3次): {exc}")
 
+def sync_cn_recommendations(timeout: int = 15) -> bool:
+    """从 GitHub / CDN 极速直拉最新 recommendations_cn.json / recommendations.json。"""
+    from datetime import datetime
+    import urllib.request
+
+    url_sources = [
+        ("https://ghproxy.net/https://raw.githubusercontent.com/xingxing1996/ai-news-feed/main/recommendations_cn.json", "Domestic GHProxy Node"),
+        ("https://raw.gitmirror.com/xingxing1996/ai-news-feed/main/recommendations_cn.json", "GitMirror China Node"),
+        ("https://fastly.jsdelivr.net/gh/xingxing1996/ai-news-feed@main/recommendations_cn.json", "jsDelivr Fastly Global Node"),
+        ("https://raw.githubusercontent.com/xingxing1996/ai-news-feed/main/recommendations_cn.json", "GitHub Raw (main branch)"),
+        ("https://ghproxy.net/https://raw.githubusercontent.com/xingxing1996/ai-news-feed/main/recommendations.json", "Domestic GHProxy Node (Fallback)"),
+    ]
+
+    for u, source_name in url_sources:
+        for attempt in range(3):
+            try:
+                req = urllib.request.Request(u, headers={"User-Agent": "Mozilla/5.0 (quant-agent)"})
+                with urllib.request.urlopen(req, timeout=timeout) as resp:
+                    if resp.status == 200:
+                        chunks = []
+                        while True:
+                            chunk = resp.read(65536)
+                            if not chunk:
+                                break
+                            chunks.append(chunk)
+                        body = b"".join(chunks)
+                        data = json.loads(body.decode("utf-8"))
+                        if isinstance(data, dict) and "recommendations" in data:
+                            data["data_source"] = source_name
+                            data["sync_time"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                            new_body = json.dumps(data, ensure_ascii=False, indent=2).encode("utf-8")
+                            OUT.mkdir(parents=True, exist_ok=True)
+                            (ROOT / "recommendations_cn.json").write_bytes(new_body)
+                            (OUT / "recommendations_cn.json").write_bytes(new_body)
+                            _append_log(f"[sync-cn] 成功从 [{source_name}] 极速同步 A股 {len(data['recommendations'])} 只标的 @ {datetime.now().strftime('%H:%M:%S')}")
+                            return True
+            except Exception as exc:  # noqa: BLE001
+                if attempt == 2:
+                    _append_log(f"[sync-cn] 源 [{source_name}] 拉取失败(重试3次): {exc}")
+
     return False
 
 
@@ -136,10 +176,12 @@ def _start_scheduler():
     sched.add_job(lambda: _run_cli("refresh"), IntervalTrigger(hours=2), id="refresh", replace_existing=True)
     # 每 10 分钟从 ModelScope git 同步美股 recommendations_us.json（创空间不自动重建，需运行时拉）
     sched.add_job(sync_us_recommendations, IntervalTrigger(minutes=10), id="sync-us", replace_existing=True)
+    sched.add_job(sync_cn_recommendations, IntervalTrigger(minutes=10), id="sync-cn", replace_existing=True)
     sched.start()
     app.state.scheduler = sched
     threading.Thread(target=_run_cli, args=("run",), daemon=True).start()  # 启动先跑一次
     threading.Thread(target=sync_us_recommendations, daemon=True).start()  # 启动先拉一次 us
+    threading.Thread(target=sync_cn_recommendations, daemon=True).start()  # 启动先拉一次 cn
 
 
 # ---------- 读取 ----------
@@ -180,6 +222,9 @@ def health():
 @app.get("/api/recommendations_cn")
 def recommendations():
     p = _recs_path()
+    if not p:
+        sync_cn_recommendations()
+        p = _recs_path()
     if not p:
         # 降级保底：优先读取仓库根目录绑定的静态镜像文件
         for root_fallback in ("daily_report.json", "recommendations.json", "recommendations_cn.json"):
