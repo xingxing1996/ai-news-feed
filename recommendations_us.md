@@ -8617,10 +8617,10 @@
 - **可信度**：`高`（数据完整度 `86%`）
 - **⚡ 产业链催化与核心看点**：⚡ 行业大动量：近期资金面关注度高，板块整体成交量活跃，多头趋势保持平稳。
 > **🤖 AI 机构投研点评**：  
-> 【Agilent Technologies】AI 量化综合打分 29 分，评估建议【中性观望】。模型测算未来 20 个交易日上涨概率为 84%，预期收益率 +9.1%。估值层面表现为。驱动因素：新闻·[08-11 实时] Oil in U.S. Strategic Petroleum Reserve falls below 300 mill（影响 +0.6）、🟢 价格波动收敛 0.02（SHAP 贡献 +0.002）。⚡ 行业大动量：近期资金面关注度高，板块整体成交量活跃，多头趋势保持平稳。建议投资者控制仓位防守介入。
+> 【Agilent Technologies】AI 量化综合打分 29 分，评估建议【中性观望】。模型测算未来 20 个交易日上涨概率为 84%，预期收益率 +9.1%。估值层面表现为。驱动因素：新闻·[08-11 实时] Nvidia teams up with Wall Street asset managers on $500 bill（影响 +0.6）、🟢 价格波动收敛 0.02（SHAP 贡献 +0.002）。⚡ 行业大动量：近期资金面关注度高，板块整体成交量活跃，多头趋势保持平稳。建议投资者控制仓位防守介入。
 
 **原因**
-- + 新闻·[08-11 实时] Oil in U.S. Strategic Petroleum Reserve falls below 300 mill（影响 +0.6）
+- + 新闻·[08-11 实时] Nvidia teams up with Wall Street asset managers on $500 bill（影响 +0.6）
 - + 🟢 价格波动收敛 0.02（SHAP 贡献 +0.002）
 **风险**
 - - 🔴 与市场相关性上升 0.31（SHAP 扣分 -0.01）
@@ -12150,10 +12150,10 @@
 - **可信度**：`高`（数据完整度 `86%`）
 - **⚡ 产业链催化与核心看点**：⚡ 行业大动量：近期资金面关注度高，板块整体成交量活跃，多头趋势保持平稳。
 > **🤖 AI 机构投研点评**：  
-> 【Allstate】AI 量化综合打分 5 分，评估建议【回避】。模型测算未来 20 个交易日上涨概率为 55%，预期收益率 +0.3%。估值层面表现为。驱动因素：新闻·[08-11 实时] Oil in U.S. Strategic Petroleum Reserve falls below 300 mill（影响 +0.6）、🟢 Beta 适中 -0.26（SHAP 贡献 +0.01）。⚡ 行业大动量：近期资金面关注度高，板块整体成交量活跃，多头趋势保持平稳。建议投资者控制仓位防守介入。
+> 【Allstate】AI 量化综合打分 5 分，评估建议【回避】。模型测算未来 20 个交易日上涨概率为 55%，预期收益率 +0.3%。估值层面表现为。驱动因素：新闻·[08-11 实时] Nvidia teams up with Wall Street asset managers on $500 bill（影响 +0.6）、🟢 Beta 适中 -0.26（SHAP 贡献 +0.01）。⚡ 行业大动量：近期资金面关注度高，板块整体成交量活跃，多头趋势保持平稳。建议投资者控制仓位防守介入。
 
 **原因**
-- + 新闻·[08-11 实时] Oil in U.S. Strategic Petroleum Reserve falls below 300 mill（影响 +0.6）
+- + 新闻·[08-11 实时] Nvidia teams up with Wall Street asset managers on $500 bill（影响 +0.6）
 - + 🟢 Beta 适中 -0.26（SHAP 贡献 +0.01）
 **风险**
 - - 🔴 与市场相关性上升 -0.09（SHAP 扣分 -0.02）
