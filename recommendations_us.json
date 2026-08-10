@@ -1,5 +1,5 @@
 {
-  "update_time": "2026-08-10 23:34:54",
+  "update_time": "2026-08-11 01:21:35",
   "horizon_days": 20,
   "note": "概率含义：prob=跑赢行业概率, prob_up=未来上涨概率, prob_bench=跑赢大盘概率；非买卖建议",
   "n": 527,
@@ -9928,11 +9928,11 @@
       "market": "us",
       "is_etf": false,
       "current_price": 71.03,
-      "target_price": 0.0,
-      "pred_return": 0.0,
-      "expected_return": 0.0,
-      "return": 0.0,
-      "expected_return_pct": "—（无分析师覆盖）",
+      "target_price": 80.31,
+      "pred_return": 0.1306,
+      "expected_return": 0.1306,
+      "return": 0.1306,
+      "expected_return_pct": "+13.1%",
       "horizon_days": 20,
       "prob": 0.679,
       "prob_up": 0.546,
@@ -9964,9 +9964,9 @@
         "🔴 真实波幅放大（波动加剧） 0.02（SHAP 扣分 -0.001）"
       ],
       "recommended_weight": "0.4%",
-      "ai_summary": "【CMS Energy】AI 量化综合打分 68 分，评估建议【关注】。模型测算未来 20 个交易日上涨概率为 55%，预期收益率 —（无分析师覆盖）。估值层面表现为。驱动因素：🟢 价格波动收敛 0.01（SHAP 贡献 +0.02）、🟢 Beta 适中 0.43（SHAP 贡献 +0.01）。⚡ 行业大动量：近期资金面关注度高，板块整体成交量活跃，多头趋势保持平稳。建议投资者控制仓位防守介入。",
+      "ai_summary": "【CMS Energy】AI 量化综合打分 68 分，评估建议【关注】。模型测算未来 20 个交易日上涨概率为 55%，预期收益率 +13.1%。估值层面表现为。驱动因素：🟢 价格波动收敛 0.01（SHAP 贡献 +0.02）、🟢 Beta 适中 0.43（SHAP 贡献 +0.01）。⚡ 行业大动量：近期资金面关注度高，板块整体成交量活跃，多头趋势保持平稳。建议投资者控制仓位防守介入。",
       "bull_thesis": [
-        "📊 相对强弱：跑赢同行排名分位较高；分析师一致目标价 ¥0.0（隐含 —（无分析师覆盖），街共识非精准预测）。注意：相对强不等于必涨，跌市中仍可能回落。",
+        "📊 相对强弱：跑赢同行排名分位较高；分析师一致目标价 ¥80.31（隐含 +13.1%，街共识非精准预测）。注意：相对强不等于必涨，跌市中仍可能回落。",
         "📊 行业龙头壁垒与大盘β动量：行业集中度提升，龙头溢价与资金净流入共振。",
         "🤖 产业链看点与催化：⚡ 行业大动量：近期资金面关注度高，板块整体成交量活跃，多头趋势保持平稳。，催化业务协同溢价。",
         "🏷️ 真实估值分位：静态与动态 PE 处于合理区间，安全边际良好。",
@@ -20192,6 +20192,7 @@
       "confidence": "高",
       "data_completeness": 0.86,
       "reasons": [
+        "新闻·[08-11 实时] Oil in U.S. Strategic Petroleum Reserve falls below 300 mill（影响 +0.6）",
         "🟢 价格波动收敛 0.02（SHAP 贡献 +0.002）"
       ],
       "risks": [
@@ -20204,7 +20205,7 @@
         "📉 均线空头排列：短中期均线 MA5 < MA20 呈弱势下行排列，注意下探寻找支撑"
       ],
       "recommended_weight": "0.2%",
-      "ai_summary": "【Agilent Technologies】AI 量化综合打分 29 分，评估建议【中性观望】。模型测算未来 20 个交易日上涨概率为 84%，预期收益率 +9.1%。估值层面表现为。驱动因素：🟢 价格波动收敛 0.02（SHAP 贡献 +0.002）。⚡ 行业大动量：近期资金面关注度高，板块整体成交量活跃，多头趋势保持平稳。建议投资者控制仓位防守介入。",
+      "ai_summary": "【Agilent Technologies】AI 量化综合打分 29 分，评估建议【中性观望】。模型测算未来 20 个交易日上涨概率为 84%，预期收益率 +9.1%。估值层面表现为。驱动因素：新闻·[08-11 实时] Oil in U.S. Strategic Petroleum Reserve falls below 300 mill（影响 +0.6）、🟢 价格波动收敛 0.02（SHAP 贡献 +0.002）。⚡ 行业大动量：近期资金面关注度高，板块整体成交量活跃，多头趋势保持平稳。建议投资者控制仓位防守介入。",
       "bull_thesis": [
         "📊 相对强弱：跑赢同行排名分位较高；分析师一致目标价 ¥159.32（隐含 +9.1%，街共识非精准预测）。注意：相对强不等于必涨，跌市中仍可能回落。",
         "📊 行业龙头壁垒与大盘β动量：行业集中度提升，龙头溢价与资金净流入共振。",
@@ -20681,7 +20682,7 @@
       "prob_bench": 0.7827324478178368,
       "score": 29,
       "suggestion": "中性观望",
-      "breaking_event": null,
+      "breaking_event": "[08-11 实时] Interest rates may stay higher for longer. What that means f（影响 0.7）",
       "raw_pe": null,
       "pe": null,
       "pe_dynamic": null,
@@ -20694,7 +20695,8 @@
       "confidence": "高",
       "data_completeness": 0.86,
       "reasons": [
-        "新闻·[08-10 实时] Archer shares surge after Boeing stake, electric aircraft su（影响 +0.6）",
+        "⚠️ 突发：[08-11 实时] Interest rates may stay higher for longer. What that means f（影响 0.7）",
+        "新闻·[08-11 实时] Interest rates may stay higher for longer. What that means f（影响 +0.7）",
         "🟢 价格波动收敛 0.03（SHAP 贡献 +0.002）",
         "🟢 股价处于近期高位区间 0.40（SHAP 贡献 +0.001）"
       ],
@@ -20705,7 +20707,7 @@
         "🔴 近一季动量走弱 8.4%（SHAP 扣分 -0.001）"
       ],
       "recommended_weight": "0.1%",
-      "ai_summary": "【Alexandria Real Estate Equities】AI 量化综合打分 29 分，评估建议【中性观望】。模型测算未来 20 个交易日上涨概率为 84%，预期收益率 +5.3%。估值层面表现为。驱动因素：新闻·[08-10 实时] Archer shares surge after Boeing stake, electric aircraft su（影响 +0.6）、🟢 价格波动收敛 0.03（SHAP 贡献 +0.002）。⚡ 行业大动量：近期资金面关注度高，板块整体成交量活跃，多头趋势保持平稳。建议投资者控制仓位防守介入。",
+      "ai_summary": "【Alexandria Real Estate Equities】AI 量化综合打分 29 分，评估建议【中性观望】。模型测算未来 20 个交易日上涨概率为 84%，预期收益率 +5.3%。估值层面表现为。驱动因素：⚠️ 突发：[08-11 实时] Interest rates may stay higher for longer. What that means f（影响 0.7）、新闻·[08-11 实时] Interest rates may stay higher for longer. What that means f（影响 +0.7）。⚡ 行业大动量：近期资金面关注度高，板块整体成交量活跃，多头趋势保持平稳。建议投资者控制仓位防守介入。",
       "bull_thesis": [
         "📊 相对强弱：跑赢同行排名分位较高；分析师一致目标价 ¥52.36（隐含 +5.3%，街共识非精准预测）。注意：相对强不等于必涨，跌市中仍可能回落。",
         "📊 行业龙头壁垒与大盘β动量：行业集中度提升，龙头溢价与资金净流入共振。",
@@ -23461,7 +23463,7 @@
       "confidence": "高",
       "data_completeness": 0.86,
       "reasons": [
-        "新闻·[08-10 实时] World's biggest chipmaker TSMC's sales surge 45% amid buoyan（影响 +0.6）",
+        "新闻·[08-11 实时] World's biggest chipmaker TSMC's sales surge 45% amid buoyan（影响 +0.6）",
         "🟢 价格波动收敛 0.02（SHAP 贡献 +0.003）",
         "🟢 股价站上 60 日均线 -0.02（SHAP 贡献 +0.002）",
         "🟢 近一季动量较强 -8.5%（SHAP 贡献 +0.001）"
@@ -23475,7 +23477,7 @@
         "📉 均线空头排列：短中期均线 MA5 < MA20 呈弱势下行排列，注意下探寻找支撑"
       ],
       "recommended_weight": "0.1%",
-      "ai_summary": "【Alphabet Inc. (Class A)】AI 量化综合打分 29 分，评估建议【回避】。模型测算未来 20 个交易日上涨概率为 29%，预期收益率 +20.8%。估值层面表现为。驱动因素：新闻·[08-10 实时] World's biggest chipmaker TSMC's sales surge 45% amid buoyan（影响 +0.6）、🟢 价格波动收敛 0.02（SHAP 贡献 +0.003）。⚡ 行业大动量：近期资金面关注度高，板块整体成交量活跃，多头趋势保持平稳。建议投资者控制仓位防守介入。",
+      "ai_summary": "【Alphabet Inc. (Class A)】AI 量化综合打分 29 分，评估建议【回避】。模型测算未来 20 个交易日上涨概率为 29%，预期收益率 +20.8%。估值层面表现为。驱动因素：新闻·[08-11 实时] World's biggest chipmaker TSMC's sales surge 45% amid buoyan（影响 +0.6）、🟢 价格波动收敛 0.02（SHAP 贡献 +0.003）。⚡ 行业大动量：近期资金面关注度高，板块整体成交量活跃，多头趋势保持平稳。建议投资者控制仓位防守介入。",
       "bull_thesis": [
         "📊 相对强弱：跑赢同行排名分位较高；分析师一致目标价 ¥428.04（隐含 +20.8%，街共识非精准预测）。注意：相对强不等于必涨，跌市中仍可能回落。",
         "📊 行业龙头壁垒与大盘β动量：行业集中度提升，龙头溢价与资金净流入共振。",
@@ -28591,10 +28593,10 @@
       "confidence": "高",
       "data_completeness": 0.86,
       "reasons": [
+        "新闻·[08-11 实时] Oil in U.S. Strategic Petroleum Reserve falls below 300 mill（影响 +0.6）",
         "🟢 Beta 适中 -0.26（SHAP 贡献 +0.01）"
       ],
       "risks": [
-        "新闻·[08-10 实时] Taylor Farms recalls jalapeño-based foods in 26 states amid （影响 -0.6）",
         "🔴 与市场相关性上升 -0.09（SHAP 扣分 -0.02）",
         "🔴 量能波动加大 0.51（SHAP 扣分 -0.01）",
         "🔴 价格波动放大 0.02（SHAP 扣分 -0.01）",
@@ -28603,7 +28605,7 @@
         "📉 均线空头排列：短中期均线 MA5 < MA20 呈弱势下行排列，注意下探寻找支撑"
       ],
       "recommended_weight": "0.2%",
-      "ai_summary": "【Allstate】AI 量化综合打分 5 分，评估建议【回避】。模型测算未来 20 个交易日上涨概率为 55%，预期收益率 +0.3%。估值层面表现为。驱动因素：🟢 Beta 适中 -0.26（SHAP 贡献 +0.01）。⚡ 行业大动量：近期资金面关注度高，板块整体成交量活跃，多头趋势保持平稳。建议投资者控制仓位防守介入。",
+      "ai_summary": "【Allstate】AI 量化综合打分 5 分，评估建议【回避】。模型测算未来 20 个交易日上涨概率为 55%，预期收益率 +0.3%。估值层面表现为。驱动因素：新闻·[08-11 实时] Oil in U.S. Strategic Petroleum Reserve falls below 300 mill（影响 +0.6）、🟢 Beta 适中 -0.26（SHAP 贡献 +0.01）。⚡ 行业大动量：近期资金面关注度高，板块整体成交量活跃，多头趋势保持平稳。建议投资者控制仓位防守介入。",
       "bull_thesis": [
         "📊 相对强弱：跑赢同行排名分位较高；分析师一致目标价 ¥267.77（隐含 +0.3%，街共识非精准预测）。注意：相对强不等于必涨，跌市中仍可能回落。",
         "📊 行业龙头壁垒与大盘β动量：行业集中度提升，龙头溢价与资金净流入共振。",
@@ -29261,7 +29263,7 @@
       "confidence": "高",
       "data_completeness": 0.86,
       "reasons": [
-        "新闻·[08-10 实时] Australian rare earth miner surges after U.S. Department of （影响 +0.6）",
+        "新闻·[08-11 实时] Australian rare earth miner surges after U.S. Department of （影响 +0.6）",
         "🚀 近一月动量强劲（+23.6%）：中线多头资金活跃，处于相对强势上涨通道"
       ],
       "risks": [
@@ -29274,7 +29276,7 @@
         "📉 均线空头排列：短中期均线 MA5 < MA20 呈弱势下行排列，注意下探寻找支撑"
       ],
       "recommended_weight": "0.1%",
-      "ai_summary": "【Allegion】AI 量化综合打分 2 分，评估建议【回避】。模型测算未来 20 个交易日上涨概率为 84%，预期收益率 +3.4%。估值层面表现为。驱动因素：新闻·[08-10 实时] Australian rare earth miner surges after U.S. Department of （影响 +0.6）、🚀 近一月动量强劲（+23.6%）：中线多头资金活跃，处于相对强势上涨通道。⚡ 行业大动量：近期资金面关注度高，板块整体成交量活跃，多头趋势保持平稳。建议投资者控制仓位防守介入。",
+      "ai_summary": "【Allegion】AI 量化综合打分 2 分，评估建议【回避】。模型测算未来 20 个交易日上涨概率为 84%，预期收益率 +3.4%。估值层面表现为。驱动因素：新闻·[08-11 实时] Australian rare earth miner surges after U.S. Department of （影响 +0.6）、🚀 近一月动量强劲（+23.6%）：中线多头资金活跃，处于相对强势上涨通道。⚡ 行业大动量：近期资金面关注度高，板块整体成交量活跃，多头趋势保持平稳。建议投资者控制仓位防守介入。",
       "bull_thesis": [
         "📊 相对强弱：跑赢同行排名分位较高；分析师一致目标价 ¥174.64（隐含 +3.4%，街共识非精准预测）。注意：相对强不等于必涨，跌市中仍可能回落。",
         "📊 行业龙头壁垒与大盘β动量：行业集中度提升，龙头溢价与资金净流入共振。",
