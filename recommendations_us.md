@@ -6306,10 +6306,10 @@
 - **可信度**：`高`（数据完整度 `86%`）
 - **⚡ 产业链催化与核心看点**：⚡ 行业大动量：近期资金面关注度高，板块整体成交量活跃，多头趋势保持平稳。
 > **🤖 AI 机构投研点评**：  
-> 【Agilent Technologies】AI 量化综合打分 50 分，评估建议【关注】。模型测算未来 20 个交易日上涨概率为 83%，预期收益率 +6.6%。估值层面表现为。驱动因素：新闻·[08-12 实时] CoreWeave surges 23% after a 'cleaner quarter.' Here's what'（影响 +0.6）、🚀 近一月动量强劲（+10.6%）：中线多头资金活跃，处于相对强势上涨通道。⚡ 行业大动量：近期资金面关注度高，板块整体成交量活跃，多头趋势保持平稳。建议投资者控制仓位防守介入。
+> 【Agilent Technologies】AI 量化综合打分 50 分，评估建议【关注】。模型测算未来 20 个交易日上涨概率为 83%，预期收益率 +6.6%。估值层面表现为。驱动因素：新闻·[08-12 实时] Here's the inflation breakdown for July 2026 — in one chart。（影响 +0.6）、🚀 近一月动量强劲（+10.6%）：中线多头资金活跃，处于相对强势上涨通道。⚡ 行业大动量：近期资金面关注度高，板块整体成交量活跃，多头趋势保持平稳。建议投资者控制仓位防守介入。
 
 **原因**
-- + 新闻·[08-12 实时] CoreWeave surges 23% after a 'cleaner quarter.' Here's what'（影响 +0.6）
+- + 新闻·[08-12 实时] Here's the inflation breakdown for July 2026 — in one chart。（影响 +0.6）
 - + 🚀 近一月动量强劲（+10.6%）：中线多头资金活跃，处于相对强势上涨通道
 **风险**
 - - 🚨 RSI 高位超买（RSI=94）：处于重度超买高位，短期警惕获利盘抛压与冲高回撤
@@ -6690,10 +6690,10 @@
 - **可信度**：`高`（数据完整度 `86%`）
 - **⚡ 产业链催化与核心看点**：⚡ 行业大动量：近期资金面关注度高，板块整体成交量活跃，多头趋势保持平稳。
 > **🤖 AI 机构投研点评**：  
-> 【Alexandria Real Estate Equities】AI 量化综合打分 50 分，评估建议【关注】。模型测算未来 20 个交易日上涨概率为 83%，预期收益率 +8.8%。估值层面表现为。驱动因素：新闻·[08-12 实时] Nebius adds to the excitement around neocloud stocks with up（影响 +0.6）。⚡ 行业大动量：近期资金面关注度高，板块整体成交量活跃，多头趋势保持平稳。建议投资者控制仓位防守介入。
+> 【Alexandria Real Estate Equities】AI 量化综合打分 50 分，评估建议【关注】。模型测算未来 20 个交易日上涨概率为 83%，预期收益率 +8.8%。估值层面表现为。驱动因素：新闻·[08-12 实时] An active fund holding a whopping 800 stocks is beating majo（影响 +0.6）。⚡ 行业大动量：近期资金面关注度高，板块整体成交量活跃，多头趋势保持平稳。建议投资者控制仓位防守介入。
 
 **原因**
-- + 新闻·[08-12 实时] Nebius adds to the excitement around neocloud stocks with up（影响 +0.6）
+- + 新闻·[08-12 实时] An active fund holding a whopping 800 stocks is beating majo（影响 +0.6）
 **风险**
 
 ---
