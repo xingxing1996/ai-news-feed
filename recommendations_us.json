@@ -1,5 +1,5 @@
 {
-  "update_time": "2026-08-13 07:12:28",
+  "update_time": "2026-08-13 10:58:19",
   "horizon_days": 20,
   "note": "概率含义：prob=跑赢行业概率, prob_up=未来上涨概率, prob_bench=跑赢大盘概率；非买卖建议",
   "n": 527,
@@ -8792,6 +8792,7 @@
       "confidence": "高",
       "data_completeness": 0.86,
       "reasons": [
+        "新闻·[08-13 实时] South Korea's Kospi swings from bear to bull-market territor（影响 +0.6）",
         "🟢 Beta 适中 -0.27（SHAP 贡献 +0.001）"
       ],
       "risks": [
@@ -8799,7 +8800,7 @@
         "📉 均线空头排列：短中期均线 MA5 < MA20 呈弱势下行排列，注意下探寻找支撑"
       ],
       "recommended_weight": "0.2%",
-      "ai_summary": "【Allstate】AI 量化综合打分 50 分，评估建议【中性观望】。模型测算未来 20 个交易日上涨概率为 52%，预期收益率 +3.1%。估值层面表现为。驱动因素：🟢 Beta 适中 -0.27（SHAP 贡献 +0.001）。⚡ 行业大动量：近期资金面关注度高，板块整体成交量活跃，多头趋势保持平稳。建议投资者控制仓位防守介入。",
+      "ai_summary": "【Allstate】AI 量化综合打分 50 分，评估建议【中性观望】。模型测算未来 20 个交易日上涨概率为 52%，预期收益率 +3.1%。估值层面表现为。驱动因素：新闻·[08-13 实时] South Korea's Kospi swings from bear to bull-market territor（影响 +0.6）、🟢 Beta 适中 -0.27（SHAP 贡献 +0.001）。⚡ 行业大动量：近期资金面关注度高，板块整体成交量活跃，多头趋势保持平稳。建议投资者控制仓位防守介入。",
       "bull_thesis": [
         "📊 相对强弱：跑赢同行排名分位较高；分析师一致目标价 ¥270.32（隐含 +3.1%，街共识非精准预测）。注意：相对强不等于必涨，跌市中仍可能回落。",
         "📊 行业龙头壁垒与大盘β动量：行业集中度提升，龙头溢价与资金净流入共振。",
@@ -9797,11 +9798,11 @@
       "confidence": "高",
       "data_completeness": 0.86,
       "reasons": [
-        "新闻·[08-13 实时] Nebius adds to the excitement around neocloud stocks with up（影响 +0.6）"
+        "新闻·[08-13 实时] Inside India newsletter: Why global funds are flocking to GI（影响 +0.6）"
       ],
       "risks": [],
       "recommended_weight": "0.1%",
-      "ai_summary": "【Alexandria Real Estate Equities】AI 量化综合打分 50 分，评估建议【关注】。模型测算未来 20 个交易日上涨概率为 83%，预期收益率 +8.8%。估值层面表现为。驱动因素：新闻·[08-13 实时] Nebius adds to the excitement around neocloud stocks with up（影响 +0.6）。⚡ 行业大动量：近期资金面关注度高，板块整体成交量活跃，多头趋势保持平稳。建议投资者控制仓位防守介入。",
+      "ai_summary": "【Alexandria Real Estate Equities】AI 量化综合打分 50 分，评估建议【关注】。模型测算未来 20 个交易日上涨概率为 83%，预期收益率 +8.8%。估值层面表现为。驱动因素：新闻·[08-13 实时] Inside India newsletter: Why global funds are flocking to GI（影响 +0.6）。⚡ 行业大动量：近期资金面关注度高，板块整体成交量活跃，多头趋势保持平稳。建议投资者控制仓位防守介入。",
       "bull_thesis": [
         "📊 相对强弱：跑赢同行排名分位较高；分析师一致目标价 ¥52.36（隐含 +8.8%，街共识非精准预测）。注意：相对强不等于必涨，跌市中仍可能回落。",
         "📊 行业龙头壁垒与大盘β动量：行业集中度提升，龙头溢价与资金净流入共振。",
@@ -13067,6 +13068,7 @@
       "confidence": "高",
       "data_completeness": 0.86,
       "reasons": [
+        "新闻·[08-13 实时] South Korea's Kospi swings from bear to bull-market territor（影响 +0.6）",
         "🚀 近一月动量强劲（+10.6%）：中线多头资金活跃，处于相对强势上涨通道"
       ],
       "risks": [
@@ -13074,7 +13076,7 @@
         "📉 均线空头排列：短中期均线 MA5 < MA20 呈弱势下行排列，注意下探寻找支撑"
       ],
       "recommended_weight": "0.2%",
-      "ai_summary": "【Agilent Technologies】AI 量化综合打分 50 分，评估建议【关注】。模型测算未来 20 个交易日上涨概率为 83%，预期收益率 +6.6%。估值层面表现为。驱动因素：🚀 近一月动量强劲（+10.6%）：中线多头资金活跃，处于相对强势上涨通道。⚡ 行业大动量：近期资金面关注度高，板块整体成交量活跃，多头趋势保持平稳。建议投资者控制仓位防守介入。",
+      "ai_summary": "【Agilent Technologies】AI 量化综合打分 50 分，评估建议【关注】。模型测算未来 20 个交易日上涨概率为 83%，预期收益率 +6.6%。估值层面表现为。驱动因素：新闻·[08-13 实时] South Korea's Kospi swings from bear to bull-market territor（影响 +0.6）、🚀 近一月动量强劲（+10.6%）：中线多头资金活跃，处于相对强势上涨通道。⚡ 行业大动量：近期资金面关注度高，板块整体成交量活跃，多头趋势保持平稳。建议投资者控制仓位防守介入。",
       "bull_thesis": [
         "📊 相对强弱：跑赢同行排名分位较高；分析师一致目标价 ¥159.32（隐含 +6.6%，街共识非精准预测）。注意：相对强不等于必涨，跌市中仍可能回落。",
         "📊 行业龙头壁垒与大盘β动量：行业集中度提升，龙头溢价与资金净流入共振。",
@@ -23597,7 +23599,7 @@
       "industry": "指数",
       "market": "hk",
       "is_etf": true,
-      "current_price": 4.68,
+      "current_price": 4.7,
       "target_price": 0.0,
       "pred_return": 0.0,
       "expected_return": 0.0,
@@ -23651,7 +23653,7 @@
       "industry": "指数",
       "market": "hk",
       "is_etf": true,
-      "current_price": 25.88,
+      "current_price": 25.9,
       "target_price": 0.0,
       "pred_return": 0.0,
       "expected_return": 0.0,
