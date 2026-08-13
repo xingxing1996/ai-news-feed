@@ -10,7 +10,8 @@ import numpy as np
 import pandas as pd
 
 
-def neutralize(y: pd.Series, style: pd.DataFrame, min_n: int = 10) -> pd.Series:
+def neutralize(y: pd.Series, style: pd.DataFrame, market: pd.Series | None = None,
+               min_n: int = 10) -> pd.Series:
     """逐日把 y 对 style 的列做 OLS，返回残差。
 
     y: (date, code) Series
@@ -34,7 +35,12 @@ def neutralize(y: pd.Series, style: pd.DataFrame, min_n: int = 10) -> pd.Series:
         resid.loc[sub.index] = sub["__y__"].values - X @ beta
         return resid
 
-    out = frame.groupby(level="date", group_keys=False).apply(_resid)
+    if market is None:
+        out = frame.groupby(level="date", group_keys=False).apply(_resid)
+    else:
+        market = market.reindex(frame.index).fillna("other")
+        dates = frame.index.get_level_values("date")
+        out = frame.groupby([dates, market.to_numpy()], group_keys=False).apply(_resid)
     return out.rename(y.name) if y.name else out
 
 

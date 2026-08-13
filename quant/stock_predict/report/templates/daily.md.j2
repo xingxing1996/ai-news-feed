@@ -1,7 +1,7 @@
 # AI 投资日报 · {{ as_of }}
 
-> 基于 LightGBM + Qlib 因子引擎。三个概率（未来 {{ horizon }} 个交易日）：
-> **上涨概率**=绝对收益>0 的概率；**跑赢大盘**=收益超过同市场等权指数；**跑赢行业**=收益超过同行业均值。
+> 基于 LightGBM + Qlib 因子引擎。未来 {{ horizon }} 个交易日的市场中性超额收益排序信号：
+> 该值为模型在当日股票池内的**排名分位**，不是未来收益或发生概率。
 > 仅作研究用途，不构成投资建议。
 
 {% if backtest %}
@@ -29,9 +29,7 @@
 ### {{ loop.index }}. {{ c.name }}（{{ c.code }}） · {{ c.industry }} / {{ c.market|upper }} · **【{{ c.suggestion }}】**
 
 - **最新现价**：`{% if c.current_price > 0 %}¥{{ c.current_price }}{% else %}—{% endif %}` ｜ **分析师一致目标价**（街共识，隐含空间）：`{% if c.target_price > 0 %}¥{{ c.target_price }}{% else %}—（无覆盖）{% endif %}`（`{{ c.expected_return_pct }}`）
-- **跑赢行业排名分位**：`{{ "%.0f"|format(c.prob * 100) }}%`（相对同行强弱，**非涨跌预测**；高分位=相对更可能跑赢同行，跌市里仍可能跌）
-- **跑赢大盘排名分位**：`{{ "%.0f"|format(c.prob_bench * 100) }}%`
-- **上涨方向分位**：`{{ "%.0f"|format(c.prob_up * 100) }}%`（方向预测弱，仅参考）
+- **市场中性超额收益排名分位**：`{{ "%.0f"|format(c.rank * 100) }}%`（相对股票池强弱，跌市里仍可能跌）
 - **评分**：`{{ c.score }}/100` ｜ **建议**：`{{ c.suggestion }}` ｜ **建议风控仓位**：`{{ c.recommended_weight }}`
 - **可信度**：`{{ c.confidence }}`（数据完整度 `{{ "%.0f"|format(c.data_completeness * 100) }}%`）
 {% if c.valuation %}- **估值**：{{ c.valuation }}
@@ -52,7 +50,7 @@
 
 ---
 {% else %}
-_当日无满足阈值（概率 ≥ 阈值）的标的。可调低 settings.report.min_probability 或扩大股票池。_
+_当日无满足阈值（排名分位 ≥ 阈值）的标的。可调低 settings.report.min_probability 或扩大股票池。_
 {% endfor %}
 
 ---

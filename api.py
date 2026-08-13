@@ -1,4 +1,4 @@
-"""stock-predict 结果 API（FastAPI）+ APScheduler 进程内调度。
+"""ModelScope A 股结果 API（FastAPI）+ APScheduler 进程内调度。
 
 一个 uvicorn 进程同时提供：查询 API + 浏览器页面 + 后台定时（工作日17点训练 / 每2h刷新）。
 适配 ModelScope 创空间（Docker 类型）：数据/模型走 /mnt/workspace，端口 7860。
@@ -28,7 +28,9 @@ import pandas as pd
 ROOT = Path(__file__).resolve().parent
 os.environ["PYTHONPATH"] = f"{ROOT}:{ROOT / 'quant'}"
 os.environ.setdefault("STOCK_PREDICT_CONFIG", str(ROOT / "quant" / "config" / "settings.modelspace.yaml"))
-OUT = Path(os.environ.get("OUT_DIR", str(ROOT / "data" / "output")))
+# ModelScope 的训练配置把所有状态写到 /mnt/workspace。API 必须读同一目录，
+# 否则会展示镜像层或 Git 同步下来的陈旧结果。
+OUT = Path(os.environ.get("OUT_DIR", "/mnt/workspace/data/output"))
 QUANT = ROOT / "quant"
 
 from fastapi import FastAPI, Response  # noqa: E402
@@ -43,7 +45,7 @@ try:
 except Exception:  # noqa: BLE001
     _HAS_APS = False
 
-app = FastAPI(title="stock-predict API", description="A股+港股 量化推荐 + 定时调度")
+app = FastAPI(title="stock-predict API", description="A股量化推荐 + 定时调度")
 
 
 # ---------- 调度 ----------
@@ -176,23 +178,50 @@ def _start_scheduler():
     sched.add_job(lambda: _run_cli("refresh"), IntervalTrigger(hours=2), id="refresh", replace_existing=True)
     # 每 10 分钟从 ModelScope git 同步美股 recommendations_us.json（创空间不自动重建，需运行时拉）
     sched.add_job(sync_us_recommendations, IntervalTrigger(minutes=10), id="sync-us", replace_existing=True)
-    sched.add_job(sync_cn_recommendations, IntervalTrigger(minutes=10), id="sync-cn", replace_existing=True)
     sched.start()
     app.state.scheduler = sched
     threading.Thread(target=_run_cli, args=("run",), daemon=True).start()  # 启动先跑一次
     threading.Thread(target=sync_us_recommendations, daemon=True).start()  # 启动先拉一次 us
-    threading.Thread(target=sync_cn_recommendations, daemon=True).start()  # 启动先拉一次 cn
 
 
 # ---------- 读取 ----------
 def _recs_path():
-    # A股/CN 推荐接口专属路径检索，避免被美股文件混淆错乱
-    for n in ("recommendations_cn.json", "daily_report.json", "recommendations.json"):
-        p_root = ROOT / n
-        if p_root.exists() and p_root.stat().st_size > 100:
-            return p_root
+    # A 股只读 ModelScope 训练目录；禁止回退仓库根的 GitHub 产物。
+    max_staleness_bdays = int(os.getenv("MAX_RECOMMENDATION_STALENESS_BDAYS", "2"))
+    min_excess_ann = float(os.getenv("MIN_DEPLOY_EXCESS_ANN", "0"))
+    min_information_ratio = float(os.getenv("MIN_DEPLOY_INFORMATION_RATIO", "0"))
+
+    # A fresh file is not sufficient: only publish a model that passed the
+    # latest strict walk-forward evaluation. This is intentionally fail-closed.
+    metrics_path = OUT / "backtest_metrics.txt"
+    try:
+        metrics = json.loads(metrics_path.read_text(encoding="utf-8"))
+        deployable = (
+            metrics.get("mode") == "walk_forward"
+            and float(metrics.get("excess_ann")) >= min_excess_ann
+            and float(metrics.get("information_ratio")) >= min_information_ratio
+        )
+    except Exception:  # noqa: BLE001
+        deployable = False
+    if not deployable:
+        return None
+
+    for n in ("recommendations_cn.json", "recommendations.json"):
         p_out = OUT / n
         if p_out.exists() and p_out.stat().st_size > 100:
+            try:
+                payload = json.loads(p_out.read_text(encoding="utf-8"))
+                recs = payload.get("recommendations", [])
+                if recs and "rank" not in recs[0]:
+                    continue  # 旧版伪概率产物必须重训，不再展示成新结果。
+                as_of = pd.to_datetime(payload.get("as_of"), errors="coerce")
+                if pd.isna(as_of):
+                    continue  # Legacy artifacts lack a data date and are unsafe to serve.
+                stale_bdays = max(0, len(pd.bdate_range(as_of.normalize(), pd.Timestamp.today().normalize())) - 1)
+                if stale_bdays > max_staleness_bdays:
+                    continue
+            except Exception:  # noqa: BLE001
+                continue
             return p_out
     return None
 
@@ -223,16 +252,6 @@ def health():
 def recommendations():
     p = _recs_path()
     if not p:
-        sync_cn_recommendations()
-        p = _recs_path()
-    if not p:
-        # 降级保底：优先读取仓库根目录绑定的静态镜像文件
-        for root_fallback in ("daily_report.json", "recommendations.json", "recommendations_cn.json"):
-            rf = ROOT / root_fallback
-            if rf.exists():
-                p = rf
-                break
-    if not p:
         return JSONResponse({"error": "暂无结果，首次训练进行中，看 /health"}, status_code=404, headers={"Cache-Control": "no-cache, no-store, must-revalidate"})
     try:
         data = json.loads(p.read_text(encoding="utf-8"))
@@ -258,8 +277,8 @@ def recommendations():
                     r["market"] = u_info["market"]
 
             if "current_price" not in r or r.get("current_price", 0) == 0:
-                prob_up = r.get("prob_up", 0.5)
-                pred_ret = float(r.get("pred_return", (prob_up - 0.5) * 0.25))
+                pred_ret = r.get("pred_return")
+                pred_ret = float(pred_ret) if pred_ret is not None else 0.0
                 c_price = 0.0
                 
                 # 动态从 daily_price 快照里查现价
@@ -293,8 +312,8 @@ def recommendations():
             r["pe_dynamic"] = r.get("pe_dynamic") if r.get("pe_dynamic") is not None else None
             r["pb"] = pb_val
             r["raw_pb"] = pb_val
-            r["pe_percentile"] = r.get("pe_percentile") if r.get("pe_percentile") is not None else (0.45 if pe_val else None)
-            r["pb_percentile"] = r.get("pb_percentile") if r.get("pb_percentile") is not None else (0.35 if pb_val else None)
+            r["pe_percentile"] = r.get("pe_percentile")
+            r["pb_percentile"] = r.get("pb_percentile")
         
         return JSONResponse(content=data, headers={"Cache-Control": "no-cache, no-store, must-revalidate"})
     except Exception as exc:  # noqa: BLE001
@@ -329,6 +348,12 @@ def recommendations_us():
                             status_code=404, headers={"Cache-Control": "no-cache, no-store, must-revalidate"})
     try:
         data = json.loads(p.read_text(encoding="utf-8"))
+        recs = data.get("recommendations", []) if isinstance(data, dict) else []
+        if recs and "rank" not in recs[0]:
+            return JSONResponse(
+                {"error": "美港结果仍是旧版伪概率格式，等待 GitHub 重新训练后发布"},
+                status_code=503, headers={"Cache-Control": "no-cache, no-store, must-revalidate"},
+            )
         if isinstance(data, dict):
             ds = data.get("data_source", "Local Cache / Image Bundled")
         else:
@@ -423,14 +448,14 @@ def dashboard(response: Response):
                             headers={"Cache-Control": "no-cache, no-store, must-revalidate"})
     data = json.loads(p.read_text(encoding="utf-8"))
     recs = data.get("recommendations", [])
-    cols = ["name", "code", "market", "industry", "current_price", "target_price", "expected_return_pct", "prob_up", "prob_bench", "prob", "score", "confidence"]
+    cols = ["name", "code", "market", "industry", "current_price", "target_price", "expected_return_pct", "rank_up", "rank_bench", "rank", "score", "confidence"]
 
     def cell(col, v):
         if v is None or v == "":
             return "—"
         if col in ("current_price", "target_price"):
             return f"¥{v:.2f}" if isinstance(v, (int, float)) and v > 0 else (f"{v}" if v else "—")
-        if col in ("prob_up", "prob_bench", "prob") and isinstance(v, float):
+        if col in ("rank_up", "rank_bench", "rank") and isinstance(v, float):
             return f"{v*100:.0f}%"
         return html.escape(str(v))
 
@@ -457,8 +482,8 @@ def dashboard(response: Response):
 </style>
 </head><body>
 <div class="card">
-  <h2>A股 + 港股 AI 量化推荐看板</h2>
-  <small>更新时间: {data.get('update_time','—')} | 评估标的: {len(recs)} 只 | 三概率: 上涨 / 跑赢大盘 / 跑赢行业 | 非投资建议</small>
+  <h2>A股 AI 量化推荐看板</h2>
+  <small>更新时间: {data.get('update_time','—')} | 评估标的: {len(recs)} 只 | 三项排名分位: 上涨方向 / 跑赢大盘 / 跑赢行业 | 非投资建议</small>
 </div>
 
 <div class="card">
@@ -474,7 +499,7 @@ def dashboard(response: Response):
 </div>
 
 <div class="card">
-  <h3>📊 实时股票推荐池（按照 AI 概率降序）</h3>
+  <h3>📊 实时股票推荐池（按行业相对强弱排名分位降序）</h3>
   <table><thead><tr>{head}</tr></thead><tbody>{rows}</tbody></table>
 </div>
 </body></html>"""

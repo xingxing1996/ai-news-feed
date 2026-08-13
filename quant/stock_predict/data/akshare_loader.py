@@ -82,6 +82,15 @@ def _to_ak_symbol(code: str) -> str:
     return code.split(".")[0]
 
 
+def _to_tx_symbol(code: str) -> str:
+    """600519.SH / 000001.SZ → sh600519 / sz000001 for Tencent history API."""
+    bare, _, exchange = str(code).partition(".")
+    prefix = {"SH": "sh", "SZ": "sz", "BJ": "bj"}.get(exchange.upper())
+    if prefix is None:
+        prefix = "sh" if bare.startswith(("5", "6", "9")) else "sz"
+    return prefix + bare.zfill(6)
+
+
 _ETF_PREFIXES = {"510", "511", "512", "513", "515", "516", "518", "588", "159", "150"}
 
 
@@ -201,6 +210,23 @@ def fetch_daily(code: str, start: str, end: str, market: str = "cn") -> pd.DataF
                 end_date=pd.to_datetime(end).strftime("%Y%m%d"),
                 adjust="qfq",
             )
+        # Eastmoney is the default AKShare source but can return an empty frame
+        # without raising (common during a regional outage). Do not silently
+        # lose a ticker: Tencent/Sina are independent fallbacks.
+        if df is None or df.empty:
+            if _is_etf(code):
+                log.warning("[akshare] %s 东财 ETF 行情为空，尝试新浪备用源", code)
+                df = _call_ak(ak.fund_etf_hist_sina, symbol=_to_tx_symbol(code))
+            else:
+                log.warning("[akshare] %s 东财行情为空，尝试腾讯备用源", code)
+                df = _call_ak(
+                    ak.stock_zh_a_hist_tx,
+                    symbol=_to_tx_symbol(code),
+                    start_date=pd.to_datetime(start).strftime("%Y%m%d"),
+                    end_date=pd.to_datetime(end).strftime("%Y%m%d"),
+                    adjust="qfq",
+                    timeout=12,
+                )
         if df is None or df.empty:
             return _empty_daily()
         colmap = {
@@ -209,6 +235,9 @@ def fetch_daily(code: str, start: str, end: str, market: str = "cn") -> pd.DataF
         }
         df = df.rename(columns=colmap)
         df["date"] = pd.to_datetime(df["date"]).dt.strftime("%Y-%m-%d")
+        # 新浪 ETF fallback returns its entire history regardless of the
+        # requested range; keep loader semantics consistent across providers.
+        df = df[(df["date"] >= start) & (df["date"] <= end)]
         df["code"] = code
         out = df[["date", "code", "open", "high", "low", "close", "volume"]].copy()
         out["market_cap"] = _ak_hist_market_cap(out, code)  # 总市值（按价格比例回填，PIT）

@@ -26,6 +26,78 @@ except Exception:  # pragma: no cover
         return it
 
 
+def validate_daily_quality(
+    daily: pd.DataFrame,
+    universe_df: pd.DataFrame,
+    cfg: AttrDict,
+    *,
+    reference_date: str | datetime | None = None,
+) -> dict[str, Any]:
+    """Validate whether daily bars are fit for training.
+
+    A loader intentionally returns empty data for an individual network error so
+    one bad ticker does not abort ingestion. That is useful during collection,
+    but training on the partial result is not acceptable. This gate turns a
+    partial or stale collection into an explicit failure before feature/model
+    generation can consume it.
+    """
+    gate = dict(cfg.data.get("quality_gate", {}) or {})
+    enabled = bool(gate.get("enabled", False)) and not bool(cfg.data.get("synthetic", False))
+    result: dict[str, Any] = {"enabled": enabled, "ok": True, "markets": {}, "failures": []}
+    if not enabled:
+        return result
+
+    min_coverage = float(gate.get("min_coverage", 0.95))
+    max_staleness_bdays = int(gate.get("max_staleness_bdays", 2))
+    ref = pd.Timestamp(reference_date or datetime.today()).normalize()
+    available = daily.copy() if daily is not None else pd.DataFrame()
+    if not available.empty:
+        available["code"] = available["code"].astype(str)
+        available["date"] = pd.to_datetime(available["date"], errors="coerce")
+
+    for market, group in universe_df.groupby("market", dropna=False):
+        market_name = str(market)
+        wanted = set(group["code"].astype(str))
+        subset = available[available["code"].isin(wanted)] if not available.empty else pd.DataFrame()
+        present = set(subset["code"].dropna().astype(str)) if not subset.empty else set()
+        missing = sorted(wanted - present)
+        last_date = pd.to_datetime(subset["date"], errors="coerce").max() if not subset.empty else pd.NaT
+        stale_bdays = None
+        if pd.notna(last_date):
+            stale_bdays = max(0, len(pd.bdate_range(pd.Timestamp(last_date).normalize(), ref)) - 1)
+        coverage = len(present) / len(wanted) if wanted else 1.0
+        market_ok = coverage >= min_coverage and stale_bdays is not None and stale_bdays <= max_staleness_bdays
+        result["markets"][market_name] = {
+            "configured_codes": len(wanted),
+            "available_codes": len(present),
+            "coverage": coverage,
+            "latest_date": str(pd.Timestamp(last_date).date()) if pd.notna(last_date) else None,
+            "stale_bdays": stale_bdays,
+            "missing_codes": missing,
+            "ok": market_ok,
+        }
+        if coverage < min_coverage:
+            result["failures"].append(
+                f"{market_name} 覆盖率 {coverage:.1%} < {min_coverage:.1%}（缺 {len(missing)} 只）"
+            )
+        if stale_bdays is None:
+            result["failures"].append(f"{market_name} 没有可用日线")
+        elif stale_bdays > max_staleness_bdays:
+            result["failures"].append(
+                f"{market_name} 最新日线 {pd.Timestamp(last_date).date()}，落后 {stale_bdays} 个工作日 > {max_staleness_bdays}"
+            )
+    result["ok"] = not result["failures"]
+    return result
+
+
+def require_daily_quality(daily: pd.DataFrame, universe_df: pd.DataFrame, cfg: AttrDict) -> dict[str, Any]:
+    """Return data-quality diagnostics or stop a real training run explicitly."""
+    result = validate_daily_quality(daily, universe_df, cfg)
+    if result["enabled"] and not result["ok"]:
+        raise RuntimeError("A 股/海外行情数据质量未达标，拒绝训练：" + "；".join(result["failures"]))
+    return result
+
+
 def _date_range(cfg: AttrDict) -> tuple[str, str]:
     years = int(cfg.data.get("years_back", 6))
     end = datetime.today().strftime("%Y-%m-%d")
@@ -194,6 +266,9 @@ def fetch_and_store(universe_df: pd.DataFrame | None = None, settings: AttrDict 
             valuation = valuation.drop_duplicates(["date", "code"], keep="last")
 
     stats: dict[str, Any] = {"start": start, "end": end, "synthetic": synthetic, "incremental": incremental}
+    # Validate before persisting. Otherwise a transient AKShare outage silently
+    # replaces a complete universe with a partial one and the model still trains.
+    stats["daily_quality"] = require_daily_quality(daily, universe_df, cfg)
 
     # daily_price → SQLite + Parquet
     if not daily.empty:

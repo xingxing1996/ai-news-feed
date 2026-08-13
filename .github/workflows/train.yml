@@ -36,6 +36,14 @@ jobs:
       run: |
         PYTHONPATH=$GITHUB_WORKSPACE:$GITHUB_WORKSPACE/quant \
         STOCK_PREDICT_CONFIG=config/settings.us.yaml python -m stock_predict.cli run
+        python - <<'PY'
+        import json
+        from pathlib import Path
+
+        metrics = json.loads(Path("data/output/backtest_metrics.txt").read_text())
+        if metrics.get("mode") != "walk_forward" or metrics.get("excess_ann", -1) < 0 or metrics.get("information_ratio", -1) < 0:
+            raise SystemExit(f"Refusing to publish an unvalidated US/HK model: {metrics}")
+        PY
 
     - name: 上传模型 artifact
       if: always()
@@ -46,7 +54,7 @@ jobs:
         if-no-files-found: ignore
 
     - name: 提交 recommendations_us.json + 日报 + 日志
-      if: always()
+      if: success()
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"

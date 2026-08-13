@@ -21,7 +21,7 @@ from . import explain
 
 log = logging.getLogger(__name__)
 
-_META = {"future_return", "industry_excess", "label", "industry", "market", "name"}
+_META = {"future_return", "industry_excess", "residual_return", "label", "industry", "market", "name"}
 
 
 def _load_model(state_dir: str | None = None):
@@ -33,9 +33,11 @@ def _load_model(state_dir: str | None = None):
         return None, []
     with open(path, "rb") as fh:
         blob = pickle.load(fh)
-    # 兼容新旧格式：旧版 {model, feat_cols}；新版 {models: {target: {model, ...}}, feat_cols}
+    # 兼容新旧格式：新版优先读取连续超额收益模型。
     if "models" in blob:
-        return blob["models"]["label"]["model"], blob["feat_cols"]
+        models = blob["models"]
+        primary = "residual_return" if "residual_return" in models else "label"
+        return models[primary]["model"], blob["feat_cols"]
     return blob["model"], blob["feat_cols"]
 
 
@@ -108,10 +110,10 @@ def _news_reason_risk(events: list[dict]) -> tuple[list[str], list[str]]:
     return reasons, risks
 
 
-def _rating(prob: float, prob_up: float, events: list[dict], completeness: float) -> tuple[str, str | None]:
+def _rating(rank: float, rank_up: float, events: list[dict], completeness: float) -> tuple[str, str | None]:
     """综合评级（买入建议）+ 突发事件。
 
-    综合：跑赢行业概率 + 上涨概率 + 新闻方向 + 数据质量 → 强推荐/关注/中性观望/回避。
+    综合：跑赢行业排名分位 + 上涨排名分位 + 新闻方向 + 数据质量 → 强推荐/关注/中性观望/回避。
     一票否决：重大黑天鹅 (impact ≥ 0.7 且 negative) 直接判为回避。
     """
     pos = any(e.get("direction") == "positive" and float(e.get("impact", 0)) >= 0.6 for e in events)
@@ -127,7 +129,7 @@ def _rating(prob: float, prob_up: float, events: list[dict], completeness: float
     if hi_neg:
         return "回避", breaking
 
-    score = prob * 0.6 + prob_up * 0.4
+    score = rank * 0.6 + rank_up * 0.4
     if score >= 0.65:
         rating = "强推荐"
     elif score >= 0.55:
@@ -210,9 +212,9 @@ def generate_daily_report(as_of: str | None = None, pred_df=None, feats_df=None,
     feats = feats.set_index(["date", "code"]).sort_index()
     pred = pred.copy()
     pred["date"] = pred["date"].astype(str)
-    # 三概率兼容：主概率 prob = 跑赢行业(prob_label)；旧版已有 prob 则保留
-    if "prob" not in pred.columns and "prob_label" in pred.columns:
-        pred["prob"] = pred["prob_label"]
+    # 主排序信号：连续市场超额收益模型优先；旧产物只用于向后兼容。
+    if "rank" not in pred.columns:
+        pred["rank"] = pred.get("rank_quality", pred.get("rank_residual_return", pred.get("rank_label", pred.get("prob_label", pred.get("prob")))))
 
     # 选择报告日：优先最近的 unlabeled（即「今天」无未来收益），否则最近一日
     cand_dates = sorted(pred["date"].unique())
@@ -223,15 +225,15 @@ def generate_daily_report(as_of: str | None = None, pred_df=None, feats_df=None,
         as_of = cand_dates[-1]
         pred_d = pred[pred["date"] == as_of].copy()
 
-    # 主概率列：跑赢行业（prob）；兼容新旧 predictions 命名
-    if "prob" not in pred_d.columns and "prob_label" in pred_d.columns:
-        pred_d["prob"] = pred_d["prob_label"]
+    # 主排序列：预测市场中性超额收益的排名分位。
+    if "rank" not in pred_d.columns:
+        pred_d["rank"] = pred_d.get("rank_quality", pred_d.get("rank_residual_return", pred_d.get("rank_label", pred_d.get("prob_label", pred_d.get("prob")))))
     min_p = float(cfg.report.get("min_probability", 0.5))
     top_k = int(cfg.report.get("top_k", 10))
-    pred_d = pred_d[pred_d["prob"] >= min_p].sort_values("prob", ascending=False)
+    pred_d = pred_d[pred_d["rank"] >= min_p].sort_values("rank", ascending=False)
     if pred_d.empty:
         # 退而取全部不设阈值
-        pred_d = pred[pred["date"] == as_of].sort_values("prob", ascending=False)
+        pred_d = pred[pred["date"] == as_of].sort_values("rank", ascending=False)
     if top_k > 0:
         pred_d = pred_d.head(top_k)
 
@@ -240,6 +242,11 @@ def generate_daily_report(as_of: str | None = None, pred_df=None, feats_df=None,
     section_rank = section.rank(pct=True)
 
     model, feat_cols = _load_model(state_dir=state_dir)
+    if str(cfg.backtest.get("ranking", "")).lower() == "quality":
+        # Primary ranking is a transparent fixed composite, not the research
+        # residual tree stored in model.lgb. Explain its actual components.
+        model = None
+        feat_cols = [c for c in ("gross_margin", "roe", "revenue_growth", "quality_rank") if c in section.columns]
 
     # SHAP 预计算（若启用 + 模型在）：对当日截面一次性算，逐股取行做精准归因
     use_shap = (cfg.report.get("explain_method") == "shap") and (model is not None) and not section.empty
@@ -277,9 +284,11 @@ def generate_daily_report(as_of: str | None = None, pred_df=None, feats_df=None,
     cards = []
     for _, r in pred_d.iterrows():
         code = r["code"]
-        prob = float(r["prob"])
-        prob_up = float(r.get("prob_abs_label", r.get("prob_up", prob)))
-        prob_bench = float(r.get("prob_bench_label", r.get("prob_bench", prob)))
+        rank = float(r["rank"])
+        # The residual model has one validated ranking. Do not manufacture
+        # independent "up" or "benchmark" probabilities from old classifiers.
+        rank_up = float(r.get("rank_residual_return", rank))
+        rank_bench = float(r.get("rank_residual_return", rank))
         if (as_of, code) not in feats.index:
             continue
         row = feats.loc[(as_of, code)]
@@ -335,7 +344,7 @@ def generate_daily_report(as_of: str | None = None, pred_df=None, feats_df=None,
         risks = nrisk + risks
 
         # 综合评级（买入建议）+ 突发事件高亮
-        rating, breaking = _rating(prob, prob_up, evs, completeness)
+        rating, breaking = _rating(rank, rank_up, evs, completeness)
         if breaking:
             reasons.insert(0, f"⚠️ 突发：{breaking}")
 
@@ -373,9 +382,8 @@ def generate_daily_report(as_of: str | None = None, pred_df=None, feats_df=None,
             except Exception:  # noqa: BLE001
                 pass
 
-        # 保持原生态模型预测概率（不使用死板的 * 0.5 硬平滑）
-        calibrated_prob_up = round(float(prob_up), 3)
-        calibrated_prob = round(float(prob), 3)
+        rank_up = round(float(rank_up), 3)
+        rank = round(float(rank), 3)
 
         # 目标价：抓 yfinance「分析师一致目标价」(street consensus)。
         # 仅美股查(cn/hk 在 ModelScope=CN网络 调 yfinance 会卡死/不通，直接跳过，目标价留空)；
@@ -436,10 +444,10 @@ def generate_daily_report(as_of: str | None = None, pred_df=None, feats_df=None,
             "return": round(float(pred_ret), 4),
             "expected_return_pct": expected_return_pct,
             "horizon_days": 20,
-            "prob": calibrated_prob,
-            "prob_up": calibrated_prob_up,
-            "prob_bench": prob_bench,
-            "score": round(calibrated_prob * 100),
+            "rank": rank,
+            "rank_up": rank_up,
+            "rank_bench": round(float(rank_bench), 3),
+            "score": round(rank * 100),
             "suggestion": rating,
             "breaking_event": breaking,
             "raw_pe": val_dict.get("raw_pe"),
@@ -498,8 +506,10 @@ def generate_daily_report(as_of: str | None = None, pred_df=None, feats_df=None,
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(text, encoding="utf-8")
 
-    # 同步多镜像写盘 Markdown 日报（包括 recommendations_us.md / recommendations_cn.md / recommendations.md）
-    for alt_md in ("recommendations_us.md", "recommendations_cn.md", "recommendations.md"):
+    active_markets = set(cfg.universe.get("markets") or [])
+    market_file = "recommendations_cn" if "cn" in active_markets and "us" not in active_markets else "recommendations_us"
+    # 仅写当前任务所属市场，禁止美港任务覆盖 A 股产物，反之亦然。
+    for alt_md in (f"{market_file}.md",):
         try:
             (out_path.parent / alt_md).write_text(text, encoding="utf-8")
         except Exception:  # noqa: BLE001
@@ -512,8 +522,11 @@ def generate_daily_report(as_of: str | None = None, pred_df=None, feats_df=None,
     _bj = timezone(timedelta(hours=8))
     rec = {
         "update_time": datetime.now(_bj).strftime("%Y-%m-%d %H:%M:%S"),
+        # This is the actual last market-bar date, not the report generation
+        # timestamp. Consumers must use it to reject stale recommendations.
+        "as_of": str(as_of),
         "horizon_days": int(cfg.feature.label_horizon),
-        "note": "概率含义：prob=跑赢行业概率, prob_up=未来上涨概率, prob_bench=跑赢大盘概率；非买卖建议",
+        "note": "rank=未来市场中性超额收益预测的股票池排名分位；并非收益率、发生概率或买卖建议",
         "n": len(cards),
         "recommendations": cards,
     }
@@ -521,8 +534,7 @@ def generate_daily_report(as_of: str | None = None, pred_df=None, feats_df=None,
     rec_path = out_path.with_suffix(".json")  # out_path 为 *.md → 同名 .json
     rec_path.write_text(rec_json_str, encoding="utf-8")
 
-    # 同步多镜像写盘 JSON 推荐池（包括 recommendations_us.json / recommendations_cn.json / recommendations.json）
-    for alt_json in ("recommendations_us.json", "recommendations_cn.json", "recommendations.json"):
+    for alt_json in (f"{market_file}.json",):
         try:
             (out_path.parent / alt_json).write_text(rec_json_str, encoding="utf-8")
         except Exception:  # noqa: BLE001

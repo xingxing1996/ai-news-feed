@@ -33,7 +33,7 @@ def test_recommendations_endpoint():
     """测试 GET /recommendations 与别名 /recommendations_us 推荐卡片接口。"""
     for endpoint in ("/recommendations", "/recommendations_us", "/api/recommendations_us"):
         resp = client.get(endpoint)
-        assert resp.status_code in (200, 404)
+        assert resp.status_code in (200, 404, 503)
         assert resp.headers.get("cache-control") == "no-cache, no-store, must-revalidate"
         if resp.status_code == 200:
             data = resp.json()
@@ -47,7 +47,7 @@ def test_recommendations_endpoint():
                 assert "current_price" in first
                 assert "target_price" in first
                 assert "expected_return_pct" in first
-                assert "prob_up" in first
+                assert "rank_up" in first
 
 
 def test_report_endpoint():

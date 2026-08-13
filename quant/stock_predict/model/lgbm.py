@@ -1,6 +1,6 @@
 """LightGBM 训练 / 预测。
 
-输出「未来 horizon 日跑赢行业的概率」。
+输出「未来 horizon 日跑赢行业的横截面排名分位」。
 - 按日期段切分 train / valid / test（避免未来穿越）。
 - LightGBM 原生处理 NaN，故保留缺失值。
 - 预测概率落到 ``warehouse/predictions.parquet``，模型存 ``output_dir/model.lgb``。
@@ -20,14 +20,17 @@ from . import evaluate
 
 log = logging.getLogger(__name__)
 
-_META_COLS = {"future_return", "industry_excess", "industry_excess_neu", "label",
+_META_COLS = {"future_return", "industry_excess", "industry_excess_neu", "residual_return", "label",
               "abs_label", "bench_label", "bench_excess", "bench_future",
               "industry", "market", "name", "market_cap",
               "pe", "pb"}  # pe/pb 原值只供日报展示，不进模型特征
 
 
 def _feature_cols(df: pd.DataFrame) -> list[str]:
-    return [c for c in df.columns if c not in _META_COLS and pd.api.types.is_numeric_dtype(df[c])]
+    return [
+        c for c in df.columns
+        if c not in _META_COLS and not c.endswith("_raw") and pd.api.types.is_numeric_dtype(df[c])
+    ]
 
 
 def _segment_mask(dates: pd.Series, seg: dict, key: str) -> pd.Series:
@@ -77,55 +80,90 @@ def _split(df: pd.DataFrame, seg: dict, embargo_days: int = 0) -> dict[str, pd.D
     return out
 
 
-_TARGETS = ["label", "abs_label", "bench_label"]  # 三个维度：跑赢行业 / 绝对上涨 / 跑赢大盘
+_TARGETS = ["residual_return"]  # 连续市场中性超额收益：训练、排序、回测共用同一目标
+_QUALITY_FEATURES = ("gross_margin", "roe", "revenue_growth", "quality_rank")
+
+
+def active_targets(cfg) -> list[str]:
+    """Select the model target from the market-specific ranking configuration."""
+    mode = str(cfg.backtest.get("ranking", "label"))
+    if mode in ("residual", "quality"):
+        return ["residual_return"]
+    return [{"label": "label", "abs": "abs_label", "bench": "bench_label"}.get(mode, "label")]
+
+
+def quality_signal_rank(df: pd.DataFrame) -> pd.Series:
+    """PIT quality composite used as the deployable primary signal.
+
+    Each component is ranked only within its date/market cross-section, then
+    equally combined and ranked again. No fitted parameter or future return is
+    involved, so the same computation is valid in every walk-forward window.
+    """
+    cols = [c for c in _QUALITY_FEATURES if c in df.columns]
+    if not cols:
+        raise RuntimeError("质量信号缺少 gross_margin/roe/revenue_growth/quality_rank 特征")
+    markets = df["market"].fillna("other").to_numpy()
+    dates = df.index.get_level_values("date")
+    component_rank = df[cols].groupby([dates, markets], sort=False).rank(pct=True)
+    score = component_rank.mean(axis=1)
+    return score.groupby([dates, markets], sort=False).rank(pct=True)
 
 
 def _train_one(feat_cols, params, splits, target, use_ensemble=True, calibrate=False):
-    """为单个 target 训练 LightGBM Ranker(lambdarank)，输出按日截面 rank 归一化的伪概率。
+    """为单个 target 训练 LightGBM Ranker，输出按日截面归一化的排名分位。
 
-    ranker 输出 raw score → 按 date 截面 rank(pct=True) ∈(0,1] 作"伪概率"，日报所有概率阈值
-    语义零改动保留（0.5=截面中位、0.65=前35%强推荐、目标价公式不变）。target 的 0/1(zone 标签)
+    ranker 输出 raw score → 按 date 截面 rank(pct=True) ∈(0,1]。这是排序信号，
+    不是发生概率。target 的 0/1(zone 标签)
     作 lambdarank 的 relevance，每个交易日为一个 query group。
     """
     import lightgbm as lgb  # 延迟导入
 
     def _xy(df: pd.DataFrame):
-        df = df.dropna(subset=[target]).sort_index()  # 确保按 (date,code) 排序 → date 连续
-        return df[feat_cols], df[target].astype(int)
+        df = df.dropna(subset=[target]).copy()
+        if target == "residual_return":
+            return df[feat_cols], df[target].astype(float), None
+        df["__date__"] = df.index.get_level_values("date")
+        df = df.sort_values(["__date__", "market"])
+        groups = df.groupby(["__date__", "market"], sort=False).size().to_numpy()
+        return df[feat_cols], df[target].astype(int), groups
 
-    Xtr, ytr = _xy(splits["train"])
-    Xva, yva = _xy(splits["valid"])
+    Xtr, ytr, group_tr = _xy(splits["train"])
+    Xva, yva, group_va = _xy(splits["valid"])
     if Xtr.empty:
         raise RuntimeError(f"训练集为空（{target}，train_end={splits['_seg'].get('train_end')}）")
 
-    ranker_params = {k: v for k, v in params.items() if k != "objective"}
-    model = lgb.LGBMRanker(**ranker_params, objective="lambdarank", verbose=-1)
-    # group：每个交易日连续计数为一个 query group（Xtr 已按 date 排序）
-    group_tr = Xtr.groupby(level="date", sort=False).size().to_numpy()
-    fit_kwargs: dict = {"group": group_tr}
+    model_params = {k: v for k, v in params.items() if k != "objective"}
+    is_continuous = target == "residual_return"
+    model = (lgb.LGBMRegressor(**model_params, objective="regression_l1", verbose=-1)
+             if is_continuous else lgb.LGBMRanker(**model_params, objective="lambdarank", verbose=-1))
+    fit_kwargs: dict = {} if is_continuous else {"group": group_tr}
     if not Xva.empty:
-        group_va = Xva.groupby(level="date", sort=False).size().to_numpy()
-        fit_kwargs.update({"eval_set": [(Xva, yva)], "eval_group": [group_va],
-                           "callbacks": [lgb.early_stopping(50, verbose=False)]})
+        fit_kwargs.update({"eval_set": [(Xva, yva)], "callbacks": [lgb.early_stopping(50, verbose=False)]})
+        if not is_continuous:
+            fit_kwargs["eval_group"] = [group_va]
     import warnings
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
         model.fit(Xtr, ytr, **fit_kwargs)
 
-    def _proba(df_sub: pd.DataFrame):
+    def _rank(df_sub: pd.DataFrame):
         X = df_sub[feat_cols]
         raw = model.predict(X)
-        # 截面 rank 归一化（伪概率）：日报概率阈值语义保留
-        return pd.Series(raw, index=X.index).groupby(level="date", sort=False).rank(pct=True).values
+        # 截面 rank 归一化：只表达同日股票池内的相对排序。
+        dates = X.index.get_level_values("date")
+        markets = df_sub["market"].fillna("other").to_numpy()
+        return pd.Series(raw, index=X.index).groupby([dates, markets], sort=False).rank(pct=True).values
 
-    proba = _proba(splits["_all"])
-    blob = {"model": model, "feat_cols": list(feat_cols), "kind": "ranker",
+    rank = _rank(splits["_all"])
+    blob = {"model": model, "feat_cols": list(feat_cols),
+            "kind": "residual_regressor" if is_continuous else "ranker",
             "used_ensemble": False, "calibrated": False}
-    return model, proba, blob, len(Xtr)
+    return model, rank, blob, len(Xtr)
 
 
 def train_and_predict() -> dict:
     cfg = get_settings()
+    targets = active_targets(cfg)
     mat = read_parquet("features")
     if mat.empty:
         raise RuntimeError("features 为空，请先 `stock-predict features`。")
@@ -155,15 +193,16 @@ def train_and_predict() -> dict:
     out_dir.mkdir(parents=True, exist_ok=True)
     model_path = out_dir / "model.lgb"
 
-    # 训练三个维度模型，各自输出概率
-    pred = mat[["future_return"]].copy()
+    # Train one continuous target. The same target is used by the portfolio,
+    # so model selection is no longer disconnected from backtest economics.
+    pred = mat[["future_return", "market"]].copy()
     pred = pred.reset_index()
     models_blob = {"feat_cols": feat_cols, "params": params, "split": seg, "models": {}}
     metrics = {"model_path": str(model_path), "n_features": len(feat_cols), "n_train": {}}
-    for target in _TARGETS:
-        model, proba, blob, n_train = _train_one(feat_cols, params, splits, target, use_ensemble, calibrate)
+    for target in targets:
+        model, rank, blob, n_train = _train_one(feat_cols, params, splits, target, use_ensemble, calibrate)
         pred[target] = mat[target].reset_index(drop=True) if target in mat else np.nan
-        pred[f"prob_{target}"] = proba
+        pred[f"rank_{target}"] = rank
         models_blob["models"][target] = blob
         metrics["n_train"][target] = n_train
         log.info("[model] %s 训练完成，n_train=%d", target, n_train)
@@ -171,7 +210,7 @@ def train_and_predict() -> dict:
     with open(model_path, "wb") as fh:
         pickle.dump(models_blob, fh)
 
-    # 主标签（跑赢行业）用于 split 标记
+    # Primary target is used for split marking.
     dates = pd.to_datetime(pred["date"])
     pred["split"] = "unlabeled"
     pred.loc[dates <= pd.Timestamp(seg["train_end"]), "split"] = "train"
@@ -182,8 +221,14 @@ def train_and_predict() -> dict:
         te_end = pd.Timestamp(seg["test_end"]) if seg.get("test_end") else dates.max()
         te = (dates >= pd.Timestamp(seg["test_start"])) & (dates <= te_end)
         pred.loc[te, "split"] = "test"
-    pred.loc[pred["label"].isna(), "split"] = "unlabeled"
+    pred.loc[pred[targets[0]].isna(), "split"] = "unlabeled"
 
+    write_parquet(pred, "predictions")
+
+    # Quality composite is A-share-specific: yfinance markets intentionally
+    # exclude non-PIT financial snapshots, so it must never be forced on US/HK.
+    if str(cfg.backtest.get("ranking", "")).lower() == "quality":
+        pred["rank_quality"] = quality_signal_rank(mat).to_numpy()
     write_parquet(pred, "predictions")
 
     # 评估（test + valid，对三个维度分别给出）
@@ -191,19 +236,20 @@ def train_and_predict() -> dict:
         seg_df = pred[pred["split"] == name]
         if seg_df.empty:
             continue
-        for target in _TARGETS:
-            sub = seg_df.dropna(subset=[target, f"prob_{target}"])
+        for target in targets:
+            sub = seg_df.dropna(subset=[target, f"rank_{target}"])
             if not sub.empty:
                 metrics.setdefault(name, {})[target] = evaluate.summarize(
-                    sub[f"prob_{target}"], sub[target].astype(int), sub["date"]
+                    sub[f"rank_{target}"], sub[target], sub["date"]
                 )
 
-    # 分位多空（机构标准因子评估）：test 段对【三个预测目标】分别按其概率分 5 组，
-    # 看各目标的选股能力（跑赢行业 label / 上涨 abs_label / 跑赢大盘 bench_label）。
+    # Test-set quantile spread against realised raw returns. Because all names
+    # share the same daily market component, this long-short spread is also the
+    # target residual-return spread.
     test_df = pred[pred["split"] == "test"]
     if not test_df.empty and "future_return" in test_df.columns:
-        for target in _TARGETS:
-            pcol = f"prob_{target}"
+        for target in targets:
+            pcol = f"rank_{target}"
             if pcol not in test_df.columns:
                 continue
             qa_df = test_df.rename(columns={pcol: "prob"})[["date", "code", "prob", "future_return"]]
@@ -213,31 +259,6 @@ def train_and_predict() -> dict:
                 log.info("[model] test 分位多空[%s]: 多空年化=%.3f Sharpe=%.2f 单调性=%.2f",
                          target, qa.get("long_short_ann", float("nan")),
                          qa.get("long_short_sharpe", float("nan")), qa.get("monotonicity", float("nan")))
-
-    # 目标价/预期收益率预测质量：复刻日报 pred_ret 公式(prob_label+ROC20_raw)，与真实 future_return 对比
-    if not test_df.empty and "prob_label" in test_df.columns:
-        try:
-            roc = mat["ROC20_raw"] if "ROC20_raw" in mat.columns else (mat["ROC20"] if "ROC20" in mat.columns else None)
-            if roc is not None:
-                aligned = test_df.set_index(["date", "code"])[["prob_label", "future_return"]].join(
-                    roc.rename("roc20"), how="inner")
-                valid_mask = aligned["prob_label"].notna() & aligned["future_return"].notna()
-                p = (aligned["prob_label"][valid_mask] - 0.5) * 0.40 + aligned["roc20"][valid_mask].fillna(0.0) * 0.50
-                r = aligned["future_return"][valid_mask]
-                if len(p) > 20:
-                    from scipy.stats import spearmanr
-                    metrics.setdefault("test", {})["target_price"] = {
-                        "spearman_corr": float(spearmanr(p, r)[0]),
-                        "direction_hit_rate": float(((p > 0) == (r > 0)).mean()),
-                        "mae": float((p - r).abs().mean()),
-                        "n": int(len(p)),
-                    }
-                    log.info("[model] test 目标价预测: Spearman=%.3f 方向命中率=%.3f MAE=%.4f n=%d",
-                             metrics["test"]["target_price"]["spearman_corr"],
-                             metrics["test"]["target_price"]["direction_hit_rate"],
-                             metrics["test"]["target_price"]["mae"], len(p))
-        except Exception as exc:  # noqa: BLE001
-            log.warning("[model] 目标价预测评估失败: %s", exc)
 
     log.info("[model] 评估: %s", {k: v for k, v in metrics.items() if k in ("valid", "test")})
 

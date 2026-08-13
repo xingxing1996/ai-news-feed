@@ -44,19 +44,9 @@ def fetch_daily(code: str, start: str, end: str, market: str = "us") -> pd.DataF
         df["date"] = pd.to_datetime(df["date"]).dt.strftime("%Y-%m-%d")
         df["code"] = code
         out = df[["date", "code", "open", "high", "low", "close", "volume"]].copy()
-        try:
-            tk = yf.Ticker(code)
-            info = tk.info or {}
-            # 总市值：优先 sharesOutstanding(总股本)×close；其次 info["marketCap"](总市值快照)。
-            # 不用 floatShares(流通股) 做乘数——与总股本口径不一致，会让市值跨股票不可比。
-            shares = info.get("sharesOutstanding") or info.get("impliedShares")
-            if shares and "close" in out.columns:
-                out["market_cap"] = out["close"] * float(shares)
-            else:
-                mcap = info.get("marketCap")
-                out["market_cap"] = float(mcap) if mcap else pd.NA
-        except Exception:  # noqa: BLE001
-            out["market_cap"] = pd.NA
+        # yfinance 的 info 只给当前股本/市值快照。把它回填到历史日线会产生
+        # 明确的未来函数，因此在取得 PIT 历史股本前保持缺失。
+        out["market_cap"] = pd.NA
         return out
     except Exception as exc:  # noqa: BLE001
         log.warning("[yfinance] %s 行情下载失败: %s", code, exc)
@@ -132,6 +122,14 @@ def fetch_valuation(code: str, start: str, end: str, market: str = "us") -> pd.D
     点在时间近似：财报滞后 45 天才可知（shift +45d 后 forward-fill）。
     任何一步失败→返回空（美股估值因子缺省，模型照跑）。
     """
+    # yfinance 财报和 sharesOutstanding 都是当前快照，不能可靠还原历史 EPS/BPS。
+    # 宁可缺失，也不能把今天的估值或股本注入历史训练样本。
+    log.info("[yfinance] %s 跳过非 PIT 历史估值", code)
+    return _empty_valuation()
+
+
+def _fetch_valuation_unsafe_legacy(code: str, start: str, end: str) -> pd.DataFrame:
+    """保留旧解析实现供迁移参考；不得在训练或生产路径调用。"""
     import numpy as np
 
     try:

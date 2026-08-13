@@ -6,7 +6,9 @@
 from __future__ import annotations
 
 import importlib
+from pathlib import Path
 
+import numpy as np
 import pandas as pd
 import pytest
 
@@ -90,7 +92,134 @@ def test_labels(synthetic_daily):
     daily, _, _, universe = synthetic_daily
     lab = compute_labels(daily, universe, horizon=20)
     assert "label" in lab.columns
+    assert "residual_return" in lab.columns
     assert lab["label"].dropna().isin([0, 1]).all()
+
+
+def test_zone_label_is_market_local():
+    """同一日期的不同市场不得相互决定强弱标签。"""
+    from stock_predict.features.labels import zone_label
+
+    idx = pd.MultiIndex.from_tuples(
+        [("2024-01-02", c) for c in ("CN1", "CN2", "CN3", "US1", "US2", "US3")],
+        names=["date", "code"],
+    )
+    # 全市场一起排会把所有 CN 判弱、所有 US 判强；按市场分组后各自都有强弱两端。
+    signal = pd.Series([1.0, 2.0, 3.0, 101.0, 102.0, 103.0], index=idx)
+    market = pd.Series(["cn", "cn", "cn", "us", "us", "us"], index=idx)
+    label = zone_label(signal, market)
+    assert label.loc[("2024-01-02", "CN1")] == 0
+    assert label.loc[("2024-01-02", "CN3")] == 1
+    assert label.loc[("2024-01-02", "US1")] == 0
+    assert label.loc[("2024-01-02", "US3")] == 1
+
+
+def test_daily_quality_gate_rejects_partial_or_stale_data():
+    from stock_predict.config import AttrDict
+    from stock_predict.data.loaders import validate_daily_quality
+
+    universe = pd.DataFrame([
+        {"code": "000001.SZ", "market": "cn"},
+        {"code": "000002.SZ", "market": "cn"},
+    ])
+    daily = pd.DataFrame([{"date": "2026-08-07", "code": "000001.SZ"}])
+    cfg = AttrDict({"data": {"synthetic": False, "quality_gate": {
+        "enabled": True, "min_coverage": 0.95, "max_staleness_bdays": 2,
+    }}})
+    result = validate_daily_quality(daily, universe, cfg, reference_date="2026-08-13")
+    assert not result["ok"]
+    assert result["markets"]["cn"]["coverage"] == 0.5
+    assert result["markets"]["cn"]["stale_bdays"] == 4
+
+
+def test_tencent_symbol_mapping():
+    from stock_predict.data.akshare_loader import _to_tx_symbol
+
+    assert _to_tx_symbol("600519.SH") == "sh600519"
+    assert _to_tx_symbol("000001.SZ") == "sz000001"
+    assert _to_tx_symbol("688981.SH") == "sh688981"
+
+
+def test_us_config_uses_label_ranker_not_cn_quality_signal(monkeypatch):
+    """GitHub's yfinance job must not enter the A-share quality-only branch."""
+    from stock_predict.config import load_settings, reset_settings
+    from stock_predict.model.lgbm import active_targets
+
+    monkeypatch.setenv("STOCK_PREDICT_CONFIG", "config/settings.us.yaml")
+    reset_settings()
+    cfg = load_settings()
+    assert cfg.universe.markets == ["us", "hk", "kr"]
+    assert cfg.backtest.ranking == "label"
+    assert active_targets(cfg) == ["label"]
+    assert cfg.data.quality_gate.enabled is True
+    reset_settings()
+
+
+def test_us_label_path_trains_lgbm_ranker_with_market_groups():
+    """Offline regression test for the exact US/HK label training branch."""
+    from stock_predict.model.lgbm import _train_one
+
+    dates = pd.date_range("2024-01-01", periods=10, freq="B")
+    codes = [f"US{i}" for i in range(6)]
+    index = pd.MultiIndex.from_product([dates, codes], names=["date", "code"])
+    frame = pd.DataFrame(index=index)
+    frame["market"] = "us"
+    frame["factor"] = np.tile(np.arange(len(codes), dtype=float), len(dates))
+    frame["label"] = (frame["factor"] >= 3).astype(int)
+    split = {
+        "train": frame.loc[(slice(dates[0], dates[5]), slice(None)), :],
+        "valid": frame.loc[(slice(dates[6], dates[7]), slice(None)), :],
+        "_all": frame,
+        "_seg": {"train_end": str(dates[5].date())},
+    }
+    params = {"n_estimators": 12, "learning_rate": 0.1, "num_leaves": 7,
+              "min_child_samples": 1, "random_state": 7}
+    _, rank, blob, n_train = _train_one(["factor"], params, split, "label")
+    assert blob["kind"] == "ranker"
+    assert n_train == 36
+    ranked = pd.Series(rank, index=index)
+    # Binary relevance naturally produces score ties; the important contract is
+    # that ranks are computed separately for every market-date query.
+    assert ranked.groupby(level="date").nunique().ge(2).all()
+    assert ranked.groupby(level="date").min().gt(0).all()
+    assert ranked.groupby(level="date").max().le(1.0).all()
+
+
+def test_us_label_walkforward_runs_offline(monkeypatch):
+    """The GitHub US/HK walk-forward branch must produce rank_label offline."""
+    from stock_predict.backtest import walkforward as wf
+    from stock_predict.config import AttrDict
+
+    dates = pd.date_range("2023-01-02", periods=160, freq="B")
+    codes = [f"US{i}" for i in range(15)]
+    index = pd.MultiIndex.from_product([dates, codes], names=["date", "code"])
+    mat = pd.DataFrame(index=index).reset_index()
+    mat["market"] = "us"
+    mat["factor"] = np.tile(np.arange(len(codes), dtype=float), len(dates))
+    mat["label"] = (mat["factor"] >= 8).astype(int)
+    cfg = AttrDict({
+        "feature": {"label_horizon": 20},
+        "model": {"lightgbm": {"n_estimators": 8, "learning_rate": 0.1,
+                                  "num_leaves": 7, "min_child_samples": 1, "random_state": 3},
+                  "split": {"test_start": "2023-05-01"}},
+        "backtest": {"ranking": "label"},
+    })
+    written = {}
+    monkeypatch.setattr(wf, "get_settings", lambda: cfg)
+    monkeypatch.setattr(wf, "read_parquet", lambda _name: mat.copy())
+    monkeypatch.setattr(wf, "write_parquet", lambda frame, name: written.setdefault(name, frame.copy()))
+    result = wf.walk_forward_oos(train_days=60, step=63)
+    assert not result.empty
+    assert {"date", "code", "market", "rank_label", "split"}.issubset(result.columns)
+    assert result["rank_label"].between(0, 1).all()
+    assert "predictions_oos" in written
+
+
+def test_us_workflow_requires_validation_before_publish():
+    workflow = (Path(__file__).resolve().parents[2] / ".github" / "workflows" / "train.yml").read_text()
+    assert "Refusing to publish an unvalidated US/HK model" in workflow
+    publish = workflow[workflow.index("- name: 提交 recommendations_us.json"):]
+    assert "if: success()" in publish.split("run:", 1)[0]
 
 
 def test_evaluate():

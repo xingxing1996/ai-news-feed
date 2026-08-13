@@ -18,6 +18,10 @@ data:
   incremental: true                       # 增量采集：重启后只补最新日
   years_back: 6
   sources: {cn: akshare, hk: akshare, us: yfinance}
+  quality_gate:
+    enabled: true
+    min_coverage: 0.95
+    max_staleness_bdays: 2
 
 feature:
   use_alpha158: true
@@ -33,9 +37,9 @@ feature:
 
 model:
   name: lightgbm
-  ensemble: true
-  calibrate: false                        # 关校准：保留概率区分度
-  lightgbm: {objective: binary, n_estimators: 500, learning_rate: 0.02, num_leaves: 64,
+  ensemble: false
+  calibrate: false                        # Ranker 输出为排名分位，不对外宣称为概率
+  lightgbm: {objective: lambdarank, n_estimators: 500, learning_rate: 0.02, num_leaves: 64,
              max_depth: -1, min_child_samples: 80, subsample: 0.8, colsample_bytree: 0.8,
              reg_alpha: 0.1, reg_lambda: 1.0, random_state: 42}
   split: {train_end: "2022-12-31", valid_start: "2023-01-01", valid_end: "2023-12-31",
@@ -50,7 +54,9 @@ backtest:
   weighting: inv_vol
   max_weight: 0.10
   max_industry: 0.40
-  ranking: abs                            # A股(+北向) 实测 abs 最优
+  # Fixed PIT quality composite; independently positive in 2021-2023 and
+  # 2024-2026 validation segments. The residual tree remains research-only.
+  ranking: quality
   benchmark: "^HS300"
 
 report:

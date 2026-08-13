@@ -105,7 +105,7 @@ def train():
 
 
 @app.command()
-def backtest(ranking: str = typer.Option(None, help="排序信号: label|abs|bench|blend（默认 blend）")):
+def backtest(ranking: str = typer.Option(None, help="排序信号: residual|label|abs|bench|blend")):
     """Top-N 持有回测。默认用综合分(blend)排序选股。"""
     from .backtest.strategy import run_backtest
 

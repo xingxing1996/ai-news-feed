@@ -15,7 +15,7 @@ import pandas as pd
 
 from ..config import get_settings
 from ..data.warehouse import read_parquet, write_parquet
-from ..model.lgbm import _feature_cols  # 复用主流程完整特征排除集(含 abs_label/bench_label/bench_excess 等未来列)，杜绝泄漏
+from ..model.lgbm import _feature_cols, quality_signal_rank
 
 log = logging.getLogger(__name__)
 
@@ -30,6 +30,18 @@ def walk_forward_oos(train_days: int = 756, step: int = 21) -> pd.DataFrame:
         raise RuntimeError("features 为空。")
     feats = _feature_cols(mat)
     params = dict(cfg.model.lightgbm)
+    ranking = str(cfg.backtest.get("ranking", "label"))
+    if ranking == "quality":
+        pred = mat[["market"]].copy()
+        pred["rank_quality"] = quality_signal_rank(mat)
+        pred = pred.reset_index()
+        pred["date"] = pred["date"].astype(str)
+        pred["split"] = "test"
+        test_start = pd.Timestamp(dict(cfg.model.split).get("test_start"))
+        pred = pred[pd.to_datetime(pred["date"]) >= test_start]
+        write_parquet(pred, "predictions_oos")
+        return pred
+    target = {"residual": "residual_return", "label": "label", "abs": "abs_label", "bench": "bench_label"}.get(ranking, "residual_return")
 
     dates = pd.to_datetime(mat.index.get_level_values("date")).unique().sort_values()
     seg = dict(cfg.model.split)
@@ -52,15 +64,20 @@ def walk_forward_oos(train_days: int = 756, step: int = 21) -> pd.DataFrame:
         # 扣除 embargo 隔离带：训练集有效截止于 (win_end - emb)，彻底隔离标签穿越
         train_idx = (pd.to_datetime(mat.index.get_level_values("date")) >= win_start) & \
                     (pd.to_datetime(mat.index.get_level_values("date")) <= (win_end - emb))
-        train_df = mat[train_idx].dropna(subset=["label"])
+        train_df = mat[train_idx].dropna(subset=[target])
         if train_df.empty or len(train_df) < 200:
             continue
-        model = lgb.LGBMRanker(
-            **{k: v for k, v in params.items() if k != "objective"}, objective="lambdarank", verbose=-1
-        )
-        tr = train_df.sort_index()  # 按 (date,code) 排序 → date 连续，供 lambdarank group
-        group_tr = tr.groupby(level="date", sort=False).size().to_numpy()
-        model.fit(tr[feats], tr["label"].astype(int), group=group_tr)
+        model_params = {k: v for k, v in params.items() if k != "objective"}
+        if target == "residual_return":
+            model = lgb.LGBMRegressor(**model_params, objective="regression_l1", verbose=-1)
+            model.fit(train_df[feats], train_df[target].astype(float))
+        else:
+            tr = train_df.copy()
+            tr["__date__"] = tr.index.get_level_values("date")
+            tr = tr.sort_values(["__date__", "market"])
+            groups = tr.groupby(["__date__", "market"], sort=False).size().to_numpy()
+            model = lgb.LGBMRanker(**model_params, objective="lambdarank", verbose=-1)
+            model.fit(tr[feats], tr[target].astype(int), group=groups)
 
         # 预测 [anchor, anchor+step) 的样本外区间
         oos_end = test_dates[min(i + step, len(test_dates)) - 1] + pd.Timedelta(days=1)
@@ -70,9 +87,11 @@ def walk_forward_oos(train_days: int = 756, step: int = 21) -> pd.DataFrame:
         if oos.empty:
             continue
         raw = model.predict(oos[feats])
-        proba = pd.Series(raw, index=oos.index).groupby(level="date", sort=False).rank(pct=True).values
-        p = oos[["label"]].copy() if "label" in oos else pd.DataFrame(index=oos.index)
-        p["prob"] = proba
+        rank = pd.Series(raw, index=oos.index).groupby(
+            [oos.index.get_level_values("date"), oos["market"].fillna("other").to_numpy()], sort=False
+        ).rank(pct=True).values
+        p = oos[[target, "market"]].copy() if target in oos else pd.DataFrame(index=oos.index)
+        p[f"rank_{target}"] = rank
         p = p.reset_index()
         p["date"] = p["date"].astype(str)
         preds.append(p)
@@ -80,7 +99,7 @@ def walk_forward_oos(train_days: int = 756, step: int = 21) -> pd.DataFrame:
 
     if not preds:
         raise RuntimeError("walk-forward 未产出预测，检查 train_days/test_start。")
-    pred = pd.concat(preds, ignore_index=True).dropna(subset=["prob"])
+    pred = pd.concat(preds, ignore_index=True).dropna(subset=[f"rank_{target}"])
     pred["split"] = "test"
     write_parquet(pred, "predictions_oos")  # OOS 预测单独存(不覆盖 predictions，避免破坏日报 recs)
     log.info("[walkforward] 重训 %d 次, OOS 预测 %d 行", n_refit, len(pred))

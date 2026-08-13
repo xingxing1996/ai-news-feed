@@ -19,7 +19,8 @@ from . import metrics
 
 log = logging.getLogger(__name__)
 
-_PROB_COLS = {"label": "prob_label", "abs": "prob_abs_label", "bench": "prob_bench_label"}
+_RANK_COLS = {"quality": "rank_quality", "residual": "rank_residual_return", "label": "rank_label", "abs": "rank_abs_label", "bench": "rank_bench_label"}
+_LEGACY_PROB_COLS = {"label": "prob_label", "abs": "prob_abs_label", "bench": "prob_bench_label"}
 
 
 def _weight_churn(prev: pd.Series, new: pd.Series) -> float:
@@ -34,19 +35,26 @@ def _pivot_close(daily: pd.DataFrame) -> pd.DataFrame:
     return daily.pivot(index="date", columns="code", values="close").sort_index()
 
 
-def _ranking_signal(pred: pd.DataFrame, mode: str = "blend") -> pd.DataFrame:
+def _ranking_signal(pred: pd.DataFrame, mode: str = "residual") -> pd.DataFrame:
     """返回 (date × code) 的排序信号，越大越买。"""
-    if mode in _PROB_COLS and _PROB_COLS[mode] in pred.columns:
-        return pred.pivot(index="date", columns="code", values=_PROB_COLS[mode]).sort_index()
-    if mode == "prob" and "prob" in pred.columns:  # 旧版/walkforward 兼容
+    if mode in _RANK_COLS and _RANK_COLS[mode] in pred.columns:
+        return pred.pivot(index="date", columns="code", values=_RANK_COLS[mode]).sort_index()
+    if mode in _LEGACY_PROB_COLS and _LEGACY_PROB_COLS[mode] in pred.columns:
+        return pred.pivot(index="date", columns="code", values=_LEGACY_PROB_COLS[mode]).sort_index()
+    if mode == "rank" and "rank" in pred.columns:  # walk-forward 兼容
+        return pred.pivot(index="date", columns="code", values="rank").sort_index()
+    if mode == "prob" and "prob" in pred.columns:  # 旧产物兼容
         return pred.pivot(index="date", columns="code", values="prob").sort_index()
-    # blend：三个概率的截面 rank 均值
-    cols = [c for c in _PROB_COLS.values() if c in pred.columns]
+    # blend：三个排序信号的截面 rank 均值
+    cols = [c for c in _RANK_COLS.values() if c in pred.columns]
     if not cols:
-        col = "prob" if "prob" in pred.columns else "prob_label"
+        cols = [c for c in _LEGACY_PROB_COLS.values() if c in pred.columns]
+    if not cols:
+        col = "rank" if "rank" in pred.columns else ("prob" if "prob" in pred.columns else "rank_label")
         return pred.pivot(index="date", columns="code", values=col).sort_index()
     df = pred.copy()
-    df["__blend"] = df.groupby("date")[cols].rank(pct=True).mean(axis=1)
+    group_cols = ["date", "market"] if "market" in df.columns else ["date"]
+    df["__blend"] = df.groupby(group_cols)[cols].rank(pct=True).mean(axis=1)
     return df.pivot(index="date", columns="code", values="__blend").sort_index()
 
 
@@ -75,6 +83,8 @@ def _run_core(signal: pd.DataFrame, daily: pd.DataFrame, cfg) -> dict:
         raise RuntimeError("test 段内预测日期不足 2 天，无法进行 T+1 严格无未来函数回测。")
 
     # 1. 计算个股 T+1 真实的隔日收益率 (ret_t1 = close[t] / close[t-1] - 1)
+    # 回测收益和基准只能使用本次预测涉及的当前股票池，不能让仓库残留市场影响基准。
+    close = close.loc[:, common_codes]
     ret = close.pct_change(fill_method=None)
     mkt_ret = ret.mean(axis=1)
     vol = ret.rolling(60, min_periods=20).std().fillna(0.02)
@@ -161,14 +171,14 @@ def _run_core(signal: pd.DataFrame, daily: pd.DataFrame, cfg) -> dict:
 
 
 def run_backtest(ranking: str | None = None, pred_name: str = "predictions") -> dict:
-    """按指定/默认排序信号回测。ranking: label|abs|bench|blend（默认 blend）。
+    """按指定/默认排序信号回测。ranking: residual|label|abs|bench|blend。
     pred_name: 读哪份预测(默认 predictions；walk-forward OOS 用 predictions_oos)。"""
     cfg = get_settings()
     pred = read_parquet(pred_name)
     daily = read_parquet("daily_price")
     if pred.empty or daily.empty:
         raise RuntimeError("predictions/daily_price 为空，请先 train。")
-    mode = ranking or cfg.backtest.get("ranking", "blend")
+    mode = ranking or cfg.backtest.get("ranking", "residual")
     report, port, bench = _run_core(_ranking_signal(pred, mode), daily, cfg)
     report["ranking"] = mode
     eq = pd.DataFrame({"portfolio": (1 + port).cumprod(), "benchmark": (1 + bench).cumprod()})
@@ -187,7 +197,7 @@ def run_backtest_compare() -> dict:
     if pred.empty or daily.empty:
         raise RuntimeError("predictions/daily_price 为空，请先 train。")
     compare = {}
-    for mode in ("label", "abs", "bench", "blend"):
+    for mode in ("residual", "label", "abs", "bench", "blend"):
         try:
             rep, _, _ = _run_core(_ranking_signal(pred, mode), daily, cfg)
             compare[mode] = {k: rep.get(k) for k in ("ann_return", "sharpe", "max_drawdown", "excess_ann", "avg_turnover")}

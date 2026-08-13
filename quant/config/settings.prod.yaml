@@ -36,9 +36,9 @@ feature:
 
 model:
   name: lightgbm
-  ensemble: true                        # LightGBM + XGBoost rank 平均
+  ensemble: false                       # 当前实现使用单一 LightGBM Ranker
   lightgbm:
-    objective: binary
+    objective: lambdarank
     n_estimators: 500
     learning_rate: 0.02
     num_leaves: 64

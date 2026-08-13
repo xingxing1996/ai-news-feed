@@ -33,7 +33,10 @@ def rank_ic_by_date(prob: pd.Series, label: pd.Series, date: pd.Series) -> pd.Se
 
 def summarize(prob: pd.Series, label: pd.Series, date: pd.Series) -> dict:
     ic = rank_ic_by_date(prob, label, date).dropna()
-    hi = prob[label == 1]
+    # Hit rate only has a clear interpretation for legacy 0/1 targets. The
+    # primary residual-return target is continuous, where Rank IC is the metric.
+    binary = label.dropna().isin([0, 1]).all()
+    hi = prob[label == 1] if binary else pd.Series(dtype=float)
     hit = float((hi > 0.5).mean()) if len(hi) else float("nan")
     return {
         "rank_ic_mean": float(ic.mean()) if not ic.empty else float("nan"),

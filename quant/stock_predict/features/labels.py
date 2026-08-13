@@ -1,6 +1,6 @@
 """标签（设计文档第 8 节）。
 
-输出三个维度的二分类 label，对应日报三列概率：
+输出三个维度的二分类 label，对应日报三列排名分位：
   1. label          未来 horizon 日**相对行业**超额收益的截面分位区间（跑赢同行的程度）
   2. abs_label      未来 horizon 日**绝对收益**的截面分位区间（上涨幅度）
   3. bench_label    未来 horizon 日**相对大盘**超额收益的截面分位区间（跑赢大盘的程度）
@@ -8,7 +8,7 @@
 采用【截面分位区间分类】而非"收益>0"符号分类：
   每日把股票按对应指标排序，top 40% → 1、bottom 40% → 0、中间 20% → NA(不参与训练)。
   这样只学"显著跑赢/跑输同行"的极端组（信噪比远高于">0"，后者把涨0.1%与涨20%等同），
-  且保持二分类→概率→日报兼容。无未来收益(最后 horizon 天)→NA。
+  且保持二分类→排序→日报兼容。无未来收益(最后 horizon 天)→NA。
 
   future_return   = close[t+H] / close[t] - 1
   industry_future = 同行业所有股票 future_return 的截面均值（同一 t, 按市场分组）
@@ -27,12 +27,20 @@ log = logging.getLogger(__name__)
 # 截面分位区间阈值：rank>=ZONE_HI → 1(强者)，rank<=ZONE_LO → 0(弱者)，中间 → NA
 ZONE_HI = 0.6
 ZONE_LO = 0.4
+MIN_INDUSTRY_MEMBERS = 3
 
 
-def zone_label(s: pd.Series, hi: float = ZONE_HI, lo: float = ZONE_LO) -> pd.Series:
+def zone_label(s: pd.Series, market: pd.Series | None = None,
+               hi: float = ZONE_HI, lo: float = ZONE_LO) -> pd.Series:
     """截面分位区间分类：每日 top(hi 以上)→1、bottom(lo 以下)→0、中间→NA。
     s: (date, code) 索引的连续值 Series。返回 nullable Int64（0/1/NA）。"""
-    rank = s.groupby(level="date").rank(pct=True)
+    if market is None:
+        rank = s.groupby(level="date").rank(pct=True)
+    else:
+        market = market.reindex(s.index).fillna("other")
+        dates = s.index.get_level_values("date")
+        # 市场间币种、交易日和股票池不同，不能放在同一横截面排序。
+        rank = s.groupby([dates, market.to_numpy()]).rank(pct=True)
     out = pd.Series(pd.NA, index=s.index, dtype="Float64")
     out[rank >= hi] = 1
     out[rank <= lo] = 0
@@ -59,6 +67,7 @@ def compute_labels(daily: pd.DataFrame, universe: pd.DataFrame, horizon: int) ->
     # 行业未来收益截面均值（按 [date, market, industry] 分组：CN/HK/US/KR 各自算行业基准，
     # 避免一个市场的行业被另一个市场同名字的股票稀释）
     ind_fut = d.dropna(subset=["future_return"]).groupby(["date", "market", "industry"])["future_return"].mean()
+    d["industry_size"] = d.groupby(["date", "market", "industry"])["future_return"].transform("count")
     # 大盘（同市场等权）未来收益截面均值
     mkt_fut = d.dropna(subset=["future_return"]).groupby(["date", "market"])["future_return"].mean()
 
@@ -70,10 +79,22 @@ def compute_labels(daily: pd.DataFrame, universe: pd.DataFrame, horizon: int) ->
 
     d["industry_excess"] = d["future_return"] - d["industry_future"]
     d["bench_excess"] = d["future_return"] - d["bench_future"]
-    # 截面分位区间分类（top/bottom 40%，中间 20% → NA）：高信噪比，保持二分类→概率→日报兼容
-    d["label"] = zone_label(d["industry_excess"].astype("Float64"))
-    d["abs_label"] = zone_label(d["future_return"].astype("Float64"))
-    d["bench_label"] = zone_label(d["bench_excess"].astype("Float64"))
+    # Primary training target: a continuous, market-neutral forward return.
+    # Winsorising limits a few limit-up/down outliers from dominating a
+    # regression loss while preserving the return ordering used by the book.
+    d["residual_return"] = d["bench_excess"].clip(lower=-0.50, upper=0.50)
+    # 行业样本过少时，行业均值会被单只股票自身决定（单成员行业的超额恒为 0）。
+    # 这类标的改用市场超额，避免退化标签进入训练。
+    sparse_industry = d["industry_size"] < MIN_INDUSTRY_MEMBERS
+    d.loc[sparse_industry, "industry_excess"] = d.loc[sparse_industry, "bench_excess"]
+    # 截面分位区间分类（top/bottom 40%，中间 20% → NA）：高信噪比，保持二分类→排序→日报兼容
+    d["label"] = zone_label(d["industry_excess"].astype("Float64"), d["market"])
+    d["abs_label"] = zone_label(d["future_return"].astype("Float64"), d["market"])
+    # 不能对 bench_excess 再做同日排序：同一市场当日减去的是同一个 bench_future，
+    # 排序会与 future_return 完全相同。这里使用真正的“是否跑赢市场”事件标签。
+    d["bench_label"] = pd.Series(pd.NA, index=d.index, dtype="Int64")
+    valid_bench = d["bench_excess"].notna()
+    d.loc[valid_bench, "bench_label"] = (d.loc[valid_bench, "bench_excess"] > 0).astype("Int64")
 
     for name in ("label", "abs_label", "bench_label"):
         log.info(
@@ -81,4 +102,5 @@ def compute_labels(daily: pd.DataFrame, universe: pd.DataFrame, horizon: int) ->
             name, horizon,
             float(d[name].dropna().mean()) if d[name].notna().any() else float("nan"),
         )
-    return d[["future_return", "industry_excess", "label", "abs_label", "bench_label"]]
+    return d[["future_return", "industry_excess", "bench_excess", "residual_return",
+              "label", "abs_label", "bench_label"]]

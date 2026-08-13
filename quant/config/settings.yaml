@@ -43,9 +43,9 @@ feature:
 
 model:
   name: lightgbm
-  ensemble: true                       # LightGBM + XGBoost rank 平均集成
+  ensemble: false                      # 当前实现使用单一 LightGBM Ranker
   lightgbm:
-    objective: binary                   # 二分类：跑赢行业概率
+    objective: lambdarank               # 按日/市场横截面排序
     n_estimators: 500
     learning_rate: 0.02
     num_leaves: 64

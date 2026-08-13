@@ -83,11 +83,11 @@ def recs_df():
         return pd.DataFrame(), "暂无结果，首次训练进行中（约 5–10 分钟）…"
     data = json.loads(p.read_text(encoding="utf-8"))
     df = pd.DataFrame(data.get("recommendations", []))
-    for c in ("prob_up", "prob_bench", "prob"):
+    for c in ("rank_up", "rank_bench", "rank"):
         if c in df:
             df[c] = (df[c].astype(float) * 100).round(0).astype(int).astype(str) + "%"
     cols = [c for c in
-            ("code", "name", "market", "industry", "prob_up", "prob_bench", "prob", "score", "confidence")
+            ("code", "name", "market", "industry", "rank_up", "rank_bench", "rank", "score", "confidence")
             if c in df.columns]
     return df[cols] if cols else df, data.get("update_time", "")
 
@@ -132,8 +132,8 @@ def manual_run(cmd):
 
 
 # ---------- Gradio 看板 ----------
-with gr.Blocks(title="A股+港股 AI 量化看板") as demo:
-    gr.Markdown("# A股 + 港股 AI 量化看板\n复用当日模型，三概率（上涨/跑赢大盘/跑赢行业）+ 理由/风险。非投资建议。")
+with gr.Blocks(title="A股 AI 量化看板") as demo:
+    gr.Markdown("# A股 AI 量化看板\n复用当日模型，三项排名分位（上涨方向/跑赢大盘/跑赢行业）+ 理由/风险。非投资建议。")
     with gr.Tab("推荐"):
         df_out = gr.Dataframe(headers=["code"], interactive=False)
         ts = gr.Markdown()

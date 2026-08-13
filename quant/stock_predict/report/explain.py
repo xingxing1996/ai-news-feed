@@ -366,7 +366,7 @@ def valuation_hint(row: pd.Series | dict, raw_pe: float | None = None, raw_pb: f
 
 
 def generate_ai_invest_summary(card: dict) -> str:
-    """调用火山方舟 LLM，根据股票的预测三概率、SHAP因子、估值生成 200 字机构级 AI 投研点评。"""
+    """调用火山方舟 LLM，根据股票的三项排名分位、SHAP 因子、估值生成投研点评。"""
     try:
         from ..news.llm_events import _llm_client
         client, base_url = _llm_client()
@@ -376,7 +376,7 @@ def generate_ai_invest_summary(card: dict) -> str:
 【模型数据】
 - 行业: {card.get('industry')} ({card.get('market', '').upper()})
 - 综合评分/建议: {card.get('score')} 分 / 【{card.get('suggestion')}】
-- 模型三概率: 上涨概率={card.get('prob_up', 0):.0%}，跑赢大盘={card.get('prob_bench', 0):.0%}，跑赢行业={card.get('prob', 0):.0%}
+- 模型三项排名分位: 上涨方向={card.get('rank_up', 0):.0%}，跑赢大盘={card.get('rank_bench', 0):.0%}，跑赢行业={card.get('rank', 0):.0%}
 - 建议风控持仓权重: {card.get('recommended_weight', '—')}
 - 估值水平: {card.get('valuation') or '适中'}
 - 核心看多理由: {", ".join(card.get('reasons', [])[:3])}
@@ -404,13 +404,13 @@ def generate_ai_invest_summary(card: dict) -> str:
     name = card.get("name") or card.get("code")
     score = card.get("score", 60)
     sug = card.get("suggestion", "关注")
-    p_up = card.get("prob_up", 0.5)
+    rank = card.get("rank", card.get("rank_up", 0.5))
     ret_pct = card.get("expected_return_pct", "")
     val = card.get("valuation", "估值合理")
     cat = card.get("catalyst", "")
     reasons = "、".join(card.get("reasons", [])[:2])
     
-    return f"【{name}】AI 量化综合打分 {score} 分，评估建议【{sug}】。模型测算未来 20 个交易日上涨概率为 {p_up:.0%}，预期收益率 {ret_pct}。估值层面表现为{val}。驱动因素：{reasons}。{cat}建议投资者控制仓位防守介入。"
+    return f"【{name}】AI 量化综合打分 {score} 分，评估建议【{sug}】。质量因子组合的市场中性超额收益排名分位为 {rank:.0%}，并非收益率或上涨概率；分析师一致目标价隐含空间为 {ret_pct}。估值层面表现为{val}。驱动因素：{reasons}。{cat}建议投资者控制仓位防守介入。"
 
 
 def generate_closed_loop_thesis(card: dict, row: pd.Series | dict | None = None) -> dict[str, list[str]]:
@@ -419,7 +419,7 @@ def generate_closed_loop_thesis(card: dict, row: pd.Series | dict | None = None)
     必须 100% 基于该股票卡片中的真实特征与驱动理由，杜绝任何凭空假设。
     """
     name = card.get("name") or card.get("code")
-    prob_up = card.get("prob_up", 0.5)
+    rank_up = card.get("rank_up", 0.5)
     pred_ret_pct = card.get("expected_return_pct", "+0.0%")
     target_price = card.get("target_price", 0.0)
     val = card.get("valuation", "")

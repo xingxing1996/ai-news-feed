@@ -1,5 +1,5 @@
-# A股(+港股)配置 —— 跑在中国机器（本地 launchd / 国内云），AKShare 可用。
-# 美股走 settings.us.yaml 在 GitHub Actions 跑。
+# A股配置 —— 跑在中国机器（本地 / ModelScope），AKShare 可用。
+# 港美股走 settings.us.yaml 在 GitHub Actions 跑。
 paths:
   project_root: .
   raw_dir: data/raw
@@ -10,15 +10,19 @@ paths:
 
 universe:
   config_file: config/universe.yaml
-  markets: [cn, hk]                       # ★只跑 A股+港股（AKShare 在中国可用）
+  markets: [cn]                           # A 股自选池；港美由 GitHub 独立运行
   demo_mode: false
-  cn_benchmark: csi300                    # cn 段用沪深300成分股(akshare 动态生成,~288只)；抓不到回退精选
+  # 不启用 cn_benchmark: csi300；使用 config/universe.yaml 中维护的 A 股自选池。
 
 data:
   synthetic: false
   incremental: true                       # ★增量采集：只拉最新日，追加（快 + 不易被封）
   years_back: 6
   sources: {cn: akshare, hk: akshare, us: yfinance}
+  quality_gate:
+    enabled: true
+    min_coverage: 0.95
+    max_staleness_bdays: 2
 
 feature:
   use_alpha158: true
@@ -34,8 +38,8 @@ feature:
 
 model:
   name: lightgbm
-  ensemble: true
-  lightgbm: {objective: binary, n_estimators: 500, learning_rate: 0.02, num_leaves: 64,
+  ensemble: false
+  lightgbm: {objective: lambdarank, n_estimators: 500, learning_rate: 0.02, num_leaves: 64,
              max_depth: -1, min_child_samples: 80, subsample: 0.8, colsample_bytree: 0.8,
              reg_alpha: 0.1, reg_lambda: 1.0, random_state: 42}
   split: {train_end: "2022-12-31", valid_start: "2023-01-01", valid_end: "2023-12-31",
@@ -48,7 +52,9 @@ backtest:
   slippage_bps: 5.0
   impact_coef: 10.0
   weighting: inv_vol
-  ranking: abs                          # A股(+北向资金)实测 abs(上涨) 最优(Sharpe1.85)；blend 最差
+  # Fixed PIT quality composite; independently positive in 2021-2023 and
+  # 2024-2026 validation segments. The residual tree remains research-only.
+  ranking: quality
   max_weight: 0.10
   max_industry: 0.40
   n_drop: 5

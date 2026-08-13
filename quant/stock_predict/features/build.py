@@ -12,6 +12,7 @@ import pandas as pd
 
 from ..config import get_settings
 from ..data.models import Financial, get_engine
+from ..data.loaders import require_daily_quality
 from ..data.universe import resolve_universe
 from ..data.warehouse import read_parquet, write_parquet
 from . import alpha, alt, industry, labels, quality, valuation
@@ -37,6 +38,24 @@ def build_feature_matrix() -> tuple[pd.DataFrame, dict]:
     valuation_df = read_parquet("valuation")
     financial = _read_financials()
     universe = resolve_universe()
+    active_codes = set(universe["code"].astype(str))
+    # 仓库是增量累积的。训练必须严格限于当前配置股票池，不能把上一次
+    # 港美/A 股任务残留的行情混入本次横截面、标签或模型。
+    daily = daily[daily["code"].astype(str).isin(active_codes)].copy()
+    # Feature construction may be run independently of ingest. Keep the same
+    # quality gate here so stale/partial warehouse data cannot train a model.
+    require_daily_quality(daily, universe, cfg)
+    if not valuation_df.empty:
+        valuation_df = valuation_df[valuation_df["code"].astype(str).isin(active_codes)].copy()
+    if not financial.empty:
+        financial = financial[financial["code"].astype(str).isin(active_codes)].copy()
+    source_by_market = dict(cfg.data.get("sources", {}))
+    yf_codes = set(universe.loc[universe["market"].map(source_by_market).eq("yfinance"), "code"].astype(str))
+    # yfinance 没有可靠的历史股本序列；禁用其旧缓存的市值/估值，避免未来函数。
+    if yf_codes:
+        daily.loc[daily["code"].astype(str).isin(yf_codes), "market_cap"] = np.nan
+        valuation_df = valuation_df[~valuation_df["code"].astype(str).isin(yf_codes)].copy()
+        financial = financial[~financial["code"].astype(str).isin(yf_codes)].copy()
     horizon = int(cfg.feature.label_horizon)
 
     blocks: list[pd.DataFrame] = []
@@ -129,7 +148,7 @@ def build_feature_matrix() -> tuple[pd.DataFrame, dict]:
     fcfg = cfg.feature
     # pe/pb/close_raw 原值只供日报展示，不进模型（分位数 pe_percentile/pb_percentile 才进）
     _DISPLAY_ONLY = {"pe", "pb", "close_raw"}
-    feat_cols_now = [c for c in mat.columns if c not in ("future_return", "industry_excess", "industry_excess_neu",
+    feat_cols_now = [c for c in mat.columns if c not in ("future_return", "industry_excess", "industry_excess_neu", "residual_return",
                                                           "label", "abs_label", "bench_label", "bench_excess", "bench_future",
                                                           "industry", "market", "name", "market_cap") and c not in _DISPLAY_ONLY]
     # 1) 因子去极值 + 截面标准化
@@ -141,16 +160,19 @@ def build_feature_matrix() -> tuple[pd.DataFrame, dict]:
     pmethod = fcfg.get("process", "zscore")
     if pmethod != "none" and feat_cols_now:
         try:
-            mat[feat_cols_now] = process_features(mat[feat_cols_now], method=pmethod)
+            market_for_mat = pd.Series(
+                mat.index.get_level_values("code").map(universe.set_index("code")["market"]), index=mat.index
+            )
+            mat[feat_cols_now] = process_features(mat[feat_cols_now], method=pmethod, market=market_for_mat)
         except Exception as exc:  # noqa: BLE001
             log.warning("[features] 因子预处理失败，用原始值：%s", exc)
     # 2) label 行业+市值中性化：对【连续】超额收益做市值中性，再重新二分类
     if fcfg.get("neutralize", True) and "industry_excess" in mat and "market_cap" in mat:
         try:
             style = add_size_style(mat)
-            neu = neutralize(mat["industry_excess"], style)  # 连续超额的中性化残差
+            neu = neutralize(mat["industry_excess"], style, mat["market"])  # 连续超额的中性化残差
             mat["industry_excess_neu"] = neu
-            mat["label"] = labels.zone_label(neu.astype("Float64"))  # 残差的截面分位区间分类
+            mat["label"] = labels.zone_label(neu.astype("Float64"), mat["market"])  # 残差的截面分位区间分类
         except Exception as exc:  # noqa: BLE001
             log.warning("[features] label 中性化失败，用原始值：%s", exc)
 
@@ -159,7 +181,7 @@ def build_feature_matrix() -> tuple[pd.DataFrame, dict]:
 
     write_parquet(mat.reset_index(), "features")
 
-    feat_cols = [c for c in mat.columns if c not in ("future_return", "industry_excess", "industry_excess_neu",
+    feat_cols = [c for c in mat.columns if c not in ("future_return", "industry_excess", "industry_excess_neu", "residual_return",
                                                        "label", "abs_label", "bench_label", "bench_excess", "bench_future",
                                                        "industry", "market", "name", "market_cap",
                                                        "pe", "pb")
