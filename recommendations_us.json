@@ -1,5 +1,5 @@
 {
-  "update_time": "2026-08-13 12:09:18",
+  "update_time": "2026-08-13 14:05:15",
   "horizon_days": 20,
   "note": "概率含义：prob=跑赢行业概率, prob_up=未来上涨概率, prob_bench=跑赢大盘概率；非买卖建议",
   "n": 527,
@@ -71,7 +71,7 @@
       "industry": "指数",
       "market": "hk",
       "is_etf": true,
-      "current_price": NaN,
+      "current_price": 25.96,
       "target_price": 0.0,
       "pred_return": 0.0,
       "expected_return": 0.0,
@@ -766,7 +766,7 @@
       "industry": "指数",
       "market": "hk",
       "is_etf": true,
-      "current_price": NaN,
+      "current_price": 4.73,
       "target_price": 0.0,
       "pred_return": 0.0,
       "expected_return": 0.0,
@@ -13552,6 +13552,7 @@
       "confidence": "高",
       "data_completeness": 0.86,
       "reasons": [
+        "新闻·[08-13 实时] South Korea's Kospi swings from bear to bull-market territor（影响 +0.6）",
         "🟢 Beta 适中 -0.26（SHAP 贡献 +0.04）",
         "🟢 股价处于近期高位区间 0.94（SHAP 贡献 +0.001）"
       ],
@@ -13564,7 +13565,7 @@
         "📉 均线空头排列：短中期均线 MA5 < MA20 呈弱势下行排列，注意下探寻找支撑"
       ],
       "recommended_weight": "0.2%",
-      "ai_summary": "【Allstate】AI 量化综合打分 56 分，评估建议【关注】。模型测算未来 20 个交易日上涨概率为 63%，预期收益率 +5.7%。估值层面表现为。驱动因素：🟢 Beta 适中 -0.26（SHAP 贡献 +0.04）、🟢 股价处于近期高位区间 0.94（SHAP 贡献 +0.001）。⚡ 行业大动量：近期资金面关注度高，板块整体成交量活跃，多头趋势保持平稳。建议投资者控制仓位防守介入。",
+      "ai_summary": "【Allstate】AI 量化综合打分 56 分，评估建议【关注】。模型测算未来 20 个交易日上涨概率为 63%，预期收益率 +5.7%。估值层面表现为。驱动因素：新闻·[08-13 实时] South Korea's Kospi swings from bear to bull-market territor（影响 +0.6）、🟢 Beta 适中 -0.26（SHAP 贡献 +0.04）。⚡ 行业大动量：近期资金面关注度高，板块整体成交量活跃，多头趋势保持平稳。建议投资者控制仓位防守介入。",
       "bull_thesis": [
         "📊 相对强弱：跑赢同行排名分位较高；分析师一致目标价 ¥270.32（隐含 +5.7%，街共识非精准预测）。注意：相对强不等于必涨，跌市中仍可能回落。",
         "📊 行业龙头壁垒与大盘β动量：行业集中度提升，龙头溢价与资金净流入共振。",
@@ -26199,6 +26200,7 @@
       "confidence": "高",
       "data_completeness": 0.86,
       "reasons": [
+        "新闻·[08-13 实时] Inside India newsletter: Why global funds are flocking to GI（影响 +0.6）",
         "🟢 Beta 适中 1.76（SHAP 贡献 +0.004）",
         "🟢 真实波幅平稳 0.04（SHAP 贡献 +0.002）",
         "🟢 RSI 偏强 45.99（SHAP 贡献 +0.001）"
@@ -26211,7 +26213,7 @@
         "🔴 股价处于近期低位区间 0.31（SHAP 扣分 -0.003）"
       ],
       "recommended_weight": "0.1%",
-      "ai_summary": "【Alexandria Real Estate Equities】AI 量化综合打分 14 分，评估建议【回避】。模型测算未来 20 个交易日上涨概率为 53%，预期收益率 +8.9%。估值层面表现为。驱动因素：🟢 Beta 适中 1.76（SHAP 贡献 +0.004）、🟢 真实波幅平稳 0.04（SHAP 贡献 +0.002）。⚡ 行业大动量：近期资金面关注度高，板块整体成交量活跃，多头趋势保持平稳。建议投资者控制仓位防守介入。",
+      "ai_summary": "【Alexandria Real Estate Equities】AI 量化综合打分 14 分，评估建议【回避】。模型测算未来 20 个交易日上涨概率为 53%，预期收益率 +8.9%。估值层面表现为。驱动因素：新闻·[08-13 实时] Inside India newsletter: Why global funds are flocking to GI（影响 +0.6）、🟢 Beta 适中 1.76（SHAP 贡献 +0.004）。⚡ 行业大动量：近期资金面关注度高，板块整体成交量活跃，多头趋势保持平稳。建议投资者控制仓位防守介入。",
       "bull_thesis": [
         "📊 相对强弱：跑赢同行排名分位较高；分析师一致目标价 ¥52.36（隐含 +8.9%，街共识非精准预测）。注意：相对强不等于必涨，跌市中仍可能回落。",
         "📊 行业龙头壁垒与大盘β动量：行业集中度提升，龙头溢价与资金净流入共振。",
