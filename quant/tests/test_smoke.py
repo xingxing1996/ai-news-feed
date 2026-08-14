@@ -148,10 +148,12 @@ def test_us_config_uses_label_ranker_not_cn_quality_signal(monkeypatch):
     monkeypatch.setenv("STOCK_PREDICT_CONFIG", "config/settings.us.yaml")
     reset_settings()
     cfg = load_settings()
-    assert cfg.universe.markets == ["us", "hk", "kr"]
+    assert cfg.universe.markets == ["us", "hk"]
     assert cfg.backtest.ranking == "label"
     assert active_targets(cfg) == ["label"]
     assert cfg.data.quality_gate.enabled is True
+    assert cfg.model.exclude_etfs is True
+    assert cfg.backtest.benchmark == {"us": "QQQ", "hk": "2800.HK"}
     reset_settings()
 
 
@@ -165,6 +167,61 @@ def test_optional_tables_without_schema_are_safe_for_yfinance_runs():
     table = pd.DataFrame({"code": ["AAPL", "0700.HK"], "pe": [20.0, 18.0]})
     assert _filter_codes(table, {"AAPL"})["code"].tolist() == ["AAPL"]
     assert _filter_codes(table, {"AAPL"}, include=False)["code"].tolist() == ["0700.HK"]
+
+
+def test_model_universe_excludes_etfs_but_retains_equities():
+    from stock_predict.config import AttrDict
+    from stock_predict.features.build import _model_universe
+
+    universe = pd.DataFrame([
+        {"code": "AAPL", "industry": "软件"},
+        {"code": "QQQ", "industry": "指数"},
+    ])
+    cfg = AttrDict({"model": {"exclude_etfs": True}})
+    assert _model_universe(universe, cfg)["code"].tolist() == ["AAPL"]
+
+
+def test_backtest_uses_configured_market_matched_benchmark():
+    from stock_predict.backtest.strategy import _matched_benchmark_return
+
+    returns = pd.Series({"AAPL": 0.03, "0700.HK": 0.01, "QQQ": 0.02, "2800.HK": -0.01})
+    weights = pd.Series({"AAPL": 0.6, "0700.HK": 0.4})
+    markets = {"AAPL": "us", "0700.HK": "hk"}
+    actual = _matched_benchmark_return(returns, weights, markets, {"us": "QQQ", "hk": "2800.HK"})
+    assert actual == pytest.approx(0.008)
+
+
+def test_benchmark_is_zero_only_when_that_market_is_closed():
+    from stock_predict.backtest.strategy import _matched_benchmark_return
+
+    weights = pd.Series({"AAPL": 1.0})
+    markets = {"AAPL": "us"}
+    returns = pd.Series({"QQQ": np.nan})
+    assert _matched_benchmark_return(returns, weights, markets, "QQQ", pd.Series({"AAPL": np.nan})) == 0.0
+    with pytest.raises(RuntimeError, match="QQQ"):
+        _matched_benchmark_return(returns, weights, markets, "QQQ", pd.Series({"AAPL": 0.01}))
+
+
+def test_union_market_calendar_keeps_the_next_real_trading_return():
+    """A weekend/foreign holiday must not turn Monday's return into NaN."""
+    close = pd.DataFrame({"CN": [10.0, np.nan, 11.0]}, index=pd.date_range("2024-01-05", periods=3))
+    returns = close.ffill().pct_change(fill_method=None)
+    assert returns.iloc[1, 0] == 0.0
+    assert returns.iloc[2, 0] == pytest.approx(0.1)
+
+
+def test_backtest_dates_exclude_days_without_any_current_market_bar():
+    close = pd.DataFrame({"CN": [10.0, np.nan, 11.0]}, index=pd.date_range("2024-01-05", periods=3))
+    candidates = pd.DatetimeIndex(close.index)
+    actual_trade_dates = close.notna().any(axis=1)
+    dates = candidates[actual_trade_dates.reindex(candidates).fillna(False).to_numpy()]
+    assert dates.tolist() == [pd.Timestamp("2024-01-05"), pd.Timestamp("2024-01-07")]
+
+
+def test_cn_configs_use_an_ingested_benchmark_instead_of_an_unavailable_index():
+    root = Path(__file__).resolve().parents[1]
+    for name in ("settings.yaml", "settings.cn.yaml", "settings.modelspace.yaml"):
+        assert "benchmark: \"510300.SH\"" in (root / "config" / name).read_text()
 
 
 def test_us_label_path_trains_lgbm_ranker_with_market_groups():
@@ -227,11 +284,13 @@ def test_us_label_walkforward_runs_offline(monkeypatch):
     assert "predictions_oos" in written
 
 
-def test_us_workflow_requires_validation_before_publish():
+def test_us_workflow_skips_unvalidated_publish_without_failing_training():
     workflow = (Path(__file__).resolve().parents[2] / ".github" / "workflows" / "train.yml").read_text()
-    assert "Refusing to publish an unvalidated US/HK model" in workflow
+    assert "id: validation" in workflow
+    assert "publish_allowed" in workflow
+    assert "publication skipped and last verified recommendations stay live" in workflow
     publish = workflow[workflow.index("- name: 提交 recommendations_us.json"):]
-    assert "if: success()" in publish.split("run:", 1)[0]
+    assert "if: steps.validation.outputs.publish_allowed == 'true'" in publish.split("run:", 1)[0]
 
 
 def test_modelscope_sync_retries_and_never_hides_remote_errors():

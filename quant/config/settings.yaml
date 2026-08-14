@@ -74,7 +74,7 @@ backtest:
   max_weight: 0.10                      # 单票权重上限
   max_industry: 0.40                    # 单行业权重上限
   n_drop: 5                             # TopkDropout 每次调仓替换数（Qlib 兼容）
-  benchmark: "^HS300"                   # 基准（演示用沪深300概念）
+  benchmark: "510300.SH"                # 股票池内的沪深300ETF
 
 report:
   top_k: 10                             # 日报列出前 K 只

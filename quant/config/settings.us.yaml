@@ -10,7 +10,7 @@ paths:
 
 universe:
   config_file: config/universe.yaml
-  markets: [us, hk, kr]                       # GitHub Actions：美股+港股+韩股
+  markets: [us, hk]                           # GitHub Actions：美股+港股
   demo_mode: false
   # 不启用 us_benchmark: sp500；使用 config/universe.yaml 中维护的自选池。
 
@@ -38,6 +38,9 @@ feature:
 model:
   name: lightgbm
   ensemble: false
+  # ETF/指数、杠杆产品和商品基金不是单一公司横截面，不能与个股混训或选股。
+  # 它们仍保留在行情仓库中，作为回测基准使用。
+  exclude_etfs: true
   lightgbm: {objective: lambdarank, n_estimators: 500, learning_rate: 0.02, num_leaves: 64,
              max_depth: -1, min_child_samples: 80, subsample: 0.8, colsample_bytree: 0.8,
              reg_alpha: 0.1, reg_lambda: 1.0, random_state: 42}
@@ -55,7 +58,8 @@ backtest:
   max_weight: 0.12
   max_industry: 0.40
   n_drop: 5
-  benchmark: "QQQ"
+  # 按组合当日的市场权重匹配基准，避免用混合股票池等权收益充当“大盘”。
+  benchmark: {us: "QQQ", hk: "2800.HK"}
 
 report:
   top_k: 0                              # 0=全部股票都列出

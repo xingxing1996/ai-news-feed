@@ -10,6 +10,7 @@
 from __future__ import annotations
 
 import logging
+from collections.abc import Mapping
 
 import pandas as pd
 
@@ -58,6 +59,41 @@ def _ranking_signal(pred: pd.DataFrame, mode: str = "residual") -> pd.DataFrame:
     return df.pivot(index="date", columns="code", values="__blend").sort_index()
 
 
+def _benchmark_codes(benchmark, markets: set[str]) -> dict[str, str]:
+    if isinstance(benchmark, Mapping):
+        out = {market: str(benchmark[market]) for market in markets if benchmark.get(market)}
+    else:
+        out = {market: str(benchmark) for market in markets}
+    missing = sorted(markets - set(out))
+    if missing:
+        raise RuntimeError(f"缺少市场基准配置：{', '.join(missing)}")
+    return out
+
+
+def _matched_benchmark_return(day_returns: pd.Series, weights: pd.Series,
+                              market_by_code: dict[str, str], benchmark,
+                              held_day_returns: pd.Series | None = None) -> float:
+    """Return a market-weighted benchmark matching the portfolio's exposure."""
+    market_weights_by_code = weights.index.to_series().map(market_by_code).fillna("other")
+    market_weights = weights.groupby(market_weights_by_code).sum()
+    benchmark = _benchmark_codes(benchmark, set(market_weights.index))
+    result = 0.0
+    for market, market_weight in market_weights.items():
+        code = benchmark.get(market)
+        value = day_returns.get(str(code))
+        if value is None or pd.isna(value):
+            held_codes = market_weights_by_code[market_weights_by_code.eq(market)].index
+            market_traded = held_day_returns is not None and held_day_returns.reindex(held_codes).notna().any()
+            if market_traded:
+                raise RuntimeError(f"基准 {code} 在回测日缺少行情，不能计算可信超额收益。")
+            # Different market calendars are expected in a multi-market book:
+            # if this market did not trade, both its portfolio and benchmark
+            # return are zero for the day.
+            continue
+        result += float(market_weight) * float(value)
+    return result
+
+
 def _run_core(signal: pd.DataFrame, daily: pd.DataFrame, cfg) -> dict:
     """给定排序信号，跑严格无未来函数的 T+1 真实调仓持有组合回测，返回指标 dict。"""
     top_n = int(cfg.backtest.top_n)
@@ -73,20 +109,27 @@ def _run_core(signal: pd.DataFrame, daily: pd.DataFrame, cfg) -> dict:
     test_start = pd.Timestamp(seg.get("test_start"))
     test_end = pd.Timestamp(seg.get("test_end")) if seg.get("test_end") else None
 
-    close = _pivot_close(daily)
+    close_all = _pivot_close(daily)
     signal.index = pd.to_datetime(signal.index)
-    close.index = pd.to_datetime(close.index)
-    common_codes = signal.columns.intersection(close.columns)
+    close_all.index = pd.to_datetime(close_all.index)
+    common_codes = signal.columns.intersection(close_all.columns)
     dates = signal.index[(signal.index >= test_start)
                          & (signal.index <= (test_end if test_end else signal.index.max()))].sort_values()
-    if len(dates) < 2:
-        raise RuntimeError("test 段内预测日期不足 2 天，无法进行 T+1 严格无未来函数回测。")
 
     # 1. 计算个股 T+1 真实的隔日收益率 (ret_t1 = close[t] / close[t-1] - 1)
-    # 回测收益和基准只能使用本次预测涉及的当前股票池，不能让仓库残留市场影响基准。
-    close = close.loc[:, common_codes]
-    ret = close.pct_change(fill_method=None)
-    mkt_ret = ret.mean(axis=1)
+    # 组合收益只使用本次预测涉及的股票；基准从全量行情中按配置读取。
+    close = close_all.loc[:, common_codes]
+    # The raw table is a union of CN/HK/US trading calendars. Forward-fill
+    # each close before returns so a foreign holiday is a zero-return day,
+    # rather than an NaN that erases the next real trading day's return.
+    ret = close.ffill().pct_change(fill_method=None)
+    benchmark_ret = close_all.ffill().pct_change(fill_method=None)
+    # Old mixed-market snapshots can contain a date from another exchange
+    # (including weekends) even though no current-universe name traded. Those
+    # dates cannot be a signal or T+1 execution date for this portfolio.
+    actual_trade_dates = close.notna().any(axis=1)
+    dates = dates[dates.isin(close.index)]
+    dates = dates[actual_trade_dates.reindex(dates).fillna(False).to_numpy()]
     vol = ret.rolling(60, min_periods=20).std().fillna(0.02)
     # 成交量透视：用于停牌/零成交过滤（选股剔除信号日零成交的票，模拟"买不进"）
     volume_pivot = daily.pivot(index="date", columns="code", values="volume").sort_index() if "volume" in daily.columns else pd.DataFrame()
@@ -96,6 +139,21 @@ def _run_core(signal: pd.DataFrame, daily: pd.DataFrame, cfg) -> dict:
     _uni = resolve_universe()
     ind_map = _uni.set_index("code")["industry"].to_dict()
     mkt_map = _uni.set_index("code")["market"].to_dict()
+    benchmark_codes = _benchmark_codes(
+        cfg.backtest.get("benchmark"), {mkt_map.get(code, "other") for code in common_codes}
+    )
+    missing_prices = [code for code in benchmark_codes.values() if code not in close_all.columns]
+    if missing_prices:
+        raise RuntimeError(f"回测基准缺少行情列：{', '.join(sorted(set(missing_prices)))}")
+    # A stale benchmark must not extend the reported OOS period. Restrict the
+    # end date to the last bar shared by every configured market benchmark.
+    benchmark_last_dates = [close_all[code].last_valid_index() for code in benchmark_codes.values()]
+    if any(date is None for date in benchmark_last_dates):
+        raise RuntimeError("回测基准没有有效收盘价，不能计算可信超额收益。")
+    last_benchmark_date = min(benchmark_last_dates)
+    dates = dates[dates <= last_benchmark_date]
+    if len(dates) < 2:
+        raise RuntimeError("基准可用区间内预测日期不足 2 天，无法进行 T+1 严格无未来函数回测。")
     # 印花税按市场区分（卖方bp）：A 股 10、港股 13、美股/韩股 0；可用 backtest.stamp_duty_bps 覆盖
     _stamp_cfg = cfg.backtest.get("stamp_duty_bps") or {"cn": 10, "hk": 13, "us": 0, "kr": 0, "other": 0}
 
@@ -120,7 +178,7 @@ def _run_core(signal: pd.DataFrame, daily: pd.DataFrame, cfg) -> dict:
                 w.loc[codes_idx] *= max_ind / s
         return w / w.sum()
 
-    port_dates, port_ret, prev_weights, current_weights = [], [], pd.Series(dtype=float), pd.Series(dtype=float)
+    port_dates, port_ret, bench_ret, prev_weights, current_weights = [], [], [], pd.Series(dtype=float), pd.Series(dtype=float)
     turnover_sum = n_rebal = 0
     next_cost = 0.0
 
@@ -158,14 +216,20 @@ def _run_core(signal: pd.DataFrame, daily: pd.DataFrame, cfg) -> dict:
         
         port_dates.append(d_exec)
         port_ret.append(pr - next_cost)
+        bench_ret.append(_matched_benchmark_return(
+            benchmark_ret.loc[d_exec], current_weights, mkt_map, cfg.backtest.get("benchmark"),
+            held_day_returns=day_ret,
+        ))
 
     port = pd.Series(port_ret, index=port_dates, name="portfolio")
     port.index.name = "date"
-    bench = mkt_ret.reindex(port_dates).fillna(0.0).rename("benchmark")
+    bench = pd.Series(bench_ret, index=port_dates, name="benchmark")
     bench.index.name = "date"
     report = metrics.compute(port, bench)
     report.update({"top_n": top_n, "hold_days": hold, "n_rebalance": n_rebal,
                    "avg_turnover": float(turnover_sum / n_rebal) if n_rebal else 0.0,
+                   "benchmark": dict(cfg.backtest.get("benchmark", {})) if isinstance(cfg.backtest.get("benchmark"), Mapping)
+                   else cfg.backtest.get("benchmark", "universe_equal_weight"),
                    "start": str(pd.Timestamp(dates[1]).date()), "end": str(pd.Timestamp(dates[-1]).date())})
     return report, port, bench
 

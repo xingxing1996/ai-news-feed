@@ -66,7 +66,7 @@ backtest:
   max_weight: 0.10
   max_industry: 0.40
   n_drop: 5
-  benchmark: "^HS300"
+  benchmark: {cn: "510300.SH", hk: "2800.HK", us: "QQQ", kr: "005930.KS"}
 
 report:
   top_k: 10

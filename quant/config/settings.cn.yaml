@@ -58,7 +58,7 @@ backtest:
   max_weight: 0.10
   max_industry: 0.40
   n_drop: 5
-  benchmark: "^HS300"
+  benchmark: "510300.SH"                 # 股票池内的沪深300ETF，保证可取得同日行情
   walkforward:
     enabled: true
     step: 63          # A股 walk-forward 步长加大(默认21)，重训次数降到约1/3、提速；模型短期不会剧变，精度几乎无损。想完全跳过设 enabled:false

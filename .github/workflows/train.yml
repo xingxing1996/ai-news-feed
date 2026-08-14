@@ -36,13 +36,28 @@ jobs:
       run: |
         PYTHONPATH=$GITHUB_WORKSPACE:$GITHUB_WORKSPACE/quant \
         STOCK_PREDICT_CONFIG=config/settings.us.yaml python -m stock_predict.cli run
+
+    - name: 判断回测是否允许发布
+      id: validation
+      working-directory: quant
+      run: |
         python - <<'PY'
         import json
+        import os
         from pathlib import Path
 
         metrics = json.loads(Path("data/output/backtest_metrics.txt").read_text())
-        if metrics.get("mode") != "walk_forward" or metrics.get("excess_ann", -1) < 0 or metrics.get("information_ratio", -1) < 0:
-            raise SystemExit(f"Refusing to publish an unvalidated US/HK model: {metrics}")
+        allowed = (
+            metrics.get("mode") == "walk_forward"
+            and metrics.get("excess_ann", -1) >= 0
+            and metrics.get("information_ratio", -1) >= 0
+        )
+        with Path(os.environ["GITHUB_OUTPUT"]).open("a") as output:
+            output.write(f"publish_allowed={'true' if allowed else 'false'}\\n")
+        if allowed:
+            print(f"Backtest validated; publication allowed: {metrics}")
+        else:
+            print(f"Backtest did not validate; publication skipped and last verified recommendations stay live: {metrics}")
         PY
 
     - name: 上传模型 artifact
@@ -54,7 +69,7 @@ jobs:
         if-no-files-found: ignore
 
     - name: 提交 recommendations_us.json + 日报 + 日志
-      if: success()
+      if: steps.validation.outputs.publish_allowed == 'true'
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"

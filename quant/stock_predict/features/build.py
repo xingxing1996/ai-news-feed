@@ -35,6 +35,20 @@ def _filter_codes(df: pd.DataFrame, codes: set[str], *, include: bool = True) ->
     return df[matched if include else ~matched].copy()
 
 
+def _model_universe(universe: pd.DataFrame, cfg) -> pd.DataFrame:
+    """Return names eligible for the equity cross-sectional model.
+
+    Index, leveraged and commodity ETFs have a different return process from
+    individual companies. They remain available in ``daily_price`` as market
+    benchmarks, but must not influence stock labels, model fitting or picks.
+    """
+    if not bool(cfg.model.get("exclude_etfs", False)):
+        return universe.copy()
+    if "industry" not in universe.columns:
+        return universe.copy()
+    return universe[universe["industry"].astype(str).ne("指数")].copy()
+
+
 def _read_financials() -> pd.DataFrame:
     try:
         return pd.read_sql_table(Financial.__tablename__, get_engine())
@@ -51,13 +65,14 @@ def build_feature_matrix() -> tuple[pd.DataFrame, dict]:
     valuation_df = read_parquet("valuation")
     financial = _read_financials()
     universe = resolve_universe()
+    # Validate raw ingestion against the configured universe before removing
+    # benchmark instruments from the model universe.
+    require_daily_quality(daily, universe, cfg)
+    universe = _model_universe(universe, cfg)
     active_codes = set(universe["code"].astype(str))
     # 仓库是增量累积的。训练必须严格限于当前配置股票池，不能把上一次
     # 港美/A 股任务残留的行情混入本次横截面、标签或模型。
     daily = daily[daily["code"].astype(str).isin(active_codes)].copy()
-    # Feature construction may be run independently of ingest. Keep the same
-    # quality gate here so stale/partial warehouse data cannot train a model.
-    require_daily_quality(daily, universe, cfg)
     valuation_df = _filter_codes(valuation_df, active_codes)
     financial = _filter_codes(financial, active_codes)
     source_by_market = dict(cfg.data.get("sources", {}))

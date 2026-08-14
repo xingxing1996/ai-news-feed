@@ -57,7 +57,7 @@ backtest:
   # Fixed PIT quality composite; independently positive in 2021-2023 and
   # 2024-2026 validation segments. The residual tree remains research-only.
   ranking: quality
-  benchmark: "^HS300"
+  benchmark: "510300.SH"                 # 股票池内的沪深300ETF，保证可取得同日行情
 
 report:
   top_k: 0                               # 0=全部列出
