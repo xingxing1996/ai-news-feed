@@ -18,7 +18,5 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git remote add modelscope https://oauth2:ms-d9c034d8-4f01-43c9-b3eb-12cb35d4b075@www.modelscope.cn/studios/gaoxingxing12415/test_stock_predict.git || true
-          git fetch modelscope master
-          git merge --no-edit -X ours modelscope/master || true
-          git push modelscope main:master
+          MODELSCOPE_REMOTE="https://oauth2:ms-d9c034d8-4f01-43c9-b3eb-12cb35d4b075@www.modelscope.cn/studios/gaoxingxing12415/test_stock_predict.git" \
+            bash scripts/sync_modelscope.sh

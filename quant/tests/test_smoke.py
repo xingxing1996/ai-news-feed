@@ -155,6 +155,18 @@ def test_us_config_uses_label_ranker_not_cn_quality_signal(monkeypatch):
     reset_settings()
 
 
+def test_optional_tables_without_schema_are_safe_for_yfinance_runs():
+    """US/HK ingestion may not create valuation/financial parquet files."""
+    from stock_predict.features.build import _filter_codes
+
+    no_table = pd.DataFrame()
+    assert _filter_codes(no_table, {"AAPL"}).empty
+    assert _filter_codes(no_table, {"AAPL"}, include=False).empty
+    table = pd.DataFrame({"code": ["AAPL", "0700.HK"], "pe": [20.0, 18.0]})
+    assert _filter_codes(table, {"AAPL"})["code"].tolist() == ["AAPL"]
+    assert _filter_codes(table, {"AAPL"}, include=False)["code"].tolist() == ["0700.HK"]
+
+
 def test_us_label_path_trains_lgbm_ranker_with_market_groups():
     """Offline regression test for the exact US/HK label training branch."""
     from stock_predict.model.lgbm import _train_one
@@ -219,6 +231,25 @@ def test_us_workflow_requires_validation_before_publish():
     workflow = (Path(__file__).resolve().parents[2] / ".github" / "workflows" / "train.yml").read_text()
     assert "Refusing to publish an unvalidated US/HK model" in workflow
     publish = workflow[workflow.index("- name: 提交 recommendations_us.json"):]
+    assert "if: success()" in publish.split("run:", 1)[0]
+
+
+def test_modelscope_sync_retries_and_never_hides_remote_errors():
+    root = Path(__file__).resolve().parents[2]
+    script = (root / "scripts" / "sync_modelscope.sh").read_text()
+    assert "for attempt in 1 2 3" in script
+    assert "Unable to fetch ModelScope" in script
+    assert "Unable to push to ModelScope" in script
+    assert "fetch modelscope master || true" not in script
+    for workflow_name in ("train.yml", "report.yml", "sync-modelscope.yml"):
+        workflow = (root / ".github" / "workflows" / workflow_name).read_text()
+        assert "bash scripts/sync_modelscope.sh" in workflow
+
+
+def test_report_workflow_does_not_publish_after_a_failed_refresh():
+    root = Path(__file__).resolve().parents[2]
+    workflow = (root / ".github" / "workflows" / "report.yml").read_text()
+    publish = workflow[workflow.index("- name: 提交 recommendations.json") :]
     assert "if: success()" in publish.split("run:", 1)[0]
 
 

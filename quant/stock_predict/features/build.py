@@ -22,6 +22,19 @@ from .processing import process_features
 log = logging.getLogger(__name__)
 
 
+def _filter_codes(df: pd.DataFrame, codes: set[str], *, include: bool = True) -> pd.DataFrame:
+    """Filter an optional warehouse table without assuming it has a schema.
+
+    ``read_parquet`` returns a zero-column frame when an optional table was
+    never written.  This is normal for yfinance runs, which do not ingest the
+    A-share valuation and financial tables.
+    """
+    if df.empty or "code" not in df.columns:
+        return df.iloc[0:0].copy()
+    matched = df["code"].astype(str).isin(codes)
+    return df[matched if include else ~matched].copy()
+
+
 def _read_financials() -> pd.DataFrame:
     try:
         return pd.read_sql_table(Financial.__tablename__, get_engine())
@@ -45,17 +58,15 @@ def build_feature_matrix() -> tuple[pd.DataFrame, dict]:
     # Feature construction may be run independently of ingest. Keep the same
     # quality gate here so stale/partial warehouse data cannot train a model.
     require_daily_quality(daily, universe, cfg)
-    if not valuation_df.empty:
-        valuation_df = valuation_df[valuation_df["code"].astype(str).isin(active_codes)].copy()
-    if not financial.empty:
-        financial = financial[financial["code"].astype(str).isin(active_codes)].copy()
+    valuation_df = _filter_codes(valuation_df, active_codes)
+    financial = _filter_codes(financial, active_codes)
     source_by_market = dict(cfg.data.get("sources", {}))
     yf_codes = set(universe.loc[universe["market"].map(source_by_market).eq("yfinance"), "code"].astype(str))
     # yfinance 没有可靠的历史股本序列；禁用其旧缓存的市值/估值，避免未来函数。
     if yf_codes:
         daily.loc[daily["code"].astype(str).isin(yf_codes), "market_cap"] = np.nan
-        valuation_df = valuation_df[~valuation_df["code"].astype(str).isin(yf_codes)].copy()
-        financial = financial[~financial["code"].astype(str).isin(yf_codes)].copy()
+        valuation_df = _filter_codes(valuation_df, yf_codes, include=False)
+        financial = _filter_codes(financial, yf_codes, include=False)
     horizon = int(cfg.feature.label_horizon)
 
     blocks: list[pd.DataFrame] = []
