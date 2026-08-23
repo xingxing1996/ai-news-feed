@@ -1381,7 +1381,7 @@
 - + 🟢 回撤可控 -0.31（SHAP 贡献 +0.01）
 - + 🟢 真实波幅平稳 0.07（SHAP 贡献 +0.01）
 **风险**
-- - 新闻·[08-23 实时] Tesla recalls 3 million vehicles in China over doorhandle sa（影响 -0.6）
+- - 新闻·[08-24 实时] Tesla recalls 3 million vehicles in China over doorhandle sa（影响 -0.6）
 - - 🔴 与市场相关性上升 -0.03（SHAP 扣分 -0.07）
 - - 🔴 量能波动加大 0.52（SHAP 扣分 -0.01）
 - - 📉 均线空头排列：短中期均线 MA5 < MA20 呈弱势下行排列，注意下探寻找支撑
