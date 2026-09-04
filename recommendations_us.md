@@ -1785,6 +1785,7 @@
 - + 🟢 Beta 适中 1.18（SHAP 贡献 +0.01）
 - + 🟢 真实波幅平稳 0.08（SHAP 贡献 +0.004）
 **风险**
+- - 新闻·[09-04 实时] Trump-promoted Freedom Fuel expands to Detroit as lawsuit ov（影响 -0.6）
 - - 🔴 与市场相关性上升 0.11（SHAP 扣分 -0.03）
 - - 🔴 近一季动量走弱 25.8%（SHAP 扣分 -0.01）
 - - 📉 均线空头排列：短中期均线 MA5 < MA20 呈弱势下行排列，注意下探寻找支撑
