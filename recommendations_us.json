@@ -1,5 +1,5 @@
 {
-  "update_time": "2026-09-17 08:41:01",
+  "update_time": "2026-09-17 15:47:22",
   "as_of": "2026-08-12",
   "horizon_days": 20,
   "note": "rank=未来市场中性超额收益预测的股票池排名分位；并非收益率、发生概率或买卖建议",
@@ -72,7 +72,7 @@
       "industry": "指数",
       "market": "hk",
       "is_etf": true,
-      "current_price": 25.34,
+      "current_price": 25.2,
       "target_price": 0.0,
       "pred_return": 0.0,
       "expected_return": 0.0,
@@ -767,7 +767,7 @@
       "industry": "指数",
       "market": "hk",
       "is_etf": true,
-      "current_price": 4.24,
+      "current_price": 4.22,
       "target_price": 0.0,
       "pred_return": 0.0,
       "expected_return": 0.0,
@@ -16727,7 +16727,6 @@
         "🔄 RSI 触底超卖（RSI=8）：处于超跌底部超卖区，技术面呈现较强反弹修整动能"
       ],
       "risks": [
-        "新闻·[09-17 实时] Google is playing a different AI game than everyone else, an（影响 -0.6）",
         "🔴 与市场相关性上升 0.26（SHAP 扣分 -0.05）",
         "🔴 量能波动加大 0.39（SHAP 扣分 -0.03）",
         "🔴 对市场敏感度高（Beta 偏大） 0.97（SHAP 扣分 -0.01）",
