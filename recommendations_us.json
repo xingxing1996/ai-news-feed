@@ -1,5 +1,5 @@
 {
-  "update_time": "2026-10-07 14:09:51",
+  "update_time": "2026-10-07 21:33:54",
   "as_of": "2026-08-12",
   "horizon_days": 20,
   "note": "rank=未来市场中性超额收益预测的股票池排名分位；并非收益率、发生概率或买卖建议",
@@ -72,7 +72,7 @@
       "industry": "指数",
       "market": "hk",
       "is_etf": true,
-      "current_price": 24.78,
+      "current_price": 24.76,
       "target_price": 0.0,
       "pred_return": 0.0,
       "expected_return": 0.0,
@@ -767,7 +767,7 @@
       "industry": "指数",
       "market": "hk",
       "is_etf": true,
-      "current_price": 4.1,
+      "current_price": 4.11,
       "target_price": 0.0,
       "pred_return": 0.0,
       "expected_return": 0.0,
@@ -4382,6 +4382,7 @@
         "🟢 真实波幅平稳 0.08（SHAP 贡献 +0.004）"
       ],
       "risks": [
+        "新闻·[10-07 实时] Rubio says Tehran missed 'multiple' chances for nuclear deal（影响 -0.6）",
         "🔴 与市场相关性上升 0.11（SHAP 扣分 -0.03）",
         "🔴 近一季动量走弱 25.8%（SHAP 扣分 -0.01）",
         "📉 均线空头排列：短中期均线 MA5 < MA20 呈弱势下行排列，注意下探寻找支撑",
@@ -16721,7 +16722,6 @@
       "confidence": "高",
       "data_completeness": 0.86,
       "reasons": [
-        "新闻·[10-07 实时] Google makes a fresh bet on nuclear power as the AI energy c（影响 +0.6）",
         "🟢 近一季动量较强 -13.4%（SHAP 贡献 +0.01）",
         "🟢 真实波幅平稳 0.04（SHAP 贡献 +0.004）",
         "🟢 股价处于近期高位区间 0.73（SHAP 贡献 +0.002）",
@@ -16736,7 +16736,7 @@
         "📉 均线空头排列：短中期均线 MA5 < MA20 呈弱势下行排列，注意下探寻找支撑"
       ],
       "recommended_weight": "0.1%",
-      "ai_summary": "【Alphabet Inc. (Class A)】AI 量化综合打分 46 分，评估建议【中性观望】。质量因子组合的市场中性超额收益排名分位为 46%，并非收益率或上涨概率；分析师一致目标价隐含空间为 +25.0%。估值层面表现为。驱动因素：新闻·[10-07 实时] Google makes a fresh bet on nuclear power as the AI energy c（影响 +0.6）、🟢 近一季动量较强 -13.4%（SHAP 贡献 +0.01）。⚡ 行业大动量：近期资金面关注度高，板块整体成交量活跃，多头趋势保持平稳。建议投资者控制仓位防守介入。",
+      "ai_summary": "【Alphabet Inc. (Class A)】AI 量化综合打分 46 分，评估建议【中性观望】。质量因子组合的市场中性超额收益排名分位为 46%，并非收益率或上涨概率；分析师一致目标价隐含空间为 +25.0%。估值层面表现为。驱动因素：🟢 近一季动量较强 -13.4%（SHAP 贡献 +0.01）、🟢 真实波幅平稳 0.04（SHAP 贡献 +0.004）。⚡ 行业大动量：近期资金面关注度高，板块整体成交量活跃，多头趋势保持平稳。建议投资者控制仓位防守介入。",
       "bull_thesis": [
         "📊 相对强弱：跑赢同行排名分位较高；分析师一致目标价 ¥429.47（隐含 +25.0%，街共识非精准预测）。注意：相对强不等于必涨，跌市中仍可能回落。",
         "📊 行业龙头壁垒与大盘β动量：行业集中度提升，龙头溢价与资金净流入共振。",
