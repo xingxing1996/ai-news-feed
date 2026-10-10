@@ -655,4 +655,49 @@ urllib.error.URLError: <urlopen error timed out>
 2026-10-09 09:01:52 [INFO] root: resolve_models 成功: {'ok': True, 'resolved': {'glm-5-2': 'glm-5-2-260617', 'doubao-seed-2-1-pro': 'doubao-seed-2-1-pro-260915', 'doubao-seed-2-0-lite': 'doubao-seed-2-0-lite-260428'}, 'missing': [], 'n_available': 135}
 2026-10-09 17:00:14 [INFO] root: resolve_models 成功: {'ok': True, 'resolved': {'glm-5-2': 'glm-5-2-260617', 'doubao-seed-2-1-pro': 'doubao-seed-2-1-pro-260915', 'doubao-seed-2-0-lite': 'doubao-seed-2-0-lite-260428'}, 'missing': [], 'n_available': 135}
 2026-10-09 22:37:42 [INFO] root: resolve_models 成功: {'ok': True, 'resolved': {'glm-5-2': 'glm-5-2-260617', 'doubao-seed-2-1-pro': 'doubao-seed-2-1-pro-260915', 'doubao-seed-2-0-lite': 'doubao-seed-2-0-lite-260428'}, 'missing': [], 'n_available': 135}
-2026-10-10 07:03:47 [INFO] root: resolve_models 成功: {'ok': True, 'resolved': {'glm-5-2': 'glm-5-2-260617', 'doubao-seed-2-1-pro': 'doubao-seed-2-1-pro-260915', 'doubao-seed-2-0-lite': 'doubao-seed-2-0-lite-260428'}, 'missing': [], 'n_available': 135}
+2026-10-10 05:51:01 [ERROR] root: resolve_models 异常
+Traceback (most recent call last):
+  File "/opt/hostedtoolcache/Python/3.10.22/x64/lib/python3.10/urllib/request.py", line 1361, in do_open
+    h.request(req.get_method(), req.selector, req.data, headers,
+  File "/opt/hostedtoolcache/Python/3.10.22/x64/lib/python3.10/http/client.py", line 1331, in request
+    self._send_request(method, url, body, headers, encode_chunked)
+  File "/opt/hostedtoolcache/Python/3.10.22/x64/lib/python3.10/http/client.py", line 1377, in _send_request
+    self.endheaders(body, encode_chunked=encode_chunked)
+  File "/opt/hostedtoolcache/Python/3.10.22/x64/lib/python3.10/http/client.py", line 1326, in endheaders
+    self._send_output(message_body, encode_chunked=encode_chunked)
+  File "/opt/hostedtoolcache/Python/3.10.22/x64/lib/python3.10/http/client.py", line 1086, in _send_output
+    self.send(msg)
+  File "/opt/hostedtoolcache/Python/3.10.22/x64/lib/python3.10/http/client.py", line 1024, in send
+    self.connect()
+  File "/opt/hostedtoolcache/Python/3.10.22/x64/lib/python3.10/http/client.py", line 1496, in connect
+    super().connect()
+  File "/opt/hostedtoolcache/Python/3.10.22/x64/lib/python3.10/http/client.py", line 990, in connect
+    self.sock = self._create_connection(
+  File "/opt/hostedtoolcache/Python/3.10.22/x64/lib/python3.10/socket.py", line 857, in create_connection
+    raise err
+  File "/opt/hostedtoolcache/Python/3.10.22/x64/lib/python3.10/socket.py", line 845, in create_connection
+    sock.connect(sa)
+OSError: [Errno 101] Network is unreachable
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/runner/work/ai-news-feed/ai-news-feed/resolve_models.py", line 17, in main
+    res = resolve_models()  # 读 ARK_API_KEY
+  File "/home/runner/work/ai-news-feed/ai-news-feed/common/models.py", line 86, in resolve_models
+    ids = query_ark_models(key, cfg.get("base_url", DEFAULT_BASE))
+  File "/home/runner/work/ai-news-feed/ai-news-feed/common/models.py", line 49, in query_ark_models
+    with urllib.request.urlopen(req, timeout=25) as r:
+  File "/opt/hostedtoolcache/Python/3.10.22/x64/lib/python3.10/urllib/request.py", line 216, in urlopen
+    return opener.open(url, data, timeout)
+  File "/opt/hostedtoolcache/Python/3.10.22/x64/lib/python3.10/urllib/request.py", line 519, in open
+    response = self._open(req, data)
+  File "/opt/hostedtoolcache/Python/3.10.22/x64/lib/python3.10/urllib/request.py", line 536, in _open
+    result = self._call_chain(self.handle_open, protocol, protocol +
+  File "/opt/hostedtoolcache/Python/3.10.22/x64/lib/python3.10/urllib/request.py", line 496, in _call_chain
+    result = func(*args)
+  File "/opt/hostedtoolcache/Python/3.10.22/x64/lib/python3.10/urllib/request.py", line 1404, in https_open
+    return self.do_open(http.client.HTTPSConnection, req,
+  File "/opt/hostedtoolcache/Python/3.10.22/x64/lib/python3.10/urllib/request.py", line 1364, in do_open
+    raise URLError(err)
+urllib.error.URLError: <urlopen error [Errno 101] Network is unreachable>
