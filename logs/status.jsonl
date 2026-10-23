@@ -680,3 +680,4 @@
 {"ts": "2026-10-23 01:09:25", "stage": "resolve-models", "ok": true, "msg": "ok", "resolved": {"glm-5-2": "glm-5-2-260617", "doubao-seed-2-1-pro": "doubao-seed-2-1-pro-260915", "doubao-seed-2-0-lite": "doubao-seed-2-0-lite-260428"}, "missing": [], "n_available": 137}
 {"ts": "2026-10-23 05:35:02", "stage": "resolve-models", "ok": false, "msg": "<urlopen error [Errno 101] Network is unreachable>"}
 {"ts": "2026-10-23 08:40:19", "stage": "resolve-models", "ok": true, "msg": "ok", "resolved": {"glm-5-2": "glm-5-2-260617", "doubao-seed-2-1-pro": "doubao-seed-2-1-pro-260915", "doubao-seed-2-0-lite": "doubao-seed-2-0-lite-260428"}, "missing": [], "n_available": 137}
+{"ts": "2026-10-23 14:01:07", "stage": "resolve-models", "ok": true, "msg": "ok", "resolved": {"glm-5-2": "glm-5-2-260617", "doubao-seed-2-1-pro": "doubao-seed-2-1-pro-260915", "doubao-seed-2-0-lite": "doubao-seed-2-0-lite-260428"}, "missing": [], "n_available": 137}
