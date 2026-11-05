@@ -1,5 +1,5 @@
 {
-  "update_time": "2026-11-05 09:00:56",
+  "update_time": "2026-11-05 17:39:35",
   "as_of": "2026-08-12",
   "horizon_days": 20,
   "note": "rank=未来市场中性超额收益预测的股票池排名分位；并非收益率、发生概率或买卖建议",
@@ -72,7 +72,7 @@
       "industry": "指数",
       "market": "hk",
       "is_etf": true,
-      "current_price": 24.0,
+      "current_price": 24.94,
       "target_price": 0.0,
       "pred_return": 0.0,
       "expected_return": 0.0,
@@ -767,7 +767,7 @@
       "industry": "指数",
       "market": "hk",
       "is_etf": true,
-      "current_price": 3.85,
+      "current_price": 4.07,
       "target_price": 0.0,
       "pred_return": 0.0,
       "expected_return": 0.0,
@@ -3384,6 +3384,7 @@
         "🟢 真实波幅平稳 0.07（SHAP 贡献 +0.01）"
       ],
       "risks": [
+        "新闻·[11-05 实时] LIV Golf faces liquidation after BC Partners scraps rescue p（影响 -0.6）",
         "🔴 与市场相关性上升 -0.03（SHAP 扣分 -0.07）",
         "🔴 量能波动加大 0.52（SHAP 扣分 -0.01）",
         "📉 均线空头排列：短中期均线 MA5 < MA20 呈弱势下行排列，注意下探寻找支撑",
