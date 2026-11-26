@@ -828,3 +828,4 @@
 {"ts": "2026-11-25 10:25:17", "stage": "resolve-models", "ok": true, "msg": "ok", "resolved": {"glm-5-2": "glm-5-2-260617", "doubao-seed-2-1-pro": "doubao-seed-2-1-pro-260915", "doubao-seed-2-0-lite": "doubao-seed-2-0-lite-260428"}, "missing": [], "n_available": 55}
 {"ts": "2026-11-25 17:49:51", "stage": "resolve-models", "ok": true, "msg": "ok", "resolved": {"glm-5-2": "glm-5-2-260617", "doubao-seed-2-1-pro": "doubao-seed-2-1-pro-260915", "doubao-seed-2-0-lite": "doubao-seed-2-0-lite-260428"}, "missing": [], "n_available": 55}
 {"ts": "2026-11-25 22:19:39", "stage": "resolve-models", "ok": false, "msg": "<urlopen error _ssl.c:1000: The handshake operation timed out>"}
+{"ts": "2026-11-26 08:19:38", "stage": "resolve-models", "ok": true, "msg": "ok", "resolved": {"glm-5-2": "glm-5-2-260617", "doubao-seed-2-1-pro": "doubao-seed-2-1-pro-260915", "doubao-seed-2-0-lite": "doubao-seed-2-0-lite-260428"}, "missing": [], "n_available": 55}

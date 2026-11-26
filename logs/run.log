@@ -1098,3 +1098,4 @@ Traceback (most recent call last):
   File "/opt/hostedtoolcache/Python/3.10.22/x64/lib/python3.10/urllib/request.py", line 1364, in do_open
     raise URLError(err)
 urllib.error.URLError: <urlopen error _ssl.c:1000: The handshake operation timed out>
+2026-11-26 00:19:38 [INFO] root: resolve_models 成功: {'ok': True, 'resolved': {'glm-5-2': 'glm-5-2-260617', 'doubao-seed-2-1-pro': 'doubao-seed-2-1-pro-260915', 'doubao-seed-2-0-lite': 'doubao-seed-2-0-lite-260428'}, 'missing': [], 'n_available': 55}
